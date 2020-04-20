@@ -1,0 +1,176 @@
+					trashbot notes
+		discord.py bot : by elisttm
+
+braile blank '⠀'  
+zero width space '​'
+
+		discord.py api
+https://discordpy.readthedocs.io/en/latest/api.html
+		discord.py v1.0 migration
+https://discordpy.readthedocs.io/en/latest/migrating.html
+
+https://timber.io/blog/the-pythonic-guide-to-logging/
+
+https://www.w3schools.com/python/python_dictionaries.asp
+
+
+python3 -m pip install -U discord.py
+
+
+
+	embed character limits
+titles : 256
+descs  : 2048
+fields : 25 max, names:256, values:1024
+footer : 2048
+author : 256
+sum of all: 6000
+
+
+	==================================================
+
+
+	  ___/-\___    Online | v{tt.version}\n
+	 |---------|   {bot.user.name}#{bot.user.discriminator} ({bot.user.id})\n
+	  | | | | |  _                 _     _           _   \n
+	  | | | | | | |_ _ __ __ _ ___| |__ | |__   ___ | |_ \n
+	  | | | | | | __| '__/ _` / __| '_ \| '_ \ / _ \| __|\n
+	  | | | | | | |_| | | (_| \__ \ | | | |_) | (_) | |_ \n
+	  |_______|  \__|_|  \__,_|___/_| |_|_.__/ \___/ \__|\n
+
+
+	general = ""; utilities = ""; moderation = ""
+	if tag == None:
+		try:
+			help_emb = discord.Embed(title=f"trashbot [v{tt.version}] | prefix: '{tt.prefix}'", description=f"for more information, use the *'about'* command", color=tt.pink)
+			for x, y in cmd.general.items():
+				general = general + f"**{x}** - {y}\n"
+			help_emb.add_field(name="general commands", value=general, inline=True)
+			if loaded["utilities"] == True:
+				for x, y in cmd.utilities.items():
+					utilities = utilities + f"**{x}** - {y}\n"
+				help_emb.add_field(name="utility commands", value=utilities, inline=True)
+			if loaded["moderation"] == True:
+				for x, y in cmd.moderation.items():
+					moderation = moderation + f"**{x}** - {y}\n"
+				help_emb.add_field(name="moderation commands", value=moderation, inline=True)
+			help_emb.set_author(name=f"help menu", icon_url=tt.ico_info)
+			help_emb.set_footer(text=f"requested by {ctx.author.name}#{ctx.author.discriminator}", icon_url=ctx.author.avatar_url_as(format='png'))
+			await ctx.send(embed=help_emb)
+		except Exception as error:
+			await ctx.send(embed=tt.errorwarn.format(error).format(error))
+
+
+		@commands.command(brief="f{d_about}", description='f{d_about}')
+	async def about(self, ctx):
+		await ctx.trigger_typing()
+		try:	
+			current_time = time.time()
+			difference = int(round(current_time - start_time))
+			text = str(datetime.timedelta(seconds=difference))
+			u_embed = discord.Embed(title=f"bot invite link", url=tt.invite,
+				description=f"**bot name**: {self.bot.user.name}#{self.bot.user.discriminator}\n**bot ID**: `{self.bot.user.id}`", color=tt.pink)
+			u_embed.add_field(name="bot uptime", value=text)
+			u_embed.set_author(name=f"about trashbot", icon_url=tt.ico_info)
+			u_embed.set_thumbnail(url=self.bot.user.avatar_url)
+			u_embed.set_footer(text=f"by elisttm | version {tt.version}")
+			await ctx.send(embed=u_embed)
+		except Exception as error:
+			await ctx.send(tt.errormsg.format(error).format(error))
+
+
+# 		========================
+
+
+@bot.command()
+async def load(ctx, cog=None):
+	await ctx.trigger_typing()
+	if ctx.author.id != tt.owner_id: await ctx.send(embed=tt.permdeny)
+	else:
+		if cog == None or cog not in tt.cogs: await ctx.send("> ⚠️ ⠀please specify a valid cog!")
+		elif tt.loaded[cog] == True: await ctx.send(f"> ⚠️ ⠀'{cog}' is already loaded!")
+		else:
+			await ctx.trigger_typing()
+			tt.l = f"[{tt._t()}] {ctx.author} used load on '{cog}'"
+			try:
+				bot.load_extension('cogs.' + cog)
+				tt.loaded[cog] = True
+				await ctx.send(f"> ✅ ⠀loaded '{cog}'")
+				tt.l = tt.l + f"[{tt._t()}] COGMANAGER: loaded '{cog}'"
+			except Exception as error:
+				await ctx.send(f"> ❌ ⠀'{cog}' failed to load")
+				tt.l = tt.l + f"[{tt._t()}] COGMANAGER: '{cog}' failed to load [{error}]"
+			await bot.get_channel(tt.logs).send(f"```{tt.l}```"); print(tt.l)
+
+@bot.command()
+async def unload(ctx, cog=None):
+	await ctx.trigger_typing()
+	if ctx.author.id != tt.owner_id: await ctx.send(embed=tt.permdeny)
+	else:
+		if cog == None or cog not in tt.cogs: await ctx.send("> ⚠️ ⠀please specify a valid cog!")
+		elif tt.loaded[cog] == False: await ctx.send(f"> ⚠️ ⠀'{cog}' is already unloaded!")
+		else:
+			await ctx.trigger_typing()
+			tt.l = f"[{tt._t()}] {ctx.author} used unload on '{cog}'"
+			try:
+				bot.unload_extension('cogs.' + cog)
+				tt.loaded[cog] = False
+				await ctx.send(f"> ✅ ⠀unloaded '{cog}'")
+				tt.l = tt.l + f"[{tt._t()}] COGMANAGER: unloaded '{cog}'"
+			except Exception as error:
+				await ctx.send(f"> ❌ ⠀'{cog}' failed to unload")
+				tt.l = tt.l + f"[{tt._t()}] COGMANAGER: '{cog}' failed to unload [{error}]"
+			await bot.get_channel(tt.logs).send(f"```{tt.l}```"); print(tt.l)
+
+@bot.command()
+async def reload(ctx, cog=None):
+	await ctx.trigger_typing()
+	if ctx.author.id != tt.owner_id: await ctx.send(embed=tt.permdeny)
+	else:
+		cog = 'all' if not cog else cog
+		if cog == 'all' or cog in tt.cogs:
+			tt.l = f"[{tt._t()}] {ctx.author} used reload on '{cog}'"
+			if cog == 'all':
+				cm_list = 0; cm_msg = ''
+				tt.l = tt.l + f"[{tt._t()}] COGMANAGER: reloading {len(tt.cogs)} cogs ..."
+				for cog in tt.cogs:
+					await ctx.trigger_typing()
+					try:
+						if tt.loaded[cog] == True: bot.unload_extension('cogs.' + cog); bot.load_extension('cogs.' + cog)
+						if tt.loaded[cog] == False: bot.load_extension('cogs.' + cog)
+						cm_list = cm_list + 1; tt.loaded[cog] = True
+						cm_msg = cm_msg + f"> ✅ ⠀{cog}\n"; tt.l = tt.l + f"\n   -- reloaded '{cog}'"
+					except Exception as error:
+						tt.loaded[cog] = False
+						cm_msg = cm_msg + f"> ❌ ⠀{cog}\n"; tt.l = tt.l + f"\n   -- '{cog}' failed to reload [{error}]"
+				cm_msg = f"> [`{cm_list}/{len(tt.cogs)}`] cogs reloaded]\n" + cm_msg
+				tt.l = tt.l + (f"\n>> [{cm_list}/{len(tt.cogs)}] cogs reloaded")
+				await ctx.send(cm_msg)
+			else:
+				await ctx.trigger_typing()
+				try:
+					if tt.loaded[cog] == True: bot.unload_extension('cogs.' + cog); bot.load_extension('cogs.' + cog)
+					else: bot.load_extension('cogs.' + cog); tt.loaded[cog] = True
+					await ctx.send(f"> ✅ ⠀reloaded '{cog}'")
+					tt.l = tt.l + f"[{tt._t()}] COGMANAGER: reloaded '{cog}'"
+				except Exception as error:
+					await ctx.send(f"> ❌ ⠀'{cog}' failed to reload [{error}]")
+					tt.l = tt.l + f"[{tt._t()}] COGMANAGER: '{cog}' failed to reload [{error}]"
+			await bot.get_channel(tt.logs).send(f"```{tt.l}```"); print(tt.l)
+		else:
+			await ctx.send("> ⚠️ ⠀please specify a valid cog!")
+
+@bot.command()
+async def coglist(ctx):
+	if ctx.author.id != tt.owner_id:
+		await ctx.send(embed=tt.permdeny)
+	else: 
+		cm_list = ''; cm_num = 0; tt.l = f"[{tt._t()}] {ctx.author} used coglist in {ctx.server.name}"
+		for x, y in tt.loaded.items():
+			if y == True: cm_list = cm_list + f'{x}: `Loaded`\n'; cm_num = cm_num + 1
+			if y == False: cm_list = cm_list + f'{x}: `Unloaded`\n'
+		e_cm = discord.Embed(color=tt.clr['pink'])
+		e_cm.add_field(name=f"cogs `[{cm_num}/{len(tt.cogs)}]`", value=cm_list)
+		e_cm.set_author(name="cog manager", icon_url=tt.ico['cog'])
+		await bot.get_channel(tt.logs).send(f"```{tt.l}```"); print(tt.l)
+		await ctx.send(embed=e_cm)
