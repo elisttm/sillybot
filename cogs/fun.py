@@ -1,5 +1,7 @@
 import discord
 import re
+import os
+import random
 from discord.ext import commands
 import data.constants as tt
 
@@ -21,6 +23,13 @@ class fun(commands.Cog):
 			tt.l = f"[{tt._t()}] '{ctx.author}' in '{ctx.guild.name}' said '{botsay}'"
 			await ctx.send(botsay)
 			await self.bot.get_channel(tt.logs).send(f"```{tt.l}```"); print(tt.l)
+
+	@commands.command()
+	async def tommy(self, ctx):
+		await ctx.trigger_typing()
+		tommypic=random.choice(os.listdir("tommy"))
+		await ctx.send(file=discord.File(f"tommy/{tommypic}"))
+
 
 # 		========================
 
