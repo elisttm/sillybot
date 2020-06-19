@@ -26,10 +26,21 @@ class fun(commands.Cog):
 
 	@commands.command()
 	async def tommy(self, ctx):
-		await ctx.trigger_typing()
-		tommypic=random.choice(os.listdir("tommy"))
-		await ctx.send(file=discord.File(f"tommy/{tommypic}"))
+		try:
+			await ctx.trigger_typing()
+			tommypic=random.choice(os.listdir("images/tommy"))
+			await ctx.send(file=discord.File(f"images/tommy/{tommypic}"))
+		except Exception as e:
+			await ctx.send(f"> ⚠️ ⠀unable to fetch an image! {e}")
 
+	@commands.command()
+	async def floppa(self, ctx):
+		try:
+			await ctx.trigger_typing()
+			floppapic=random.choice(os.listdir("images/floppas"))
+			await ctx.send(file=discord.File(f"images/floppas/{floppapic}"))
+		except Exception as e:
+			await ctx.send(f"> ⚠️ ⠀unable to fetch an image! {e}")
 
 # 		========================
 

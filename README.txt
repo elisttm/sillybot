@@ -1,6 +1,6 @@
 				-|[ trashbot | by elisttm ]|-
 
-	for updates and other information, visit http://elisttm.space/
+	for updates and other information, visit https://elisttm.space/
 
 (if you want to look at this code to learn from it thats fine, but please dont copy/paste it into your own bot and take credit)
 

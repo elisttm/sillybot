@@ -25,7 +25,8 @@ utilities = {
 }
 fun = {
 	"say"				: "makes trashbot say a specified message", 
-	"tommy"			: "fetches a random picture of tommy from a folder",
+	"tommy"			: "sends a random tommy picture",
+	"floppa"			: "sends a random floppa",
 }
 moderation = {
 	"kick"			: "kicks a specified user", 
