@@ -7,15 +7,13 @@ import data.constants as tt
 # 		========================
 
 p = 't!' 
-v = "1.8.2:beta"
-
-desc = "a simple discord bot made by elisttm | t!help for commands\n`note: trashbot is still in heavy development. if you want to suggest something, use t!report`"
+v = "1.8.4:beta"
 
 cogs = (
 	'cogmanager',
 	'admin', 
 	'moderation',
-#	'fun', 
+	'fun', 
 	'utilities', 
 )
 
@@ -25,18 +23,22 @@ cogs0.reverse()
 
 loaded = {}
 
+desc = "a simple discord bot made by elisttm | t!help for commands\n`note: trashbot is still in heavy development. if you want to suggest something, use t!report`"
+
 l = ''; log0 = True
-logs = 686638005083308126; 
+logs = 718646246482378782; 
 owner_id = 216635587837296651
 
 admins = [
-	216635587837296651	##  eli (owner)
+	216635587837296651,	# eli (owner)
+	609059779805184001, # squidd
+	530937484218204172, # peter
 ]
 
 # 		========================
 
 presence = discord.Game(f"{tt.p}help | v{tt.v}")
-website = 'https://elisttm.space/trashbot.html'
+website = 'https://elisttm.space/trashbot'
 invite = 'https://discordapp.com/oauth2/authorize?client_id=439166087498825728&scope=bot&permissions=8'
 
 mrestart = False
@@ -55,6 +57,7 @@ def uptime():
 
 def _t():
 	return datetime.datetime.now(timezone('US/Eastern')).strftime(tt.time2)
+#  return "fuck"
 
 ico = {
 	'info' : 'https://i.imgur.com/3AccYL9.png',

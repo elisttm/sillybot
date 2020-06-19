@@ -5,7 +5,7 @@
 categories = {
 	"general"		: "commands that provide basic functionality",
 	"utilities"	: "commands that provide utility and display information",
-	"moderation": "basic moderation commands\n`only usable with sufficient server permissions`",
+	"moderation": "basic moderation commands",
 	"admin"			: "various functions only usable by trashbot's admins",
 	"cogmanager": "extension management; only usable by trashbot's admins",
 }
@@ -23,6 +23,9 @@ utilities = {
 	"avatar"		: "sends the avatar of a user",
 	"report"		: "sends a message report to trashbot's owner",
 }
+fun = {
+	"say"				: "makes trashbot say a specified message", 
+}
 moderation = {
 	"kick"			: "kicks a specified user", 
 	"ban"				: "bans the specified user",
@@ -33,8 +36,8 @@ admin = {
 	"presence"	: "changes trashbot's playing status",
 	"nick"			: "changes trashbot's nickname", 
 	"massnick"	: "changes the nickname of everyone on the server",
-	"say"				: "makes trashbot say a specified message", 
-	"restart"		: "restarts the bot"
+	"restart"		: "restarts the bot",
+	"echo"			: "makes trashbot echo a message to a provided channel ID"
 }
 cogmanager =  {
 	"load"			: "loads a specified cog",
@@ -48,7 +51,7 @@ cogmanager =  {
 commands = {
   "general" 	: general,
   "utilities"	: utilities,
-#	"fun"				: fun
+	"fun"				: fun,
   "moderation": moderation,
 	"admin"			: admin,
 #	"cogmanager": cogmanager,

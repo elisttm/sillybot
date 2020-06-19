@@ -53,7 +53,7 @@ class moderation(commands.Cog):
 		else:
 			try:
 				if clear is None: await ctx.send("> ⚠️ ⠀please specify how many messages you want to clear!")
-				elif clear == 0: await ctx.send("> ⚠️ ⠀i cant clear 0 messages!")
+				elif clear == 0: await ctx.send("> ⚠️ ⠀please specify more than 0 messages!")
 				elif clear > 100: await ctx.send("> ⚠️ ⠀i can only clear 100 messages at a time!")
 				else:
 					await ctx.message.delete()

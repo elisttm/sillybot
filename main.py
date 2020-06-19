@@ -21,7 +21,8 @@ ctx = commands.Context
 
 # 		========================
 	
-sl_st = f"[{tt._t()}] starting trashbot ...\n"; print(sl_st)
+sl_st = f'[{tt._t()}] starting trashbot ...\n'
+print(f"\n{sl_st}")
 
 if __name__ == '__main__':
 	scm_num = 0
@@ -45,8 +46,8 @@ async def on_connect():
 		sl_on = f"[{tt._t()}] trashbot is online!"; print(sl_on)
 		await bot.change_presence(status=discord.Status.online, activity=tt.presence)
 		print(f"\n  ___/-\___    Online | v{tt.v}\n |---------|   {bot.user.name}#{bot.user.discriminator} ({bot.user.id})\n  | | | | |  _                 _     _           _   \n  | | | | | | |_ _ __ __ _ ___| |__ | |__   ___ | |_ \n  | | | | | | __| '__/ _` / __| '_ \| '_ \ / _ \| __|\n  | | | | | | |_| | | (_| \__ \ | | | |_) | (_) | |_ \n  |_______|  \__|_|  \__,_|___/_| |_|_.__/ \___/ \__|\n")	
-
 		tt.l = f"{sl_st}{scm_fin}\n{sl_pre}\n{sl_on} (v{tt.v})"; await bot.get_channel(tt.logs).send(f"```{tt.l}```")
+
 
 
 # 		========================
@@ -80,8 +81,22 @@ async def help(ctx, *, tag=None):
 		elif tag != None and tag not in tt.cogs0: await ctx.send('> ⚠️ ⠀unknown command category!')
 	except Exception as e: await ctx.send(tt.msg_e.format(e))
 
-
 # 		========================
+
+@bot.event
+async def on_message(message):
+  if message.author.bot:
+    pass
+  elif "doing stuff" in message.content:
+    await ctx.send(message.channel, 'im stuff')
+  else:
+    if 'y/n' in message.content.lower():
+      await message.add_reaction('👍')
+      await message.add_reaction('👎')
+    if 'yes or no' in message.content.lower():
+      await message.add_reaction('👍')
+      await message.add_reaction('👎')
+  await bot.process_commands(message)
 
 @bot.event
 async def on_guild_remove(guild):
@@ -93,15 +108,21 @@ async def on_guild_join(guild):
 	tt.l = f"[{tt._t()}] added to guild '{guild}' ({guild.id})"
 	await bot.get_channel(tt.logs).send(f"```{tt.l}```"); print(tt.l)
 
-@bot.event
-async def on_disconnect():
-	if tt.mrestart == True:
-		pass
-	else:
-		print(f"[{tt._t()}] trashbot disconnected")
-		print(">> attempting to restart ...")
-		try: await os.execv(sys.executable, ['python'] + sys.argv)
-		except Exception as e: print(f">> unable to restart! [{e}]")
+#@bot.event
+#async def on_disconnect():
+#	if tt.mrestart == True:
+#		pass
+#	else:
+#		dc_1 = f"[{tt._t()}] trashbot disconnected";print(dc_1)
+#		dc_2 = ">> attempting to reconnect ...";print(dc_2)
+#		try: 
+#			bot.run(os.getenv("TOKEN"), reconnect=True)
+#			dc = f"{dc_1}\n{dc_2}"
+#			@bot.event
+#			async def on_resumed():
+#				rc = f"[{tt._t()}] reconnected!";print(rc)
+#				tt.l = f"{dc}\n{rc}"
+#		except Exception as e: print(f">> unable to restart! [{e}]")
 
 # 		========================
 

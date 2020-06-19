@@ -9,8 +9,8 @@ description = ""
 name = "trashbot"
 version = "0.1.0"
 [tool.poetry.dependencies]
-flask = "^1.1"
-python = "^3.7"
 discord = "^1.0"
+flask = "^1.1"
+python = "^3.8"
 pytz = "^2019.3"
 [tool.poetry.dev-dependencies]
