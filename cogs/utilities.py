@@ -92,8 +92,15 @@ class utilities(commands.Cog):
 			e_server.set_thumbnail(url=ctx.message.guild.icon_url)
 			e_server.set_footer(text=f"requested by {ctx.author}", icon_url=ctx.author.avatar_url_as(format='png'))
 			await ctx.send(embed=e_server)
-		except Exception as error:
-			await ctx.send(tt.msg_e.format(error))
+		except Exception as e:
+			await ctx.send(tt.msg_e.format(e))
+
+	@commands.command()
+	async def emoji(self, ctx, emoji: discord.Emoji):
+		try:	
+			await ctx.send(emoji.url)
+		except Exception as e:
+			await ctx.send(tt.msg_e.format(e))
 
 # instead of using "t!report send ..." make it wait for a reaction or something to actually send the report
 	@commands.command()

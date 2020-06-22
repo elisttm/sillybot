@@ -31,10 +31,10 @@ if __name__ == '__main__':
 		try: 
 			bot.load_extension('cogs.' + cog)
 			tt.loaded[cog] = True; scm_num += 1
-			print(f"   -- loaded '{cog}'")
+			print(f"	 -- loaded '{cog}'")
 		except Exception as e:
 			tt.loaded[cog] = False
-			print(f"   -- unable to load '{cog}' [{e}]")
+			print(f"	 -- unable to load '{cog}' [{e}]")
 	scm_fin = f">> [{scm_num}/{len(tt.cogs)} cogs loaded]\n"; print(scm_fin)
 
 @bot.event
@@ -45,7 +45,7 @@ async def on_connect():
 	async def on_ready():
 		sl_on = f"[{tt._t()}] trashbot is online!"; print(sl_on)
 		await bot.change_presence(status=discord.Status.online, activity=tt.presence)
-		print(f"\n  ___/-\___    Online | v{tt.v}\n |---------|   {bot.user.name}#{bot.user.discriminator} ({bot.user.id})\n  | | | | |  _                 _     _           _   \n  | | | | | | |_ _ __ __ _ ___| |__ | |__   ___ | |_ \n  | | | | | | __| '__/ _` / __| '_ \| '_ \ / _ \| __|\n  | | | | | | |_| | | (_| \__ \ | | | |_) | (_) | |_ \n  |_______|  \__|_|  \__,_|___/_| |_|_.__/ \___/ \__|\n")	
+		print(f"\n	___/-\___		Online | v{tt.v}\n |---------|	 {bot.user.name}#{bot.user.discriminator} ({bot.user.id})\n	| | | | |	_								 _		 _					 _	 \n	| | | | | | |_ _ __ __ _ ___| |__ | |__	 ___ | |_ \n	| | | | | | __| '__/ _` / __| '_ \| '_ \ / _ \| __|\n	| | | | | | |_| | | (_| \__ \ | | | |_) | (_) | |_ \n	|_______|	\__|_|	\__,_|___/_| |_|_.__/ \___/ \__|\n")	
 		tt.l = f"{sl_st}{scm_fin}\n{sl_pre}\n{sl_on} (v{tt.v})"; await bot.get_channel(tt.logs).send(f"```{tt.l}```")
 
 
@@ -85,18 +85,24 @@ async def help(ctx, *, tag=None):
 
 @bot.event
 async def on_message(message):
-  if message.author.bot:
-    pass
-  elif "doing stuff" in message.content:
-    await ctx.send(message.channel, 'im stuff')
-  else:
-    if 'y/n' in message.content.lower():
-      await message.add_reaction('👍')
-      await message.add_reaction('👎')
-    if 'yes or no' in message.content.lower():
-      await message.add_reaction('👍')
-      await message.add_reaction('👎')
-  await bot.process_commands(message)
+	if message.author.bot:
+		pass
+	elif "doing stuff" in message.content:
+		await ctx.send(message.channel, 'im stuff')
+	else:
+		if 'y/n' in message.content.lower():
+			await message.add_reaction('👍')
+			await message.add_reaction('👎')
+		if 'yes or no' in message.content.lower():
+			await message.add_reaction('👍')
+			await message.add_reaction('👎')
+		if 'u/d' in message.content.lower():
+			try:
+				await message.add_reaction(bot.get_emoji(701102030529364170))
+				await message.add_reaction(bot.get_emoji(704798029256982570))
+			except:
+				pass
+	await bot.process_commands(message)
 
 @bot.event
 async def on_guild_remove(guild):

@@ -5,6 +5,7 @@
 categories = {
 	"general"		: "commands that provide basic functionality",
 	"utilities"	: "commands that provide utility and display information",
+	"fun"				: "commands that do fun stuff like post pictures of cats",
 	"moderation": "basic moderation commands",
 	"admin"			: "various functions only usable by trashbot's admins",
 	"cogmanager": "extension management; only usable by trashbot's admins",
