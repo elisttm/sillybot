@@ -55,7 +55,7 @@ class admin(commands.Cog):
 
 	@commands.command()
 	async def leave(self, ctx):
-		if ctx.author.id in tt.admins:
+		if ctx.author.id == tt.owner_id:
 			await ctx.message.add_reaction('✅')
 			tt.l = f"[{tt._t()}] ADMIN: '{ctx.author}' used leave in '{ctx.guild.name}'"
 			await self.bot.get_channel(tt.logs).send(f"```{tt.l}```"); print(tt.l)
@@ -65,7 +65,7 @@ class admin(commands.Cog):
 
 	@commands.command()
 	async def shutdown(self, ctx):
-		if ctx.author.id in tt.admins:
+		if ctx.author.id == tt.owner_id:
 			tt.l = f"[{tt._t()}] ADMIN: shutdown by '{ctx.author}'"
 			await ctx.message.add_reaction('✅')
 			await self.bot.get_channel(tt.logs).send(f"```{tt.l}```"); print(tt.l)

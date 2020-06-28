@@ -22,8 +22,8 @@ utilities = {
 	"server"		: "gives info about the server",
 	"user"			: "gives info about a user",
 	"avatar"		: "sends the avatar of a user",
-	"emoji"			: "sends the url of a provided emote",
-	"report"		: "sends a message report to trashbot's owner",
+	"emote"			: "sends the url of a provided emote",
+#	"report"		: "sends a message report to trashbot's owner",
 }
 fun = {
 	"say"				: "makes trashbot say a specified message", 

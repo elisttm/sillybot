@@ -96,28 +96,28 @@ class utilities(commands.Cog):
 			await ctx.send(tt.msg_e.format(e))
 
 	@commands.command()
-	async def emoji(self, ctx, emoji: discord.Emoji):
+	async def emote(self, ctx, emoji: discord.Emoji):
 		try:	
 			await ctx.send(emoji.url)
 		except Exception as e:
 			await ctx.send(tt.msg_e.format(e))
 
 # instead of using "t!report send ..." make it wait for a reaction or something to actually send the report
-	@commands.command()
-	async def report(self, ctx, *, report=None):
-		await ctx.trigger_typing()
-		try:
-			if report == None:
-				report_info = '> to send a feedback or bug report, use "t!report send [message]"\n> see http://elisttm.space/trashbot.html for known bugs and planned additions'
-				await ctx.send(report_info)
-			elif len(report) > 1900:
-				await ctx.send("> ⚠️ ⠀your report is too long!")
-			elif report != None:
-				tt.l = f"> feedback recieved from '{ctx.author}' in '{ctx.guild.name}'"
-				await self.bot.get_channel(tt.logs).send(f"```{tt.l}\n\"{report}\"```"); print(tt.l); await self.bot.get_user(tt.owner_id).send(f"{tt.l}\n> ```\"{report}\"```")
-				await ctx.send("> ✅ ⠀your report has been submitted!")
-		except Exception as error:
-			await ctx.send(tt.msg_e.format(error))
+#	@commands.command()
+#	async def report(self, ctx, *, report=None):
+#		await ctx.trigger_typing()
+#		try:
+#			if report == None:
+#				report_info = '> to send a feedback or bug report, use "t!report send [message]"\n> see https://elisttm.space/trashbot for known bugs and planned additions'
+#				await ctx.send(report_info)
+#			elif len(report) > 1900:
+#				await ctx.send("> ⚠️ ⠀your report is too long!")
+#			elif report != None:
+#				tt.l = f"> feedback recieved from '{ctx.author}' in '{ctx.guild.name}'"
+#				await self.bot.get_channel(tt.logs).send(f"```{tt.l}\n\"{report}\"```"); print(tt.l); await self.bot.get_user(tt.owner_id).send(f"{tt.l}\n> ```\"{report}\"```")
+#				await ctx.send("> ✅ ⠀your report has been submitted!")
+#		except Exception as error:
+#			await ctx.send(tt.msg_e.format(error))
 
 # 		========================
 

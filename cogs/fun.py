@@ -42,6 +42,15 @@ class fun(commands.Cog):
 		except Exception as e:
 			await ctx.send(f"> ⚠️ ⠀unable to fetch an image! {e}")
 
+	
+	@commands.command()
+	async def sex(self, ctx):
+		sexmsg = random.choice(tt.sex)
+		try:
+			await ctx.author.send(sexmsg)
+		except Exception as e:
+			await ctx.send(f"nope ({e})")
+
 # 		========================
 
 def setup(bot):
