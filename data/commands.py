@@ -40,7 +40,7 @@ admin = {
 	"presence"	: "changes trashbot's playing status",
 	"nick"			: "changes trashbot's nickname", 
 	"massnick"	: "changes the nickname of everyone on the server",
-	"restart"		: "restarts the bot",
+#	"restart"		: "restarts the bot",
 	"echo"			: "makes trashbot echo a message to a provided channel ID"
 }
 cogmanager =  {

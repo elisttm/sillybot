@@ -28,8 +28,8 @@ class fun(commands.Cog):
 	async def tommy(self, ctx):
 		try:
 			await ctx.trigger_typing()
-			tommypic=random.choice(os.listdir("images/tommy"))
-			await ctx.send(file=discord.File(f"images/tommy/{tommypic}"))
+			tommypic=random.choice(os.listdir("media/tommy"))
+			await ctx.send(file=discord.File(f"media/tommy/{tommypic}"))
 		except Exception as e:
 			await ctx.send(f"> ⚠️ ⠀unable to fetch an image! {e}")
 
@@ -37,12 +37,11 @@ class fun(commands.Cog):
 	async def floppa(self, ctx):
 		try:
 			await ctx.trigger_typing()
-			floppapic=random.choice(os.listdir("images/floppas"))
-			await ctx.send(file=discord.File(f"images/floppas/{floppapic}"))
+			floppapic=random.choice(os.listdir("media/floppas"))
+			await ctx.send(file=discord.File(f"media/floppas/{floppapic}"))
 		except Exception as e:
 			await ctx.send(f"> ⚠️ ⠀unable to fetch an image! {e}")
 
-	
 	@commands.command()
 	async def sex(self, ctx):
 		sexmsg = random.choice(tt.sex)
@@ -50,6 +49,28 @@ class fun(commands.Cog):
 			await ctx.author.send(sexmsg)
 		except Exception as e:
 			await ctx.send(f"nope ({e})")
+
+	@commands.command()
+	async def android(self, ctx):
+		await ctx.send(file=discord.File(f"media/android.mp4"))
+
+	@commands.command()
+	async def iphone(self, ctx):
+		await ctx.send("https://www.youtube.com/watch?v=S_IAqwrvEuU")
+
+	@commands.command()
+#	@commands.cooldown(1, 10000, commands.BucketType.default)
+	async def isaac(self, ctx):
+		if ctx.message.author.id == 503351101236576276:
+			await ctx.guild.kick(self.bot.get_user(503351101236576276), reason="isaac")
+		chance = random.randint(1,1000)
+		if chance == 69:
+			await ctx.guild.kick(self.bot.get_user(503351101236576276), reason="isaac")
+			await ctx.send("le")
+			print("isaac is dead")
+		else:
+			print(chance)
+
 
 # 		========================
 

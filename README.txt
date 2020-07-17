@@ -8,9 +8,10 @@
 trashbot is a simple discord.py bot made by elisttm
 a few of the features this bot has are ...
 
+	- simple y/n message reaction for easy polls
 	- utility commands for useful information
 	- expansive and dynamic 'help' command
-	- almost always online (99% uptime)
 	- simple moderation commands
 	- informative website
 	- active support
+	- decent uptime

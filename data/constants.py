@@ -7,7 +7,7 @@ import data.constants as tt
 # 		========================
 
 p = 't!' 
-v = "1.9.1:beta"
+v = "1.9.3:beta"
 
 cogs = (
 	'cogmanager',
@@ -23,7 +23,7 @@ cogs0.reverse()
 
 loaded = {}
 
-desc = "a simple discord bot made by elisttm | t!help for commands\n`note: trashbot is still in heavy development. if you want to suggest something, use t!report`"
+desc = "a simple discord bot made by elisttm | t!help for commands"
 
 l = ''; log0 = True
 logs = 718646246482378782; 
@@ -33,6 +33,7 @@ admins = [
 	216635587837296651,	# eli (owner)
 	609059779805184001, # squidd
 	530937484218204172, # peter
+	217663207895072768, # fluffer
 	376813566591762444, # regaul
 ]
 
