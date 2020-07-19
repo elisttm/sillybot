@@ -5,6 +5,8 @@
 
 import discord
 import sys, os
+import sqlite3
+from sqlite3 import connect
 from discord.ext import commands
 import keep_alive as keep_alive
 import data.constants as tt
@@ -56,12 +58,12 @@ async def on_connect():
 async def help(ctx, *, tag=None):
 	await ctx.trigger_typing()
 	try:
-		cmds = ''
+		cmds = '\u200b'
 		if tag == None:
 			e_h = discord.Embed(title=f"trashbot [v{tt.v}]", description=f"for more information, use the *'about'* command", color=tt.clr['pink'])
 			for cog in tt.cogs0:
 				if cog == 'general' or tt.loaded[cog] == True:
-					cmds = ''
+					cmds = '\u200b'
 					for c_ctg, c_cmd in cmd.commands.items():
 						if c_ctg == cog:
 							for x, y in c_cmd.items(): cmds = f"{cmds}**{x}** - {y}\n"
@@ -69,7 +71,7 @@ async def help(ctx, *, tag=None):
 			e_h.set_author(name="help menu", icon_url=tt.ico['info'])
 			await ctx.send(embed=e_h)
 		if tag in tt.cogs:
-			cmds = ''
+			cmds = '\u200b'
 			for c_ctg, c_cmdlist in cmd.commands.items():
 				if c_ctg == tag:
 					for x, y in c_cmdlist.items(): cmds = f"{cmds}**{x}** - {y}\n"
@@ -91,9 +93,6 @@ async def on_message(message):
 		await ctx.send(message.channel, 'im stuff')
 	else:
 		if 'y/n' in message.content.lower():
-			await message.add_reaction('👍')
-			await message.add_reaction('👎')
-		if 'yes or no' in message.content.lower():
 			await message.add_reaction('👍')
 			await message.add_reaction('👎')
 		if 'u/d' in message.content.lower():

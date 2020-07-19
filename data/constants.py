@@ -14,6 +14,7 @@ cogs = (
 	'admin', 
 	'moderation',
 	'fun', 
+#	'soundboard',
 	'utilities', 
 )
 

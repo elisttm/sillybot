@@ -34,20 +34,11 @@ class utilities(commands.Cog):
 	async def ping(self, ctx):
 		await ctx.trigger_typing()
 		ping = 0; ping = round(self.bot.latency * 1000)
-		print(f">> ping: {ping}")
-		await ctx.send(f"> 🏓⠀pong!  `({ping}ms)`")
+		await ctx.send(f"({ping}ms)")
 
 	@commands.command()
-	async def invite(self, ctx, tag=None):
+	async def invite(self, ctx):
 		await ctx.trigger_typing()
-		if tag == 'raw':
-			ctx.send(tt.invite)
-		else:
-			invnote = "\n`note: trashbot is still under heavy development; please use the 'about' command for further information"
-			e_invite = discord.Embed(title=f"invite link", url=tt.invite, description=f"click the above link to invite trashbot to your server{invnote}", color=tt.clr["pink"])
-			e_invite.set_author(name=f"invite trashbot", icon_url=tt.ico['info'])
-			e_invite.set_footer(text=f"requested by {ctx.author}", icon_url=ctx.author.avatar_url_as(format='png'))
-			await ctx.send(e_invite)
 		await ctx.send(tt.invite)
 
 	@commands.command()
