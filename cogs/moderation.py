@@ -27,7 +27,6 @@ class moderation(commands.Cog):
 			except Exception as error:
 				await ctx.send(tt.msg_e.format(error))
 
-
 	@commands.command()
 	@commands.has_permissions(ban_members = True)
 	async def ban(self, ctx, user:discord.Member=None, *, reason=None):
@@ -45,7 +44,6 @@ class moderation(commands.Cog):
 				except Exception as error:
 						await ctx.send(tt.msg_e.format(error))
 
-
 	@commands.command()
 	@commands.has_permissions(manage_messages = True)
 	async def clear(self, ctx, clear:int=None, *, reason=None):
@@ -61,7 +59,6 @@ class moderation(commands.Cog):
 					await ctx.send(f"> ✅ ⠀cleared `{clear}` messages", delete_after=2)
 			except Exception as error:
 				await ctx.send(tt.msg_e.format(error))
-
 
 # 		========================
 

@@ -1,13 +1,12 @@
-# -- add a soundboard
-# -- create a database system to store information (sqlite3)
-
 # |[ trashbot | by elisttm ]|
 
 import discord
 import sys, os
 import sqlite3
+import ffmpeg
 from sqlite3 import connect
 from discord.ext import commands
+from discord import opus
 import keep_alive as keep_alive
 import data.constants as tt
 import data.commands as cmd
@@ -49,8 +48,6 @@ async def on_connect():
 		await bot.change_presence(status=discord.Status.online, activity=tt.presence)
 		print(f"\n  ___/-\___    Online | v{tt.v}\n |---------|   {bot.user.name}#{bot.user.discriminator} ({bot.user.id})\n  | | | | |  _                 _     _           _   \n  | | | | | | |_ _ __ __ _ ___| |__ | |__   ___ | |_ \n  | | | | | | __| '__/ _` / __| '_ \| '_ \ / _ \| __|\n  | | | | | | |_| | | (_| \__ \ | | | |_) | (_) | |_ \n  |_______|  \__|_|  \__,_|___/_| |_|_.__/ \___/ \__|\n")	
 		tt.l = f"{sl_st}{scm_fin}\n{sl_pre}\n{sl_on} (v{tt.v})"; await bot.get_channel(tt.logs).send(f"```{tt.l}```")
-
-
 
 # 		========================
 

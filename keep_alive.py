@@ -1,3 +1,13 @@
+# this script starts a webpage that's hosted in parallel to the bot
+# repls stay online for as long as they're accessed or ~1hr when idle 
+# by using uptimerobot.com, the repl can be kept online indefinitely*
+# *this doesnt necesarily mean 100% uptime; repls will restart but wont stay offline
+
+# for more information, read this thread:
+# https://repl.it/talk/learn/Hosting-discordpy-bots-with-replit/11008
+
+# 		========================
+
 from flask import Flask
 from threading import Thread
 import os, logging
@@ -32,13 +42,3 @@ webpage = __start + __cmdlist + __end
 def main(): return webpage
 def run(): app.run(host="0.0.0.0", port=8080)
 def keep_alive(): server = Thread(target=run); server.start()
-
-# 		========================
-
-# this script starts a webpage that's hosted in parallel to the bot
-# repls stay online for as long as they're accessed or ~1hr when idle 
-# by using uptimerobot.com, the repl can be kept online indefinitely*
-# *this doesnt necesarily mean 100% uptime; repls will restart but wont stay offline
-
-# for more information, read this thread:
-# https://repl.it/talk/learn/Hosting-discordpy-bots-with-replit/11008

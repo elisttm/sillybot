@@ -34,7 +34,7 @@ class utilities(commands.Cog):
 	async def ping(self, ctx):
 		await ctx.trigger_typing()
 		ping = 0; ping = round(self.bot.latency * 1000)
-		await ctx.send(f"({ping}ms)")
+		await ctx.send(f"{ping}ms")
 
 	@commands.command()
 	async def invite(self, ctx):
