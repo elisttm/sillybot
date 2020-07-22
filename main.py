@@ -13,10 +13,7 @@ import data.commands as cmd
 
 # 		========================
 
-bot = commands.Bot(
-	command_prefix = commands.when_mentioned_or(tt.p), 
-	case_insensitive = True
-)
+bot = commands.Bot(command_prefix = commands.when_mentioned_or(tt.p), case_insensitive = True)
 bot.remove_command('help')
 ctx = commands.Context
 

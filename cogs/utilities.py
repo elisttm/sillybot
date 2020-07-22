@@ -20,7 +20,7 @@ class utilities(commands.Cog):
 			for user in self.bot.users:
 				if user.bot is True: continue 
 				else: user_num += 1
-			e_about = discord.Embed(title=f"trashbot | v{tt.v}", url=tt.invite, description=f"{tt.desc}\n\n**bot name**: {self.bot.user}\n**bot ID**: `{self.bot.user.id}`", color=tt.clr['pink'])
+			e_about = discord.Embed(title=f"trashbot | v{tt.v}", url=tt.website, description=f"{tt.desc}\n\n**bot name**: {self.bot.user}\n**bot ID**: `{self.bot.user.id}`", color=tt.clr['pink'])
 			e_about.add_field(name="stats", value=f"servers: `{guild_num}`, users: `{user_num}`", inline=True)
 			e_about.add_field(name=f"client uptime", value=f"{tt.uptime()}", inline=True)
 			e_about.set_author(name=f"about trashbot", icon_url=tt.ico['info'])

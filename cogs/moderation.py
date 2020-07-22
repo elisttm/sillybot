@@ -44,7 +44,7 @@ class moderation(commands.Cog):
 				except Exception as error:
 						await ctx.send(tt.msg_e.format(error))
 
-	@commands.command()
+	@commands.command(aliases=['purge'])
 	@commands.has_permissions(manage_messages = True)
 	async def clear(self, ctx, clear:int=None, *, reason=None):
 		if ctx.author.id != tt.owner_id: await ctx.send(embed=tt.permdeny)

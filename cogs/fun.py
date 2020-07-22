@@ -42,6 +42,15 @@ class fun(commands.Cog):
 		except Exception as e:
 			await ctx.send(f"> ⚠️ ⠀unable to fetch an image! {e}")
 
+	@commands.command(aliases=['gloopa'])
+	async def gloop(self, ctx):
+		try:
+			await ctx.trigger_typing()
+			gloopapic=random.choice(os.listdir("media/gloop"))
+			await ctx.send(file=discord.File(f"media/gloop/{gloopapic}"))
+		except Exception as e:
+			await ctx.send(f"> ⚠️ ⠀unable to fetch an image! {e}")
+
 	@commands.command()
 	async def sex(self, ctx):
 		sexmsg = random.choice(tt.sex)
@@ -58,19 +67,11 @@ class fun(commands.Cog):
 	async def iphone(self, ctx):
 		await ctx.send("https://www.youtube.com/watch?v=S_IAqwrvEuU")
 
-	@commands.command()
-#	@commands.cooldown(1, 10000, commands.BucketType.default)
-	async def isaac(self, ctx):
-		if ctx.message.author.id == 503351101236576276:
-			await ctx.guild.kick(self.bot.get_user(503351101236576276), reason="isaac")
-		chance = random.randint(1,1000)
-		if chance == 69:
-			await ctx.guild.kick(self.bot.get_user(503351101236576276), reason="isaac")
-			await ctx.send("le")
-			print("isaac is dead")
-		else:
-			print(chance)
-
+#	@commands.command()
+#	async def isaac(self, ctx):
+#		if ctx.message.author.id == 503351101236576276:
+#			await ctx.guild.kick(self.bot.get_user(503351101236576276), reason="isaac")
+#			await ctx.send("XD")
 
 # 		========================
 

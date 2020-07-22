@@ -6,15 +6,15 @@ import data.constants as tt
 
 # 		========================
 
-p = 't!' 
-v = "1.9.5:beta"
+p = 't!'
+v = "1.9.6:beta"
 
 cogs = (
 	'cogmanager',
 	'admin', 
 	'moderation',
 	'fun', 
-	'soundboard',
+#	'soundboard',
 	'utilities', 
 )
 

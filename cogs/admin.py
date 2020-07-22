@@ -71,21 +71,7 @@ class admin(commands.Cog):
 			await self.bot.get_channel(tt.logs).send(f"```{tt.l}```"); print(tt.l)
 			tt.mrestart = True
 			await self.bot.close()
-		else:
-			await ctx.send(embed=tt.permdeny)
-
-	@commands.command()
-	async def restart(self, ctx):
-		if ctx.author.id in tt.admins:
-			p = psutil.Process(os.getpid())
-			for handler in p.get_open_files() + p.connections():
-				os.close(handler.fd)
-			python = sys.executable
-			os.execl(python, python, *sys.argv)
-#			tt.l = f"[{tt._t()}] ADMIN: restarted by '{ctx.author}'"
-#			await ctx.message.add_reaction('✅')
-#			await self.bot.get_channel(tt.logs).send(f"```{tt.l}```"); print(tt.l)
-#			await os.execv(sys.executable, sys.executable, * sys.argv)
+			await sys.exit(0)
 		else:
 			await ctx.send(embed=tt.permdeny)
 
@@ -94,17 +80,6 @@ class admin(commands.Cog):
 		if ctx.author.id in tt.admins:
 			mn_users = 0; mn_changed = 0; mn_failed = 0
 			for member in ctx.guild.members: mn_users = mn_users + 1
-#			if len(nickmass) > 32: await ctx.send("> ⚠️ ⠀that cant fit in a nickname! (32 character max)")
-#			elif nickmass == None or "reset":
-#				tt.l = f"[{tt._t()}] ADMIN: '{ctx.author}' used massnick reset in '{ctx.guild.name}'\n"
-#				await ctx.send(f"> ⌛ ⠀attempting to reset `{mn_users}` nicknames, please wait...")
-#				for member in ctx.guild.members:
-#					await ctx.trigger_typing()
-#					try: await member.edit(nick=None); mn_changed = mn_changed + 1
-#					except: mn_failed += 1
-#				tt.l = f"{tt.l}[{tt._t()}] ADMIN: reset '{mn_changed}' nicknames, '{mn_failed}' failed"
-#				await ctx.send(f"> ✅ ⠀`{mn_changed}` nicknames successfully reset, `{mn_failed}` failed.")
-#			else:
 			await ctx.send(f"> ⌛ ⠀attempting to change `{mn_users}` nicknames, please wait...")
 			for member in ctx.guild.members:
 				await ctx.trigger_typing()
@@ -126,17 +101,6 @@ class admin(commands.Cog):
 			await ctx.send("> ✅ ⠀guild list sent to logs!")
 		else:
 			await ctx.send(embed=tt.permdeny)
-
-#	@commands.command()
-#	async def inv(self, ctx):
-#		await ctx.trigger_typing()
-#		if ctx.author.id in tt.admins:
-#			invite = await self.invites(433357665633042442)
-#			tt.l = "yeah"
-#			await self.bot.get_channel(tt.logs).send(f"```{tt.l}```"); print(tt.l)
-#			await ctx.send(invite)
-#		else:
-#			await ctx.send(embed=tt.permdeny)
 
 	@commands.command()
 	async def echo(self, ctx, echochannel: int, *, botsay=None):
