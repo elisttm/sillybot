@@ -53,12 +53,11 @@ class utilities(commands.Cog):
 			except: nametag = ''
 			e_user = discord.Embed(title=f"{user} {nametag}", 
 				description=f"**ID**: `{user.id}`\n**guild join**: __{user.joined_at.strftime(tt.time0)}__\n**created**: __{user.created_at.strftime(tt.time0)}__", color=user.top_role.colour)
-			e_user.set_author(name=f"user profile :: {user.name}", icon_url=tt.ico['info'])
+			e_user.set_author(name=f"{user.name} :: user profile", icon_url=tt.ico['info'])
 			e_user.set_thumbnail(url=user.avatar_url)
 			e_user.set_footer(text=f"requested by {ctx.author}", icon_url=ctx.author.avatar_url_as(format='png'))
 			await ctx.send(embed=e_user)
-		except Exception as error:
-			await ctx.send(tt.msg_e.format(error))
+		except Exception as error: await ctx.send(tt.msg_e.format(error))
 
 	@commands.command()
 	async def avatar(self, ctx, user: discord.Member = None):
@@ -70,8 +69,7 @@ class utilities(commands.Cog):
 			e_avatar.set_image(url=user.avatar_url)
 			e_avatar.set_footer(text=f"requested by {ctx.author}", icon_url=ctx.author.avatar_url_as(format='png'))
 			await ctx.send(embed=e_avatar)
-		except Exception as error:
-			await ctx.send(tt.msg_e.format(error))
+		except Exception as error: await ctx.send(tt.msg_e.format(error))
 		
 	@commands.command()
 	async def server(self, ctx):
@@ -79,19 +77,16 @@ class utilities(commands.Cog):
 		try:
 			e_server = discord.Embed(title=" ", 
 				description=f"**ID**: `{ctx.message.guild.id}`\n**owner**: {ctx.message.guild.owner}\n**region**: {ctx.guild.region}\n**members**: {len(ctx.message.guild.members)}\n**created**: __{ctx.message.guild.created_at.strftime(tt.time0)}__", color=tt.clr['pink'])
-			e_server.set_author(name=f"server info :: {ctx.message.guild.name}", icon_url=tt.ico['info'])
+			e_server.set_author(name=f"{ctx.message.guild.name} :: server info", icon_url=tt.ico['info'])
 			e_server.set_thumbnail(url=ctx.message.guild.icon_url)
 			e_server.set_footer(text=f"requested by {ctx.author}", icon_url=ctx.author.avatar_url_as(format='png'))
 			await ctx.send(embed=e_server)
-		except Exception as e:
-			await ctx.send(tt.msg_e.format(e))
+		except Exception as e: await ctx.send(tt.msg_e.format(e))
 
 	@commands.command()
 	async def emote(self, ctx, emoji: discord.Emoji):
-		try:	
-			await ctx.send(emoji.url)
-		except Exception as e:
-			await ctx.send(tt.msg_e.format(e))
+		try:	await ctx.send(emoji.url)
+		except Exception as e: await ctx.send(tt.msg_e.format(e))
 
 # instead of using "t!report send ..." make it wait for a reaction or something to actually send the report
 #	@commands.command()

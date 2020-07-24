@@ -22,26 +22,30 @@ class soundboard(commands.Cog):
 	
 # 		========================
 
-	@commands.command(pass_context=True, aliases=['j', 'joi'])
-	async def join(self, ctx):
-		channel = ctx.message.author.voice.channel
-		voice = get(self.bot.voice_clients, guild=ctx.guild)
-		await channel.connect()
+#	@commands.command()
+#	async def join(self, ctx):
+#		channel = ctx.message.author.voice.channel
+#		voice = get(self.bot.voice_clients, guild=ctx.guild)
+#		await channel.connect()
+
+#	@commands.command()
+#	async def dc(self, ctx):
+#		await self.bot.voice_clients[0].disconnect()
 
 	@commands.command()
-	async def dc(self, ctx):
-		await self.bot.voice_clients[0].disconnect()
-
+	async def connect(self, ctx):
+		player = self.bot.get_channel(ctx.author.voice.channel.id)
+		await player.connect()
+	
 	@commands.command()
+	async def disconnect(self, ctx):
+		player = ctx.guild.voice_client
+		await player.disconnect()
+
+	@commands.command(hidden=True)
 	async def vine(self, ctx):
-		try:
-			channel = ctx.message.author.voice.channel
-			voice = get(self.bot.voice_clients, guild=ctx.guild)
-			await channel.connect()
-		except:
-			pass
-		ctx.voice_client.play(discord.FFmpegPCMAudio(executable=FFMPEG_PATH, source='media/sounds/vineboom.mp3', use_avconv=False))
-		print("k;gklekl;nsdfjzxsadfjkl;dscgkl;dcsvjkl;n")
+		player = ctx.guild.voice_client
+		player.play(discord.FFmpegPCMAudio(executable=FFMPEG_PATH, source='media/sounds/vineboom.mp3'))
 
 # 		========================
 

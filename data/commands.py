@@ -27,13 +27,13 @@ utilities = {
 }
 fun = {
 	"say"				: "makes trashbot say a specified message", 
+	"iphone"		: "iphone winning",
+	"android"		: "android losing",
 	"tommy"			: "sends a random tommy picture",
 	"floppa"		: "sends a random floppa",
-	"gloop"			: "sends a random gloop aesthetic cat"
+	"gloop"			: "sends a random gloop cat"
 }
 moderation = {
-	"kick"			: "kicks a specified user", 
-	"ban"				: "bans the specified user",
 	"clear"			: "deletes a specified number of messages",
 }
 admin = { 
@@ -41,7 +41,7 @@ admin = {
 	"presence"	: "changes trashbot's playing status",
 	"nick"			: "changes trashbot's nickname", 
 	"massnick"	: "changes the nickname of everyone on the server",
-#	"restart"		: "restarts the bot",
+	"restart"		: "restarts the bot",
 	"echo"			: "makes trashbot echo a message to a provided channel ID"
 }
 cogmanager =  {
