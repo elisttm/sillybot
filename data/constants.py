@@ -7,7 +7,7 @@ import data.constants as tt
 # 		========================
 
 p = 't!'
-v = "1.10.0:beta"
+v = "1.10.1:beta"
 
 cogs = (
 	'cogmanager',
@@ -15,6 +15,7 @@ cogs = (
 	'admin', 
 	'utilities', 
 	'moderation',
+	'reactions',
 	'fun', 
 #	'soundboard',
 )
