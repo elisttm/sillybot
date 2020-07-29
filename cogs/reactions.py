@@ -17,8 +17,8 @@ class reactions(commands.Cog):
 		if 'y/n' in message.content.lower():
 			await message.add_reaction('👍')
 			await message.add_reaction('👎')
-		if 'homestuck' in message.content.lower():
-			await message.add_reaction('🤮')
+#		if 'homestuck' in message.content.lower():
+#			await message.add_reaction('🤮')
 		if 'u/d' in message.content.lower():
 			try:
 				await message.add_reaction(bot.get_emoji(701102030529364170))
