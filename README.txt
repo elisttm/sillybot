@@ -8,6 +8,7 @@
 trashbot is a simple discord.py bot made by elisttm
 a few of the features this bot has are ...
 
+	- extremely funny cat commands (floppa, gloop, tommy...)
 	- simple y/n message reaction for easy polls
 	- utility commands for useful information
 	- expansive and dynamic 'help' command
