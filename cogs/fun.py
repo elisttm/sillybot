@@ -10,6 +10,7 @@ import data.constants as tt
 floppadir = 'media/floppas'
 tommydir = 'media/tommy'
 gloopdir = 'media/gloop'
+noridir = 'media/nori'
 
 def randpic(dir = ''):
 	pic=random.choice(os.listdir(dir))
@@ -42,31 +43,34 @@ class fun(commands.Cog):
 	async def tommy(self, ctx, count = None):
 		try:
 			await ctx.trigger_typing()
-			if count == 'count':
-				await ctx.send(filecount(dir = tommydir))
-			else:
-				await ctx.send(file=discord.File(randpic(dir = tommydir)))
+			if count == 'count': await ctx.send(filecount(dir = tommydir))
+			else: await ctx.send(file=discord.File(randpic(dir = tommydir)))
 		except Exception as e: await ctx.send(tt.msg_e.format(e))
 
 	@commands.command()
 	async def floppa(self, ctx, count = None):
 		try:
 			await ctx.trigger_typing()
-			if count == 'count':
-				await ctx.send(filecount(dir = floppadir))
-			else:
-				await ctx.send(file=discord.File(randpic(dir = floppadir)))
+			if count == 'count': await ctx.send(filecount(dir = floppadir))
+			else: await ctx.send(file=discord.File(randpic(dir = floppadir)))
 		except Exception as e: await ctx.send(tt.msg_e.format(e))
 
 	@commands.command(aliases=['gloopa'])
 	async def gloop(self, ctx, count = None):
 		try:
 			await ctx.trigger_typing()
-			if count == 'count':
-				await ctx.send(filecount(dir = gloopdir))
-			else:
-				await ctx.send(file=discord.File(randpic(dir = gloopdir)))
+			if count == 'count': await ctx.send(filecount(dir = gloopdir))
+			else: await ctx.send(file=discord.File(randpic(dir = gloopdir)))
 		except Exception as e: await ctx.send(tt.msg_e.format(e))
+
+	@commands.command()
+	async def nori(self, ctx, count = None):
+		try:
+			await ctx.trigger_typing()
+			if count == 'count': await ctx.send(filecount(dir = noridir))
+			else: await ctx.send(file=discord.File(randpic(dir = noridir)))
+		except Exception as e: await ctx.send(tt.msg_e.format(e))
+
 
 	@commands.command()
 	async def android(self, ctx):
