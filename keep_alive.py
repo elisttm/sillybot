@@ -26,7 +26,7 @@ __end			= f'</div></font></body></html>'
 __start		= f'<html><body bgcolor="black"><font color="white" face="Monospace"><p align="center">trashbot is online! | v{tt.v}</p><div style="padding:0 10% 0 10%"><h1 align="center">trashbot command list</h1>'
 __cmdlist	= f''
 
-for cog in tt.cogs0:
+for cog in cmd.commands:
 	_cmds = ''
 	__cmdlist = __cmdlist + f'</p><h3 style="margin-left:4%">{cog}</h3><p>'
 	for _cogctg, _cmdctg in cmd.commands.items():

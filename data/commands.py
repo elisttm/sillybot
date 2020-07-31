@@ -59,5 +59,5 @@ commands = {
 	"fun"				: fun,
   "moderation": moderation,
 	"admin"			: admin,
-#	"cogmanager": cogmanager,
+	"cogmanager": cogmanager,
 }

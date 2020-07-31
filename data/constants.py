@@ -7,9 +7,10 @@ import data.constants as tt
 # 		========================
 
 p = 't!'
-v = "1.10.2:beta"
+v = "1.10.3:beta"
 
 cogs = (
+	'help',
 	'cogmanager',
 #	'errors',
 	'admin', 
@@ -17,12 +18,7 @@ cogs = (
 	'moderation',
 	'reactions',
 	'fun', 
-#	'soundboard',
 )
-
-cogs0 = (list(cogs))
-cogs0.append('general'); cogs0.remove('cogmanager')
-cogs0.reverse()
 
 loaded = {}
 

@@ -1,18 +1,7 @@
-				-|[ trashbot | by elisttm ]|-
-
-	for updates and other information, visit https://elisttm.space/
-
-(if you want to look at this code to learn from it thats fine, but please dont copy/paste it into your own bot and take credit)
+trashbot is a simple discord.py bot made by @elisttm with a multitude of features
 
 
-trashbot is a simple discord.py bot made by elisttm
-a few of the features this bot has are ...
+if you want to look at this code to learn from it thats fine, but please dont copy/paste it into your own bot and take credit
 
-	- extremely funny cat commands (floppa, gloop, tommy...)
-	- simple y/n message reaction for easy polls
-	- utility commands for useful information
-	- expansive and dynamic 'help' command
-	- simple moderation commands
-	- informative website
-	- active support
-	- decent uptime
+for updates and other information, visit https://elisttm.space/
+for questions, suggestions, bug reports or other concerns, please contact elisttm

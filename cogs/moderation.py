@@ -25,11 +25,6 @@ class moderation(commands.Cog):
 				await ctx.send(f"> ✅ ⠀cleared `{clear}` messages", delete_after=2)
 		except Exception as e: await ctx.send(tt.msg_e.format(e))
 
-	@commands.command()
-	@commands.has_permissions(administrator = True)
-	async def testing(self, ctx):
-		await ctx.send("awesome")
-
 # 		========================
 
 def setup(bot):
