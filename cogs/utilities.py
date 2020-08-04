@@ -83,12 +83,6 @@ class utilities(commands.Cog):
 			await ctx.send(embed=e_server)
 		except Exception as e: await ctx.send(tt.msg_e.format(e))
 
-	@commands.command()
-	async def emote(self, ctx, emoji: discord.Emoji):
-		try:	await ctx.send(emoji.url)
-		except Exception as e: await ctx.send(tt.msg_e.format(e))
-
-# instead of using "t!report send ..." make it wait for a reaction or something to actually send the report
 #	@commands.command()
 #	async def report(self, ctx, *, report=None):
 #		await ctx.trigger_typing()

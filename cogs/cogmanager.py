@@ -10,6 +10,18 @@ class fun(commands.Cog):
 	
 	# 		========================
 
+	@commands.command(aliases=['coglist'])
+	async def cogs(self, ctx):
+		cm_list, cm_num, = '', 0; tt.l = f"[{tt._t()}] {ctx.author} used coglist"
+		for cog, x in tt.loaded.items():
+			if x == True: cm_list = f"{cm_list}'{cog}' : `Loaded`\n"; cm_num += 1
+			if x == False: cm_list = f"{cm_list}'{cog}' : `Unloaded`\n"
+		e_cm = discord.Embed(color=tt.clr['pink'])
+		e_cm.add_field(name=f"cogs `[{cm_num}/{len(tt.cogs)}]`", value=cm_list)
+		e_cm.set_author(name="cog manager", icon_url=tt.ico['cog'])
+		await self.bot.get_channel(tt.logs).send(f"```{tt.l}```"); print(tt.l)
+		await ctx.send(embed=e_cm)
+
 	@commands.command()
 	async def load(self, ctx, cog=None):
 		await ctx.trigger_typing()
@@ -85,20 +97,6 @@ class fun(commands.Cog):
 				await self.bot.get_channel(tt.logs).send(f"```{tt.l}```"); print(tt.l)
 			else: 
 				await ctx.send("> ⚠️ ⠀please specify a valid cog!")
-
-	@commands.command()
-	async def coglist(self, ctx):
-		if ctx.author.id != tt.owner_id: await ctx.send(embed=tt.permdeny)
-		else: 
-			cm_list, cm_num, = '', 0; tt.l = f"[{tt._t()}] {ctx.author} used coglist"
-			for cog, x in tt.loaded.items():
-				if x == True: cm_list = f"{cm_list}'{cog}' : `Loaded`\n"; cm_num += 1
-				if x == False: cm_list = f"{cm_list}'{cog}' : `Unloaded`\n"
-			e_cm = discord.Embed(color=tt.clr['pink'])
-			e_cm.add_field(name=f"cogs `[{cm_num}/{len(tt.cogs)}]`", value=cm_list)
-			e_cm.set_author(name="cog manager", icon_url=tt.ico['cog'])
-			await self.bot.get_channel(tt.logs).send(f"```{tt.l}```"); print(tt.l)
-			await ctx.send(embed=e_cm)
 
 # 		========================
 

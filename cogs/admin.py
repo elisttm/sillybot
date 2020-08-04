@@ -42,21 +42,7 @@ class admin(commands.Cog):
 					tt.l = f"[{tt._t()}] ADMIN: presence set to '{presence}' by '{ctx.author}'"
 					await ctx.send(f'> ✅ ⠀presence set to `{presence}`.')
 				await self.bot.get_channel(tt.logs).send(f"```{tt.l}```"); print(tt.l)
-			else:
-				await ctx.send(embed=tt.permdeny)
-		except Exception as e: await ctx.send(tt.msg_e.format(e))
-
-	@commands.command()
-	async def nick(self, ctx, *, nick=None):
-		try:
-			await ctx.trigger_typing()
-			if ctx.author.id in tt.admins:
-				trashbot = ctx.guild.get_member(self.bot.user.id)
-				if nick is None: await trashbot.edit(nick=None); await ctx.send('> ✅ ⠀nickname reset')
-				elif len(nick) > 32: await ctx.send('```⚠️ ⠀nickname is too long! (32 character max)```')
-				else: await trashbot.edit(nick=nick); await ctx.send(f'> ✅ ⠀nickname set to `{nick}`.')
-			else:
-				await ctx.send(embed=tt.permdeny)
+			else: await ctx.send(embed=tt.permdeny)
 		except Exception as e: await ctx.send(tt.msg_e.format(e))
 
 	@commands.command()
@@ -66,10 +52,8 @@ class admin(commands.Cog):
 				await ctx.message.add_reaction('✅')
 				tt.l = f"[{tt._t()}] ADMIN: '{ctx.author}' used leave in '{ctx.guild.name}'"
 				await self.bot.get_channel(tt.logs).send(f"```{tt.l}```"); print(tt.l)
-				await ctx.send("XD")
 				await ctx.guild.leave()
-			else:
-				await ctx.send(embed=tt.permdeny)
+			else: await ctx.send(embed=tt.permdeny)
 		except Exception as e: await ctx.send(tt.msg_e.format(e))
 
 	@commands.command()
@@ -82,8 +66,7 @@ class admin(commands.Cog):
 				tt.mrestart = True
 				await self.bot.close()
 				await sys.exit(0)
-			else:
-				await ctx.send(embed=tt.permdeny)
+			else: await ctx.send(embed=tt.permdeny)
 		except Exception as e: await ctx.send(tt.msg_e.format(e))
 
 	@commands.command()
@@ -99,8 +82,7 @@ class admin(commands.Cog):
 					except: mn_failed += 1
 				await ctx.send(f"> ✅ ⠀`{mn_changed}` nicknames successfully changed, `{mn_failed}` failed.")
 				await self.bot.get_channel(tt.logs).send(f"```{tt.l}```"); print(tt.l)
-			else:
-				await ctx.send(embed=tt.permdeny)
+			else: await ctx.send(embed=tt.permdeny)
 		except Exception as e: await ctx.send(tt.msg_e.format(e))
 	
 	@commands.command()
@@ -113,8 +95,7 @@ class admin(commands.Cog):
 				tt.l = f"[{tt._t()}] ADMIN: '{ctx.author}' called for the list of guilds\n"; tt.l = tt.l + guildlist
 				await self.bot.get_channel(tt.logs).send(f"```{tt.l}```"); print(tt.l)
 				await ctx.send("> ✅ ⠀guild list sent to logs!")
-			else:
-				await ctx.send(embed=tt.permdeny)
+			else: await ctx.send(embed=tt.permdeny)
 		except Exception as e: await ctx.send(tt.msg_e.format(e))
 
 	@commands.command()
@@ -131,8 +112,7 @@ class admin(commands.Cog):
 					await ctx.message.add_reaction('✅')
 					await self.bot.get_channel(tt.logs).send(f"```{tt.l}```"); print(tt.l)
 					echochannel = 0
-			else:
-				await ctx.send(embed=tt.permdeny)
+			else: await ctx.send(embed=tt.permdeny)
 		except Exception as e: await ctx.send(tt.msg_e.format(e))
 
 	@commands.command()
@@ -143,8 +123,7 @@ class admin(commands.Cog):
 				await ctx.message.add_reaction('✅')
 				await self.bot.get_channel(tt.logs).send(f"```{tt.l}```"); print(tt.l)
 				await os.execv(sys.executable, ['python'] + sys.argv)
-			else:
-				await ctx.send(embed=tt.permdeny)
+			else: await ctx.send(embed=tt.permdeny)
 		except Exception as e: await ctx.send(tt.msg_e.format(e))
 
 # 		========================

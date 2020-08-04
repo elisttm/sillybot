@@ -3,6 +3,8 @@
 # by using uptimerobot.com, the repl can be kept online indefinitely*
 # *this doesnt necesarily mean 100% uptime; repls will restart but wont stay offline
 
+# repl pinger: http://ping.mat1.repl.co/
+
 # for more information, read this thread:
 # https://repl.it/talk/learn/Hosting-discordpy-bots-with-replit/11008
 

@@ -11,7 +11,6 @@ categories = {
 	"cogmanager": "extension management; only usable by trashbot's admins",
 }
 
-#			======	commands	======
 
 general = {
 	"help"		 	: "lists trashbot's commands",
@@ -22,16 +21,18 @@ utilities = {
 	"server"		: "gives info about the server",
 	"user"			: "gives info about a user",
 	"avatar"		: "sends the avatar of a user",
-	"emote"			: "sends the url of a provided emote",
-#	"report"		: "sends a message report to trashbot's owner",
 }
 fun = {
 	"say"				: "makes trashbot say a specified message", 
 	"iphone"		: "iphone winning",
 	"android"		: "android losing",
-	"tommy"			: "sends a random tommy picture",
-	"floppa"		: "sends a random floppa",
-	"gloop"			: "sends a random gloop cat"
+	"randomcat"	: "sends a random picture of a cat",
+	"tommy"			: "sends a random picture of tommy",
+	"floppa"		: "sends a random big floppa image",
+	"gloop"			: "sends a random gloop aesthetic cat",
+	"nori"			: "sends a random picture of nori (squidds cat)",
+	"mish"			: "sends a random picture of mish (peters cat)",
+	"lucas"			: "sends a random picture of lucas (sharpz cat)",
 }
 moderation = {
 	"clear"			: "deletes a specified number of messages",
@@ -39,19 +40,17 @@ moderation = {
 admin = { 
 	"admins"		: "lists all of trashbot's admins",
 	"presence"	: "changes trashbot's playing status",
-	"nick"			: "changes trashbot's nickname", 
 	"massnick"	: "changes the nickname of everyone on the server",
+	"echo"			: "makes trashbot echo a message to a provided channel ID",
 	"restart"		: "restarts the bot",
-	"echo"			: "makes trashbot echo a message to a provided channel ID"
 }
 cogmanager =  {
 	"load"			: "loads a specified cog",
 	"unload"		: "unloads a specified cog", 
 	"reload"		: "reloads all cogs or a specified cog; ",
-	"list"			: "lists all loadable cogs and their statuses", 
+	"cogs"			: "lists all loadable cogs and their statuses", 
 }
 
-#			========================
 
 commands = {
   "general" 	: general,

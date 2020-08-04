@@ -7,7 +7,7 @@ import data.constants as tt
 # 		========================
 
 p = 't!'
-v = "1.10.3:beta"
+v = "1.11.0:beta"
 
 cogs = (
 	'help',
