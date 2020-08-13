@@ -1,9 +1,10 @@
 import discord
+import pickle
 import traceback
 import sys
 from discord.ext import commands
 import data.constants as tt
-import data.commands as cmd
+from data.commands import help_list; cmd = help_list()
 
 # 		========================
 
@@ -17,9 +18,14 @@ class help(commands.Cog):
 	async def help(self, ctx, *, tag=None):
 		await ctx.trigger_typing()
 		try: 
+			custom_prefixes = pickle.load(open(tt.prefixes_pkl, "rb"))
 			cmds = '\u200b'
 			if tag == None:
-				e_h = discord.Embed(title=f"trashbot [v{tt.v}]", description=f"for more information, use the *'about'* command", color=tt.clr['pink'])
+				if ctx.message.guild.id in custom_prefixes: 
+					desc_prefix = f"'{custom_prefixes[ctx.message.guild.id]}' (custom)"
+				else: 
+					desc_prefix = f"'{tt.p}'"
+				e_h = discord.Embed(title=f"trashbot [v{tt.v}]", description=f"command prefix: {desc_prefix}", color=tt.clr['pink'])
 				for cog in cmd.commands:
 					if cog == 'general' or tt.loaded[cog] == True: 
 						cmds = '\u200b'
@@ -29,7 +35,7 @@ class help(commands.Cog):
 						e_h.add_field(name=f"⠀{cog}", value=cmds, inline=False)
 				e_h.set_author(name="help menu", icon_url=tt.ico['info'])
 				await ctx.send(embed=e_h)
-			if tag in tt.cogs: 
+			if tag in cmd.commands: 
 				cmds = '\u200b'
 				for c_ctg, c_cmdlist in cmd.commands.items():
 					if c_ctg == tag:
@@ -39,7 +45,7 @@ class help(commands.Cog):
 						e_h.set_author(name=f"help menu :: {c_ctg}", icon_url=tt.ico['info'])
 						e_h.add_field(name="⠀commands", value=cmds)
 						await ctx.send(embed=e_h)
-			elif tag != None and tag not in tt.cogs: await ctx.send('```⚠️ ⠀unknown command category!```')
+			elif tag != None and tag not in cmd.commands: await ctx.send('⚠️ ⠀unknown command category!')
 		except Exception as e: await ctx.send(tt.msg_e.format(e))
 
 # 		========================

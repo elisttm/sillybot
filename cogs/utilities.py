@@ -1,10 +1,10 @@
-import discord, time, datetime
+import discord 
+import pickle
+import time, datetime
 from discord.ext import commands
 import data.constants as tt
 
 # 		========================
-
-start_time = time.time()
 
 class utilities(commands.Cog):
 	def __init__(self, bot):
@@ -41,6 +41,7 @@ class utilities(commands.Cog):
 		await ctx.trigger_typing()
 		await ctx.send(tt.invite)
 
+
 	@commands.command()
 	async def user(self, ctx, user: discord.Member = None):
 		await ctx.trigger_typing()
@@ -70,7 +71,7 @@ class utilities(commands.Cog):
 			e_avatar.set_footer(text=f"requested by {ctx.author}", icon_url=ctx.author.avatar_url_as(format='png'))
 			await ctx.send(embed=e_avatar)
 		except Exception as error: await ctx.send(tt.msg_e.format(error))
-		
+
 	@commands.command()
 	async def server(self, ctx):
 		await ctx.trigger_typing()
@@ -83,21 +84,55 @@ class utilities(commands.Cog):
 			await ctx.send(embed=e_server)
 		except Exception as e: await ctx.send(tt.msg_e.format(e))
 
-#	@commands.command()
-#	async def report(self, ctx, *, report=None):
-#		await ctx.trigger_typing()
-#		try:
-#			if report == None:
-#				report_info = '> to send a feedback or bug report, use "t!report send [message]"\n> see https://elisttm.space/trashbot for known bugs and planned additions'
-#				await ctx.send(report_info)
-#			elif len(report) > 1900:
-#				await ctx.send("> ⚠️ ⠀your report is too long!")
-#			elif report != None:
-#				tt.l = f"> feedback recieved from '{ctx.author}' in '{ctx.guild.name}'"
-#				await self.bot.get_channel(tt.logs).send(f"```{tt.l}\n\"{report}\"```"); print(tt.l); await self.bot.get_user(tt.owner_id).send(f"{tt.l}\n> ```\"{report}\"```")
-#				await ctx.send("> ✅ ⠀your report has been submitted!")
-#		except Exception as error:
-#			await ctx.send(tt.msg_e.format(error))
+	@commands.command()
+	@commands.cooldown(1, 300)
+	async def report(self, ctx, *, report=None):
+		await ctx.trigger_typing()
+		try:
+			if report == None:
+				report_info = '> to send a feedback or bug report, use "t!report send [message]"'
+				await ctx.send(report_info)
+			elif len(report) > 1900:
+				await ctx.send("⚠️ ⠀your report is too long!")
+			elif report != None:
+				tt.l = f"[{tt._t()}] feedback recieved from '{ctx.author}' in '{ctx.guild.name}'"
+				await self.bot.get_channel(tt.logs).send(f"{tt.l}\n\"{report}\""); print(tt.l); await self.bot.get_user(tt.owner_id).send(f"{tt.l}\n> \"{report}\"")
+				await ctx.send("✅ ⠀your report has been submitted!")
+		except Exception as error:
+			await ctx.send(tt.msg_e.format(error))
+
+
+	@commands.command()
+	@commands.has_permissions(administrator = True)
+	async def prefix(self, ctx, action=None, prefix=None):
+		await ctx.trigger_typing()
+		try:
+			custom_prefixes = pickle.load(open(tt.prefixes_pkl, "rb"))
+			if action == None:
+				if ctx.message.guild.id in custom_prefixes:
+					await ctx.send(f"ℹ️ ⠀this guild's custom prefix is '{custom_prefixes[ctx.message.guild.id]}'")
+				else:
+					await ctx.send("⚠️ ⠀no custom prefix for this guild. do t!prefix set to create one!")
+			else:
+				if action == 'set':
+					if prefix != None:
+						if ctx.message.guild.id in custom_prefixes:
+							del custom_prefixes[ctx.message.guild.id]
+						custom_prefixes[ctx.message.guild.id] = prefix
+						await ctx.send(f"✅ ⠀custom prefix for this guild set to '{prefix}'")
+					else:
+						await ctx.send("⚠️ ⠀please provide a valid custom prefix!")
+				elif action == 'remove':
+					if ctx.message.guild.id in custom_prefixes:
+						del custom_prefixes[ctx.message.guild.id]
+						await ctx.send(f"✅ ⠀removed custom prefix for this guild")
+					else:
+						await ctx.send(f"❌ ⠀this guild does not have a custom prefix set!")
+				pickle.dump(custom_prefixes, open(tt.prefixes_pkl, "wb"))
+
+		except Exception as error:
+			await ctx.send(tt.msg_e.format(error))
+			
 
 # 		========================
 

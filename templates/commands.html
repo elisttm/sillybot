@@ -1,0 +1,30 @@
+<html>
+<body bgcolor="black">
+	
+<font color="white" face="Monospace">
+	<p align="center">trashbot is online! | v{{ version }}</p>
+	
+<div style="padding:0 10% 0 10%">
+	<h1 align="center">trashbot command list</h1>
+
+
+	{% for cog in cmd.commands: %}
+
+		</p><h3 style="margin-left:4%">{{ cog }}</h3><p>
+			
+			{% for _cogctg, _cmdctg in cmd.commands.items(): %}
+				{% if _cogctg == cog: %}
+					{% for x, y in _cmdctg.items(): %}
+
+					<b>{{ x }}</b> - {{ y }}<br>
+
+					{% endfor %}
+				{%endif %}
+			{% endfor %}
+	
+	{% endfor %}
+
+</div></font><br>
+
+</body>
+</html>

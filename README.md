@@ -3,7 +3,8 @@
 trashbot is a simple discord.py bot with a multitude of features
 
 
-for more information, visit [elisttm.space/trashbot](https://elisttm.space/trashbot)
+for more information, visit [elisttm.space/trashbot](https://elisttm.space/trashbot).
+
 for questions, suggestions, bug reports or other concerns, please contact me
 
 

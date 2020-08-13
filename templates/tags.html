@@ -1,0 +1,19 @@
+<html>
+<body bgcolor="black">
+	
+<font color="white" face="Monospace">	
+<div style="padding:0 20% 0 20%">
+	<br><h1 align="center">list of all tags in the database</h1>
+
+	{% for tag in tags_list: %}
+
+		<b style="font-size: 14px">{{ tag }}</b><li style="padding-left:2%">owner ID: {{ tags_list[tag]['owner'] }}</li><li style="padding-left:2%">content: {{ tags_list[tag]['content'] }}</li><br>
+	
+	{% endfor %}
+
+	</p>
+
+</div></font><br>
+
+</body>
+</html>

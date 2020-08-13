@@ -1,17 +1,26 @@
 import discord
 import sys, os
-import sqlite3
-#import ffmpeg
-#from sqlite3 import connect
+import pickle
 from discord.ext import commands
 from discord import opus
 import keep_alive as keep_alive
 import data.constants as tt
-import data.commands as cmd
+from data.commands import help_list; cmd = help_list()
 
 # 		========================
 
-bot = commands.Bot(command_prefix = commands.when_mentioned_or(tt.p), case_insensitive = True)
+async def determine_prefix(bot, message):
+	custom_prefixes = pickle.load(open(tt.prefixes_pkl, "rb"))
+	if message.guild.id in custom_prefixes:
+		return custom_prefixes.get(message.guild.id)
+	else:
+		return tt.p
+
+#bot = commands.Bot(command_prefix = determine_prefix, ...)
+
+bot = commands.Bot(
+	command_prefix = determine_prefix,
+	case_insensitive = True)
 ctx = commands.Context
 
 bot.remove_command('help')
@@ -52,6 +61,12 @@ async def on_message(message):
 	if message.author.bot:
 		pass
 	await bot.process_commands(message)
+
+@bot.event
+async def on_command(ctx):
+	blacklist = pickle.load(open(tt.blacklist_pkl, "rb"))
+	if ctx.message.author in blacklist:
+		pass
 
 @bot.event
 async def on_guild_remove(guild):

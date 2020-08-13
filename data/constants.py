@@ -2,6 +2,9 @@ import discord
 import time, datetime
 import pytz
 from pytz import timezone
+import tinydb
+from tinydb import TinyDB, Query
+from tinydb.operations import increment
 import data.constants as tt
 
 # 		========================
@@ -12,20 +15,19 @@ v = "1.11.0:beta"
 cogs = (
 	'help',
 	'cogmanager',
-#	'errors',
+	'errors',
 	'admin', 
 	'utilities', 
 	'moderation',
 	'reactions',
 	'fun', 
+	'tags',
 )
 
 loaded = {}
 
-desc = "a simple discord bot made by elisttm | t!help for commands"
+l = ''; log0 = True; logs = 718646246482378782; 
 
-l = ''; log0 = True
-logs = 718646246482378782; 
 owner_id = 216635587837296651
 
 admins = [
@@ -36,10 +38,16 @@ admins = [
 	376813566591762444, # regaul
 ]
 
+blacklist_pkl = "data/blacklist.pkl"
+prefixes_pkl = "data/prefixes.pkl"
+tags_pkl = "data/tags.pkl"
+
 # 		========================
 
 presence = discord.Game(f"{tt.p}help | v{tt.v}")
 #presence = discord.Game(f"MAINTENANCE | v{tt.v}")
+
+desc = "a simple discord bot made by elisttm | t!help for commands"
 
 website = 'https://elisttm.space/trashbot'
 invite = 'https://discordapp.com/oauth2/authorize?client_id=439166087498825728&scope=bot&permissions=8'
@@ -58,6 +66,10 @@ def uptime():
 
 def _t():
 	return datetime.datetime.now(timezone('US/Eastern')).strftime(tt.time2)
+
+def sanitize(text):
+	text.replace('@everyone', '@\u200beveryone')
+	text.replace('@here', '@\u200bhere')
 
 ico = {
 	'info' : 'https://i.imgur.com/3AccYL9.png',

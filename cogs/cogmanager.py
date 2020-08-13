@@ -27,17 +27,18 @@ class fun(commands.Cog):
 		await ctx.trigger_typing()
 		if ctx.author.id != tt.owner_id: await ctx.send(embed=tt.permdeny)
 		else:
-			if cog == None or cog not in tt.cogs: await ctx.send("```⚠️ ⠀please specify a valid cog!```")
-			elif tt.loaded[cog] == True: await ctx.send(f"```⚠️ ⠀'{cog}' is already loaded!```")
+			if cog == None or cog not in tt.cogs: await ctx.send("⚠️ ⠀please specify a valid cog!")
+			elif tt.loaded[cog] == True: await ctx.send(f"⚠️ ⠀'{cog}' is already loaded!")
 			else:
 				await ctx.trigger_typing()
 				try:
 					self.bot.load_extension('cogs.' + cog)
 					tt.loaded[cog] = True
-					await ctx.send(f"> ✅ ⠀loaded '{cog}'")
+					await ctx.send(f"✅ ⠀loaded '{cog}'")
 					tt.l = f"[{tt._t()}] COGMANAGER: loaded '{cog}'"
 				except Exception as error:
-					await ctx.send(f"> ❌ ⠀'{cog}' failed to load")
+					tt.loaded[cog] = False
+					await ctx.send(f"❌ ⠀'{cog}' failed to load")
 					tt.l = f"[{tt._t()}] COGMANAGER: '{cog}' failed to load [{error}]"
 				await self.bot.get_channel(tt.logs).send(f"```{tt.l}```"); print(tt.l)
 
@@ -46,19 +47,37 @@ class fun(commands.Cog):
 		await ctx.trigger_typing()
 		if ctx.author.id != tt.owner_id: await ctx.send(embed=tt.permdeny)
 		else:
-			if cog == None or cog not in tt.cogs: await ctx.send("```⚠️ ⠀please specify a valid cog!```")
-			elif tt.loaded[cog] == False: await ctx.send(f"```⚠️ ⠀'{cog}' is already unloaded!```")
+			if cog == None or cog not in tt.cogs: await ctx.send("⚠️ ⠀please specify a valid cog!")
+			elif tt.loaded[cog] == False: await ctx.send(f"⚠️ ⠀'{cog}' is already unloaded!")
 			else:
 				await ctx.trigger_typing()
 				try:
 					self.bot.unload_extension('cogs.' + cog)
 					tt.loaded[cog] = False
-					await ctx.send(f"> ✅ ⠀unloaded '{cog}'")
+					await ctx.send(f"✅ ⠀unloaded '{cog}'")
 					tt.l = f"[{tt._t()}] COGMANAGER: unloaded '{cog}'"
 				except Exception as error:
-					await ctx.send(f"> ❌ ⠀'{cog}' failed to unload")
+					await ctx.send(f"❌ ⠀'{cog}' failed to unload")
 					tt.l = f"[{tt._t()}] COGMANAGER: '{cog}' failed to unload [{error}]"
 				await self.bot.get_channel(tt.logs).send(f"```{tt.l}```"); print(tt.l)
+
+	@commands.command()
+	async def unloadf(self, ctx, cog=None):
+		await ctx.trigger_typing()
+		if ctx.author.id != tt.owner_id: await ctx.send(embed=tt.permdeny)
+		else:
+			if cog == None or cog not in tt.cogs: await ctx.send("⚠️ ⠀please specify a valid cog!")
+			await ctx.trigger_typing()
+			try:
+				self.bot.unload_extension('cogs.' + cog)
+				tt.loaded[cog] = False
+				await ctx.send(f"✅ ⠀forcefully unloaded '{cog}'")
+				tt.l = f"[{tt._t()}] COGMANAGER: forcefully unloaded '{cog}'"
+			except Exception as error:
+				tt.loaded[cog] = False
+				await ctx.send(f"❌ ⠀'{cog}' failed to force unload")
+				tt.l = f"[{tt._t()}] COGMANAGER: '{cog}' failed to force unload [{error}]"
+			await self.bot.get_channel(tt.logs).send(f"```{tt.l}```"); print(tt.l)
 
 	@commands.command()
 	async def reload(self, ctx, cog=None):
@@ -76,27 +95,27 @@ class fun(commands.Cog):
 							if tt.loaded[cog] == True: self.bot.unload_extension('cogs.' + cog); self.bot.load_extension('cogs.' + cog)
 							if tt.loaded[cog] == False: self.bot.load_extension('cogs.' + cog)
 							cm_num += 1; tt.loaded[cog] = True
-							cm_msg = f"{cm_msg}> ✅ ⠀{cog}\n"; tt.l = f"{tt.l}\n   -- reloaded '{cog}'"
+							cm_msg = f"{cm_msg}✅ ⠀{cog}\n"; tt.l = f"{tt.l}\n   -- reloaded '{cog}'"
 						except Exception as error:
 							try: self.bot.load_extension('cogs.' + cog); cm_num += 1; tt.loaded[cog] = True
 							except: tt.loaded[cog] = False
-							cm_msg = f"{cm_msg}> ❌ ⠀{cog}\n"; tt.l = f"{tt.l}\n   -- '{cog}' failed to reload [{error}]"
-					cm_msg = f"> [`{cm_num}/{len(tt.cogs)}`] cogs reloaded]\n" + cm_msg
-					tt.l = f"{tt.l}\n>> [{cm_num}/{len(tt.cogs)}] cogs reloaded"
+							cm_msg = f"{cm_msg}❌ ⠀{cog}\n"; tt.l = f"{tt.l}\n   -- '{cog}' failed to reload [{error}]"
+					cm_msg = f"[`{cm_num}/{len(tt.cogs)}`] cogs reloaded]\n" + cm_msg
+					tt.l = f"{tt.l}\n>[{cm_num}/{len(tt.cogs)}] cogs reloaded"
 					await ctx.send(cm_msg)
 				else:
 					await ctx.trigger_typing()
 					try:
 						if tt.loaded[cog] == True: self.bot.unload_extension('cogs.' + cog); self.bot.load_extension('cogs.' + cog)
 						else: self.bot.load_extension('cogs.' + cog); tt.loaded[cog] = True
-						await ctx.send(f"> ✅ ⠀reloaded '{cog}'")
+						await ctx.send(f"✅ ⠀reloaded '{cog}'")
 						tt.l = f"[{tt._t()}] COGMANAGER: reloaded '{cog}'"
 					except Exception as error:
-						await ctx.send(f"> ❌ ⠀'{cog}' failed to reload [{error}]")
+						await ctx.send(f"❌ ⠀'{cog}' failed to reload [{error}]")
 						tt.l = f"[{tt._t()}] COGMANAGER: '{cog}' failed to reload [{error}]"
 				await self.bot.get_channel(tt.logs).send(f"```{tt.l}```"); print(tt.l)
 			else: 
-				await ctx.send("> ⚠️ ⠀please specify a valid cog!")
+				await ctx.send("⚠️ ⠀please specify a valid cog!")
 
 # 		========================
 
