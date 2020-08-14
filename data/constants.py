@@ -10,7 +10,7 @@ import data.constants as tt
 # 		========================
 
 p = 't!'
-v = "1.11.0:beta"
+v = "1.12.0:beta"
 
 cogs = (
 	'help',
@@ -42,7 +42,6 @@ blacklist_pkl = "data/blacklist.pkl"
 prefixes_pkl = "data/prefixes.pkl"
 tags_pkl = "data/tags.pkl"
 
-# 		========================
 
 presence = discord.Game(f"{tt.p}help | v{tt.v}")
 #presence = discord.Game(f"MAINTENANCE | v{tt.v}")
@@ -51,6 +50,8 @@ desc = "a simple discord bot made by elisttm | t!help for commands"
 
 website = 'https://elisttm.space/trashbot'
 invite = 'https://discordapp.com/oauth2/authorize?client_id=439166087498825728&scope=bot&permissions=8'
+
+taglist = 'https://trashbot.elisttm.repl.co/tags'
 
 time0 = '%m-%d-%y %H:%M:%S'		  # 01-31-05 12:34:56
 time1 = '%H:%M:%S'						  # 12:34:56

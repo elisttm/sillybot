@@ -32,6 +32,9 @@ class tags(commands.Cog):
 			if arg1 == None:
 				await ctx.send("⚠️ ⠀please provide a valid tag or subcommand!")
 			else:
+				arg1 = arg1.lower(); 
+				if arg2 != None:
+					arg2 = arg2.lower()
 				if arg1 in reserved_args:
 					if arg2 in reserved_args: await ctx.send("❌ ⠀that tag is reserved!")
 					elif arg1 == 'list':
@@ -85,6 +88,12 @@ class tags(commands.Cog):
 					else: await ctx.send(f"⚠️ ⠀tag '{arg1}' does not exist!")
 		except Exception as error:
 			await ctx.send(tt.msg_e.format(error))
+
+
+	@commands.command()
+	async def taglist(self, ctx):
+		await ctx.trigger_typing()
+		await ctx.send(tt.taglist)
 
 # 		========================
 
