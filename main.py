@@ -16,11 +16,11 @@ async def determine_prefix(bot, message):
 	else:
 		return tt.p
 
-#bot = commands.Bot(command_prefix = determine_prefix, ...)
-
 bot = commands.Bot(
 	command_prefix = determine_prefix,
-	case_insensitive = True)
+	case_insensitive = True,
+)
+
 ctx = commands.Context
 
 bot.remove_command('help')
@@ -51,6 +51,7 @@ async def on_connect():
 	async def on_ready():
 		sl_on = f"[{tt._t()}] trashbot is online!"; print(sl_on)
 		await bot.change_presence(status=discord.Status.online, activity=tt.presence)
+
 		print(f"\n  ___/-\___    Online | v{tt.v}\n |---------|   {bot.user.name}#{bot.user.discriminator} ({bot.user.id})\n  | | | | |  _                 _     _           _   \n  | | | | | | |_ _ __ __ _ ___| |__ | |__   ___ | |_ \n  | | | | | | __| '__/ _` / __| '_ \| '_ \ / _ \| __|\n  | | | | | | |_| | | (_| \__ \ | | | |_) | (_) | |_ \n  |_______|  \__|_|  \__,_|___/_| |_|_.__/ \___/ \__|\n")	
 		tt.l = f"{sl_st}{scm_fin}\n{sl_pre}\n{sl_on} (v{tt.v})"; await bot.get_channel(tt.logs).send(f"```{tt.l}```")
 
@@ -61,12 +62,6 @@ async def on_message(message):
 	if message.author.bot:
 		pass
 	await bot.process_commands(message)
-
-@bot.event
-async def on_command(ctx):
-	blacklist = pickle.load(open(tt.blacklist_pkl, "rb"))
-	if ctx.message.author in blacklist:
-		pass
 
 @bot.event
 async def on_guild_remove(guild):

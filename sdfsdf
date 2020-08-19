@@ -1,0 +1,18 @@
+!/bin/bash
+rm spigot.jar
+
+cd ~/testplugins
+
+wget https://api.spiget.org/v2/resources/8631/download -O CoreProtect.jar
+wget https://api.spiget.org/v2/resources/64270/download -O SimpleTpa.jar
+wget https://api.spiget.org/v2/resources/52245/download -O ChatManager.jar
+wget https://api.spiget.org/v2/resources/46229/download -O Tablist.jar
+wget https://api.spiget.org/v2/resources/6245/download -O PlaceholderAPI.jar
+wget https://api.spiget.org/v2/resources/58434/download -O TradeSystem.jar
+wget https://api.spiget.org/v2/resources/74208/download -O Graves.jar
+wget https://api.spiget.org/v2/resources/60088/download -O Harbor.jar
+wget https://api.spiget.org/v2/resources/26585/download -O ImageOnMap.jar
+wget https://api.spiget.org/v2/resources/48074/download -O InventoryRollback.jar
+wget https://api.spiget.org/v2/resources/65808/download -O NoBedExplosions.jar
+wget https://api.spiget.org/v2/resources/34315/download -O Vault.jar
+wget https://api.spiget.org/v2/resources/62325/download -O Gsit.jar

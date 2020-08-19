@@ -12,20 +12,19 @@ class fun(commands.Cog):
 
 	@commands.command(aliases=['coglist'])
 	async def cogs(self, ctx):
-		cm_list, cm_num, = '', 0; tt.l = f"[{tt._t()}] {ctx.author} used coglist"
+		cm_list, cm_num, = '', 0
 		for cog, x in tt.loaded.items():
 			if x == True: cm_list = f"{cm_list}'{cog}' : `Loaded`\n"; cm_num += 1
 			if x == False: cm_list = f"{cm_list}'{cog}' : `Unloaded`\n"
 		e_cm = discord.Embed(color=tt.clr['pink'])
 		e_cm.add_field(name=f"cogs `[{cm_num}/{len(tt.cogs)}]`", value=cm_list)
 		e_cm.set_author(name="cog manager", icon_url=tt.ico['cog'])
-		await self.bot.get_channel(tt.logs).send(f"```{tt.l}```"); print(tt.l)
 		await ctx.send(embed=e_cm)
 
 	@commands.command()
 	async def load(self, ctx, cog=None):
 		await ctx.trigger_typing()
-		if ctx.author.id != tt.owner_id: await ctx.send(embed=tt.permdeny)
+		if ctx.author.id != tt.owner_id: await ctx.send(tt.permdeny)
 		else:
 			if cog == None or cog not in tt.cogs: await ctx.send("⚠️ ⠀please specify a valid cog!")
 			elif tt.loaded[cog] == True: await ctx.send(f"⚠️ ⠀'{cog}' is already loaded!")
@@ -45,7 +44,7 @@ class fun(commands.Cog):
 	@commands.command()
 	async def unload(self, ctx, cog=None):
 		await ctx.trigger_typing()
-		if ctx.author.id != tt.owner_id: await ctx.send(embed=tt.permdeny)
+		if ctx.author.id != tt.owner_id: await ctx.send(tt.permdeny)
 		else:
 			if cog == None or cog not in tt.cogs: await ctx.send("⚠️ ⠀please specify a valid cog!")
 			elif tt.loaded[cog] == False: await ctx.send(f"⚠️ ⠀'{cog}' is already unloaded!")
@@ -64,7 +63,7 @@ class fun(commands.Cog):
 	@commands.command()
 	async def unloadf(self, ctx, cog=None):
 		await ctx.trigger_typing()
-		if ctx.author.id != tt.owner_id: await ctx.send(embed=tt.permdeny)
+		if ctx.author.id != tt.owner_id: await ctx.send(tt.permdeny)
 		else:
 			if cog == None or cog not in tt.cogs: await ctx.send("⚠️ ⠀please specify a valid cog!")
 			await ctx.trigger_typing()
@@ -82,7 +81,7 @@ class fun(commands.Cog):
 	@commands.command()
 	async def reload(self, ctx, cog=None):
 		await ctx.trigger_typing()
-		if ctx.author.id != tt.owner_id: await ctx.send(embed=tt.permdeny)
+		if ctx.author.id != tt.owner_id: await ctx.send(tt.permdeny)
 		else:
 			cog = 'all' if not cog else cog
 			if cog == 'all' or cog in tt.cogs:
@@ -121,4 +120,3 @@ class fun(commands.Cog):
 
 def setup(bot):
 	bot.add_cog(fun(bot))
-	

@@ -8,7 +8,6 @@ class help_list():
 		"utilities"	: "commands that provide utility and display information",
 		"fun"				: "commands that do fun stuff like post pictures of cats",
 		"tags"			: "viewing and managing tags on the database",
-		"moderation": "simple moderation commands",
 		"admin"			: "various functions only usable by trashbot's admins",
 		"cogmanager": "extension management; only usable by trashbot's admins",
 	}
@@ -23,6 +22,7 @@ class help_list():
 		"server"		: "gives info about the server",
 		"user"			: "gives info about a user",
 		"avatar"		: "sends the avatar of a user",
+		"clear"			: "deletes a specified number of messages",
 		"prefix"		: "allows server admins to set or remove a custom prefix",
 	}
 	fun = {
@@ -38,10 +38,12 @@ class help_list():
 	#	"lucas"			: "sends a random picture of lucas (sharpz cat)",
 	}
 	tags = {
-		"tag"				: "command for everything related to tags; includes create, remove, edit, owner and list subcommands",
-	}
-	moderation = {
-		"clear"			: "deletes a specified number of messages",
+		"tag"				: "sends the content of the provided tag or allows management of tags using the below subcommands",
+		"create"		: "creates a tag (create [tag name] [tag contents])",
+		"delete"		: "deletes a tag that you own (delete [tag name])",
+		"owner"			: "returns the owner of the provided tag (owner [tag name])",
+		"list"			: "gives a list of tags owned by a user (list [@user])",
+		"random"		: "returns a random tag from the database",
 	}
 	admin = { 
 		"admins"		: "lists all of trashbot's admins",
@@ -63,7 +65,6 @@ class help_list():
 		"utilities"	: utilities,
 		"fun"				: fun,
 		"tags"			: tags,
-		"moderation": moderation,
 		"admin"			: admin,
 		"cogmanager": cogmanager,
 	}

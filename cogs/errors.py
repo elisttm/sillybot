@@ -23,31 +23,39 @@ class errors(commands.Cog):
 			return
 
 		if isinstance(error, commands.BotMissingPermissions):
-			await ctx.send('⚠️ ⠀i do not have permission to do this!')
+			await ctx.send(f'❌ ⠀i do not have permission to do this! {missing_perms}')
 			return
 
 		if isinstance(error, commands.CommandOnCooldown):
-			await ctx.send("⚠️ ⠀please wait {}s before using this command again!".format(math.ceil(error.retry_after)))
+			await ctx.send(f"❌ ⠀please wait `{math.ceil(error.retry_after)}s` before using this command again!")
 			return
 
 		if isinstance(error, commands.MissingPermissions):
-			await ctx.send(embed=tt.permdeny)
+			await ctx.send(f"❌ ⠀you do not have permission to use this command! ({missing_perms})")
 			return
 
 		if isinstance(error, commands.UserInputError):
-			await ctx.send("⚠️ ⠀invalid argument given!")
+			await ctx.send("⚠️ ⠀invalid argument(s) provided!")
 			return
 
 		if isinstance(error, commands.NoPrivateMessage):
 			try: 
-				await ctx.author.send('⚠️ ⠀this command doesnt work in dms!')
+				await ctx.author.send('❌ ⠀this command doesnt work in dms!')
 			except discord.Forbidden: 
 				pass
 			return
 
 		if isinstance(error, commands.CheckFailure):
-			await ctx.send(embed=tt.permdeny)
+			await ctx.send(tt.permdeny)
 			return
+
+		if isinstance(error, commands.CommandInvokeError):
+			if 'HTTPException' in str(e):
+				if 'status code: 413' in str(e):
+					try:
+						await ctx.channel.send('❌ ⠀failed to upload file (too large)')
+					except:
+						pass
 
 		print('Ignoring exception in command {}:'.format(ctx.command), file=sys.stderr)
 		traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)

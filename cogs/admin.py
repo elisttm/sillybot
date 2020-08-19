@@ -43,7 +43,7 @@ class admin(commands.Cog):
 					tt.l = f"[{tt._t()}] ADMIN: presence set to '{presence}' by '{ctx.author}'"
 					await ctx.send(f'✅ ⠀presence set to `{presence}`.')
 				await self.bot.get_channel(tt.logs).send(f"```{tt.l}```"); print(tt.l)
-			else: await ctx.send(embed=tt.permdeny)
+			else: await ctx.send(tt.permdeny)
 		except Exception as e: await ctx.send(tt.msg_e.format(e))
 
 	@commands.command()
@@ -54,7 +54,7 @@ class admin(commands.Cog):
 				tt.l = f"[{tt._t()}] ADMIN: '{ctx.author}' used leave in '{ctx.guild.name}'"
 				await self.bot.get_channel(tt.logs).send(f"```{tt.l}```"); print(tt.l)
 				await ctx.guild.leave()
-			else: await ctx.send(embed=tt.permdeny)
+			else: await ctx.send(tt.permdeny)
 		except Exception as e: await ctx.send(tt.msg_e.format(e))
 
 	@commands.command()
@@ -67,7 +67,7 @@ class admin(commands.Cog):
 				tt.mrestart = True
 				await self.bot.close()
 				await sys.exit(0)
-			else: await ctx.send(embed=tt.permdeny)
+			else: await ctx.send(tt.permdeny)
 		except Exception as e: await ctx.send(tt.msg_e.format(e))
 
 	@commands.command()
@@ -75,15 +75,18 @@ class admin(commands.Cog):
 		try:
 			if ctx.author.id in tt.admins:
 				mn_users, mn_changed, mn_failed = 0
-				for member in ctx.guild.members: mn_users += 1
+				for member in ctx.guild.members: 
+					mn_users += 1
 				await ctx.send(f"⌛ ⠀attempting to change `{mn_users}` nicknames, please wait...")
 				for member in ctx.guild.members:
 					await ctx.trigger_typing()
-					try: await member.edit(nick=nickmass); mn_changed += 1
-					except: mn_failed += 1
+					try: 
+						await member.edit(nick=nickmass); mn_changed += 1
+					except: 
+						mn_failed += 1
 				await ctx.send(f"✅ ⠀`{mn_changed}` nicknames successfully changed, `{mn_failed}` failed.")
 				await self.bot.get_channel(tt.logs).send(f"```{tt.l}```"); print(tt.l)
-			else: await ctx.send(embed=tt.permdeny)
+			else: await ctx.send(tt.permdeny)
 		except Exception as e: await ctx.send(tt.msg_e.format(e))
 	
 	@commands.command()
@@ -96,7 +99,7 @@ class admin(commands.Cog):
 				tt.l = f"[{tt._t()}] ADMIN: '{ctx.author}' called for the list of guilds\n"; tt.l = tt.l + guildlist
 				await self.bot.get_channel(tt.logs).send(f"```{tt.l}```"); print(tt.l)
 				await ctx.send("✅ ⠀guild list sent to logs!")
-			else: await ctx.send(embed=tt.permdeny)
+			else: await ctx.send(tt.permdeny)
 		except Exception as e: await ctx.send(tt.msg_e.format(e))
 
 	@commands.command()
@@ -112,7 +115,7 @@ class admin(commands.Cog):
 					await ctx.message.add_reaction('✅')
 					await self.bot.get_channel(tt.logs).send(f"```{tt.l}```"); print(tt.l)
 					echochannel = 0
-			else: await ctx.send(embed=tt.permdeny)
+			else: await ctx.send(tt.permdeny)
 		except Exception as e: await ctx.send(tt.msg_e.format(e))
 
 	@commands.command()
@@ -123,7 +126,7 @@ class admin(commands.Cog):
 				await ctx.message.add_reaction('✅')
 				await self.bot.get_channel(tt.logs).send(f"```{tt.l}```"); print(tt.l)
 				await os.execv(sys.executable, ['python'] + sys.argv)
-			else: await ctx.send(embed=tt.permdeny)
+			else: await ctx.send(tt.permdeny)
 		except Exception as e: await ctx.send(tt.msg_e.format(e))
 
 	@commands.command()
@@ -160,7 +163,7 @@ class admin(commands.Cog):
 							await ctx.send("❌ ⠀user is not blacklisted!")
 				else:
 					await ctx.send("invalid subcommand")
-			else: await ctx.send(embed=tt.permdeny)
+			else: await ctx.send(tt.permdeny)
 		except Exception as e: await ctx.send(tt.msg_e.format(e))
 
 #pickle.dump(blacklist, open(tt.blacklist_pkl, "wb"))
@@ -170,4 +173,3 @@ class admin(commands.Cog):
 
 def setup(bot):
 	bot.add_cog(admin(bot))
-	

@@ -28,7 +28,6 @@ def dirsize(dir = ''):
 	size0 = round(size / 100000) / 10
 	return f"{len(files)} ({size0} MB)"
 
-
 class fun(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot
@@ -41,8 +40,7 @@ class fun(commands.Cog):
 			if botsay is None:
 				await ctx.send("⚠️ ⠀please specify what you want me to say!")
 			else:
-				botsay = botsay.replace("@", "@.")
-				discord.utils.escape_mentions(botsay)
+				botsay = tt.sanitize(text = botsay)
 				tt.l = f"[{tt._t()}] '{ctx.author}' in '{ctx.guild.name}' said '{botsay}'"
 				await ctx.send(botsay)
 				await self.bot.get_channel(tt.logs).send(f"```{tt.l}```"); print(tt.l)
@@ -58,7 +56,6 @@ class fun(commands.Cog):
 			await ctx.send(file=discord.File(f"media/{catdir}/{catpic}"))
 		except Exception as e: 
 			await ctx.send(tt.msg_e.format(e))
-
 
 	@commands.command()
 	async def tommy(self, ctx, size = None):
@@ -114,14 +111,7 @@ class fun(commands.Cog):
 		except Exception as e: 
 			await ctx.send(tt.msg_e.format(e))
 
-	@commands.command()
-	async def sex(self, ctx):
-		try: await ctx.author.send("")
-		except Exception as e: 
-			await ctx.send(tt.msg_e.format(e))
-
 # 		========================
 
 def setup(bot):
 	bot.add_cog(fun(bot))
-	

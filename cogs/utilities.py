@@ -16,7 +16,8 @@ class utilities(commands.Cog):
 	async def about(self, ctx):
 		await ctx.trigger_typing()
 		try:
-			guild_num = len(list(self.bot.guilds)); user_num = 0
+			guild_num = len(list(self.bot.guilds))
+			user_num = 0
 			for user in self.bot.users:
 				if user.bot is True: continue 
 				else: user_num += 1
@@ -33,14 +34,14 @@ class utilities(commands.Cog):
 	@commands.command()
 	async def ping(self, ctx):
 		await ctx.trigger_typing()
-		ping = 0; ping = round(self.bot.latency * 1000)
+		ping = 0 
+		ping = round(self.bot.latency * 1000)
 		await ctx.send(f"{ping}ms")
 
 	@commands.command()
 	async def invite(self, ctx):
 		await ctx.trigger_typing()
-		await ctx.send(tt.invite)
-
+		await ctx.send(f"use this link to invite trashbot to your server\n{tt.invite}")
 
 	@commands.command()
 	async def user(self, ctx, user: discord.Member = None):
@@ -51,9 +52,9 @@ class utilities(commands.Cog):
 				nametag = ''
 				if user.nick != None: nametag = nametag + f'({user.nick}) '
 				if user.bot == True: nametag = nametag + f'[BOT] '
-			except: nametag = ''
-			e_user = discord.Embed(title=f"{user} {nametag}", 
-				description=f"**ID**: `{user.id}`\n**guild join**: __{user.joined_at.strftime(tt.time0)}__\n**created**: __{user.created_at.strftime(tt.time0)}__", color=user.top_role.colour)
+			except: 
+				nametag = ''
+			e_user = discord.Embed(title=f"{user} {nametag}", description=f"**ID**: `{user.id}`\n**guild join**: __{user.joined_at.strftime(tt.time0)}__\n**created**: __{user.created_at.strftime(tt.time0)}__", color=user.top_role.colour)
 			e_user.set_author(name=f"{user.name} :: user profile", icon_url=tt.ico['info'])
 			e_user.set_thumbnail(url=user.avatar_url)
 			e_user.set_footer(text=f"requested by {ctx.author}", icon_url=ctx.author.avatar_url_as(format='png'))
@@ -76,8 +77,7 @@ class utilities(commands.Cog):
 	async def server(self, ctx):
 		await ctx.trigger_typing()
 		try:
-			e_server = discord.Embed(title=" ", 
-				description=f"**ID**: `{ctx.message.guild.id}`\n**owner**: {ctx.message.guild.owner}\n**region**: {ctx.guild.region}\n**members**: {len(ctx.message.guild.members)}\n**created**: __{ctx.message.guild.created_at.strftime(tt.time0)}__", color=tt.clr['pink'])
+			e_server = discord.Embed(title=f"{ctx.message.guild.name}", description=f"**ID**: `{ctx.message.guild.id}`\n**owner**: {ctx.message.guild.owner}\n**region**: {ctx.guild.region}\n**members**: {len(ctx.message.guild.members)}\n**created**: __{ctx.message.guild.created_at.strftime(tt.time0)}__", color=tt.clr['pink'])
 			e_server.set_author(name=f"{ctx.message.guild.name} :: server info", icon_url=tt.ico['info'])
 			e_server.set_thumbnail(url=ctx.message.guild.icon_url)
 			e_server.set_footer(text=f"requested by {ctx.author}", icon_url=ctx.author.avatar_url_as(format='png'))
@@ -85,22 +85,39 @@ class utilities(commands.Cog):
 		except Exception as e: await ctx.send(tt.msg_e.format(e))
 
 	@commands.command()
-	@commands.cooldown(1, 300)
+	@commands.cooldown(1, 300, commands.BucketType.user)
 	async def report(self, ctx, *, report=None):
 		await ctx.trigger_typing()
 		try:
 			if report == None:
-				report_info = '> to send a feedback or bug report, use "t!report send [message]"'
-				await ctx.send(report_info)
-			elif len(report) > 1900:
+				await ctx.send("ℹ️ ⠀to send feedback or a bug report, use 't!report [message]'")
+			elif len(report) > 1000:
 				await ctx.send("⚠️ ⠀your report is too long!")
-			elif report != None:
+			else:
+				report = tt.sanitize(text = report)
+				report = report.replace('`', '\`')
 				tt.l = f"[{tt._t()}] feedback recieved from '{ctx.author}' in '{ctx.guild.name}'"
-				await self.bot.get_channel(tt.logs).send(f"{tt.l}\n\"{report}\""); print(tt.l); await self.bot.get_user(tt.owner_id).send(f"{tt.l}\n> \"{report}\"")
+				await self.bot.get_channel(tt.logs).send(f"{tt.l}\n\"{report}\""); print(tt.l); 
+				await self.bot.get_user(tt.owner_id).send(f"{tt.l}\n> \"```{report}```\"")
 				await ctx.send("✅ ⠀your report has been submitted!")
 		except Exception as error:
 			await ctx.send(tt.msg_e.format(error))
 
+	@commands.command(aliases=['purge'])
+	@commands.has_permissions(manage_messages = True)
+	async def clear(self, ctx, clear:int):
+		try:
+			clear_invalidamount = "⚠️ ⠀invalid message clear amount! ({})"
+			if clear == 0: 
+				await ctx.send(clear_invalidamount.format("amount must be at least 1"))
+			elif clear > 100: 
+				await ctx.send(clear_invalidamount.format("amount cannot exceed 100"))
+			else:
+				await ctx.message.delete()
+				await ctx.channel.purge(limit=(clear))
+				await ctx.send(f"✅ ⠀cleared `{clear}` messages", delete_after=2)
+		except Exception as error: 
+			await ctx.send(tt.msg_e.format(error))
 
 	@commands.command()
 	@commands.has_permissions(administrator = True)
@@ -112,8 +129,9 @@ class utilities(commands.Cog):
 				if ctx.message.guild.id in custom_prefixes:
 					await ctx.send(f"ℹ️ ⠀this guild's custom prefix is '{custom_prefixes[ctx.message.guild.id]}'")
 				else:
-					await ctx.send("⚠️ ⠀no custom prefix for this guild. do t!prefix set to create one!")
+					await ctx.send("⚠️ ⠀no custom prefix for this guild. do `t!prefix set [prefix]` to create one!")
 			else:
+				action = action.lower()
 				if action == 'set':
 					if prefix != None:
 						if ctx.message.guild.id in custom_prefixes:
@@ -132,10 +150,8 @@ class utilities(commands.Cog):
 
 		except Exception as error:
 			await ctx.send(tt.msg_e.format(error))
-			
 
 # 		========================
 
 def setup(bot):
 	bot.add_cog(utilities(bot))
-	
