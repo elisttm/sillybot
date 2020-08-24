@@ -18,12 +18,9 @@ class reactions(commands.Cog):
 		if 'y/n' in message.content.lower():
 			await message.add_reaction('👍')
 			await message.add_reaction('👎')
-#		if 'u/d' in message.content.lower():
-#			try:
-#				await message.add_reaction(self.bot.get_emoji(id))
-#				await message.add_reaction(self.bot.get_emoji(id))
-#			except:
-#				pass
+		if 'u/d' in message.content.lower():
+			await message.add_reaction('🔼')
+			await message.add_reaction('🔽')
 #		if message.author.id == 338292198866944002 and message.channel.id == 697587669051637760:
 #				await message.add_reaction('😐')
 

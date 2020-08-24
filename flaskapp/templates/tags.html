@@ -1,0 +1,54 @@
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="icon" src="/static/favicon.ico" type='image/x-icon' />
+	<link rel="shortcut icon" href="/static/favicon.ico">
+	<link rel="stylesheet" href="/static/style.css" type="text/css" />
+	<title>{{ title }}</title>
+	<meta property="og:type" content="website">
+	<meta property="og:site_name" content="trashbot">
+	<meta property="og:title" content="{{ og_name }}">
+	<meta property="og:description" content="{{ og_description }}">
+	<style>
+		h3 {padding-top:2px;}
+		li {padding-bottom: 2px}
+		b {font-size: 14px}
+	</style>
+</head>
+
+<body>
+
+<div style="padding:0 15% 0 15%;">
+
+	<br><h1 align="center">{{ header }}</h1>	
+
+		<form align="center" action="/tags">
+			<input type="text" placeholder="filter tags by owner ID" name="search"></input>
+			<input type="submit" value="search"></input>
+		</form><br>
+
+	{% for tag in tags_list: %}
+		{% if search == True: %}
+			{% if tags_list[tag]['owner'] == user_id: %}
+				<h3>{{ tag }}</h3>
+					<ul>
+						<li><b>date:</b> {{ tags_list[tag]['date'] }}</li>
+						<li><b>content:</b> {{ tags_list[tag]['content'] }}</li>
+					</ul>
+			{% endif %}
+		{% else %}
+				<h3>{{ tag }}</h3>
+					<ul>
+						<li><b>date:</b> {{ tags_list[tag]['date'] }}</li>
+						<li><b>owner:</b> {{ tags_list[tag]['owner'] }}</li>
+						<li><b>content:</b> {{ tags_list[tag]['content'] }}</li>
+					</ul>
+		{% endif %}
+	{% endfor %}
+
+</div><br>
+
+</body>
+</html>

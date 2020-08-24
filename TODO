@@ -1,1 +1,5 @@
-flesh out commands list to be more specific and link the page instead of a help command embed
+trashbot todo list
+
+- read up on the discordpy api and learn how to make my code more manageable (better utilize command groups, command checks, error handlers, sanitization...)
+- try reworking how info commands (t!server, t!user, t!about...) are output cosmetic-wise; change layout of embeds, change formatting, display extra information, etc
+- mess around with making trashbot extremely customizable (per-server custom commands, cog/command blacklists, user blacklists...) especially through some kind of dashboard page

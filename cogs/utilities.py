@@ -1,6 +1,5 @@
 import discord 
 import pickle
-import time, datetime
 from discord.ext import commands
 import data.constants as tt
 
@@ -44,6 +43,7 @@ class utilities(commands.Cog):
 		await ctx.send(f"use this link to invite trashbot to your server\n{tt.invite}")
 
 	@commands.command()
+	@commands.guild_only()
 	async def user(self, ctx, user: discord.Member = None):
 		await ctx.trigger_typing()
 		user = ctx.author if not user else user
@@ -62,6 +62,7 @@ class utilities(commands.Cog):
 		except Exception as error: await ctx.send(tt.msg_e.format(error))
 
 	@commands.command()
+	@commands.guild_only()
 	async def avatar(self, ctx, user: discord.Member = None):
 		await ctx.trigger_typing()
 		user = ctx.author if not user else user
@@ -74,6 +75,7 @@ class utilities(commands.Cog):
 		except Exception as error: await ctx.send(tt.msg_e.format(error))
 
 	@commands.command()
+	@commands.guild_only()
 	async def server(self, ctx):
 		await ctx.trigger_typing()
 		try:
@@ -85,6 +87,7 @@ class utilities(commands.Cog):
 		except Exception as e: await ctx.send(tt.msg_e.format(e))
 
 	@commands.command()
+	@commands.guild_only()
 	@commands.cooldown(1, 300, commands.BucketType.user)
 	async def report(self, ctx, *, report=None):
 		await ctx.trigger_typing()
@@ -103,7 +106,27 @@ class utilities(commands.Cog):
 		except Exception as error:
 			await ctx.send(tt.msg_e.format(error))
 
+	@commands.command()
+	@commands.guild_only()
+	@commands.has_permissions(administrator = True)
+	async def massnick(self, ctx, *, nickmass=None):
+		try:
+			mn_users, mn_changed, mn_failed = 0
+			for member in ctx.guild.members: 
+				mn_users += 1
+			await ctx.send(f"⌛ ⠀attempting to change `{mn_users}` nicknames, please wait...")
+			for member in ctx.guild.members:
+				await ctx.trigger_typing()
+				try: 
+					await member.edit(nick=nickmass); mn_changed += 1
+				except: 
+					mn_failed += 1
+			await ctx.send(f"✅ ⠀`{mn_changed}` nicknames successfully changed, `{mn_failed}` failed.")
+			await self.bot.get_channel(tt.logs).send(f"```{tt.l}```"); print(tt.l)
+		except Exception as e: await ctx.send(tt.msg_e.format(e))
+
 	@commands.command(aliases=['purge'])
+	@commands.guild_only()
 	@commands.has_permissions(manage_messages = True)
 	async def clear(self, ctx, clear:int):
 		try:
@@ -120,6 +143,7 @@ class utilities(commands.Cog):
 			await ctx.send(tt.msg_e.format(error))
 
 	@commands.command()
+	@commands.guild_only()
 	@commands.has_permissions(administrator = True)
 	async def prefix(self, ctx, action=None, prefix=None):
 		await ctx.trigger_typing()

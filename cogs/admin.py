@@ -1,6 +1,5 @@
 import discord
 import sys, os
-import psutil
 import pickle
 from discord.ext import commands
 import data.constants as tt
@@ -58,66 +57,48 @@ class admin(commands.Cog):
 		except Exception as e: await ctx.send(tt.msg_e.format(e))
 
 	@commands.command()
-	async def shutdown(self, ctx):
-		try:
-			if ctx.author.id == tt.owner_id:
-				tt.l = f"[{tt._t()}] ADMIN: shutdown by '{ctx.author}'"
-				await ctx.message.add_reaction('✅')
-				await self.bot.get_channel(tt.logs).send(f"```{tt.l}```"); print(tt.l)
-				tt.mrestart = True
-				await self.bot.close()
-				await sys.exit(0)
-			else: await ctx.send(tt.permdeny)
-		except Exception as e: await ctx.send(tt.msg_e.format(e))
-
-	@commands.command()
-	async def massnick(self, ctx, *, nickmass=None):
-		try:
-			if ctx.author.id in tt.admins:
-				mn_users, mn_changed, mn_failed = 0
-				for member in ctx.guild.members: 
-					mn_users += 1
-				await ctx.send(f"⌛ ⠀attempting to change `{mn_users}` nicknames, please wait...")
-				for member in ctx.guild.members:
-					await ctx.trigger_typing()
-					try: 
-						await member.edit(nick=nickmass); mn_changed += 1
-					except: 
-						mn_failed += 1
-				await ctx.send(f"✅ ⠀`{mn_changed}` nicknames successfully changed, `{mn_failed}` failed.")
-				await self.bot.get_channel(tt.logs).send(f"```{tt.l}```"); print(tt.l)
-			else: await ctx.send(tt.permdeny)
-		except Exception as e: await ctx.send(tt.msg_e.format(e))
-	
-	@commands.command()
 	async def guilds(self, ctx):
 		try:
 			await ctx.trigger_typing()
 			if ctx.author.id in tt.admins:
 				guildlist = f''
-				for guild in self.bot.guilds: guildlist = guildlist + f'	 -- {guild.name} ({guild.owner}) [{guild.id}]\n'
-				tt.l = f"[{tt._t()}] ADMIN: '{ctx.author}' called for the list of guilds\n"; tt.l = tt.l + guildlist
+				guildnum = 0
+				for guild in self.bot.guilds: 
+					guildnum += 1
+					guildlist = guildlist + f'	 {guildnum}. {guild.name} ({guild.owner}) [{guild.id}]\n'
+				tt.l = f"[{tt._t()}] ADMIN: '{ctx.author}' called for the list of guilds ({guildnum})\n"; tt.l = tt.l + guildlist
 				await self.bot.get_channel(tt.logs).send(f"```{tt.l}```"); print(tt.l)
 				await ctx.send("✅ ⠀guild list sent to logs!")
 			else: await ctx.send(tt.permdeny)
 		except Exception as e: await ctx.send(tt.msg_e.format(e))
 
 	@commands.command()
-	async def echo(self, ctx, echochannel: int, *, botsay=None):
+	async def echo(self, ctx, channel:discord.TextChannel, *, botsay=None):
 		try:
 			if ctx.author.id in tt.admins:
 				if botsay is None:
 					await ctx.send("⚠️ ⠀please specify what you want me to say!")
 				else:
 					tt.sanitize(botsay)
-					tt.l = f"[{tt._t()}] '{ctx.author}' echoed from '{ctx.guild.name}' to channel ID '{echochannel}' message '{botsay}'"
-					await self.bot.get_channel(echochannel).send(botsay)
+					tt.l = f"[{tt._t()}] '{ctx.author}' echoed from '{ctx.guild.name}' to channel ID '{channel.id}' message '{botsay}'"
+					await self.bot.get_channel(channel).send(botsay)
 					await ctx.message.add_reaction('✅')
 					await self.bot.get_channel(tt.logs).send(f"```{tt.l}```"); print(tt.l)
-					echochannel = 0
 			else: await ctx.send(tt.permdeny)
 		except Exception as e: await ctx.send(tt.msg_e.format(e))
 
+	@commands.command()
+	async def shutdown(self, ctx):
+		try:
+			if ctx.author.id == tt.owner_id:
+				tt.l = f"[{tt._t()}] ADMIN: shutdown by '{ctx.author}'"
+				await ctx.message.add_reaction('✅')
+				await self.bot.get_channel(tt.logs).send(f"```{tt.l}```"); print(tt.l)
+				await self.bot.close()
+				await sys.exit(0)
+			else: await ctx.send(tt.permdeny)
+		except Exception as e: await ctx.send(tt.msg_e.format(e))
+	
 	@commands.command()
 	async def restart(self, ctx):
 		try:
