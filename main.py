@@ -101,7 +101,8 @@ def get_user(user_id:int):
 
 @app.route('/')
 @app.route('/commands')
-def main(): return render_template('helplist.html', cmd = help_list(), version = tt.v)	
+def main(): 
+	return render_template('helplist.html', cmd = help_list(), version = tt.v)	
 
 @app.route('/tags', defaults={'search': None})
 @app.route('/tags/', defaults={'search': None})
@@ -112,13 +113,12 @@ def tags(search):
 	if not search:
 		return render_template('tags.html', search = False, title = f"trashbot tag list", header = "list of all tags in the database", og_name = "list of tags", og_description = "a list of every tag in trashbot's database", tags_list = pickle.load(open(tt.tags_pkl, "rb")))
 	try:
-		user_id = int(search)
-		user = get_user(user_id = user_id)
+		user = get_user(int(search))
 	except:
 		return render_template('tags.html', search = True, title = f"trashbot tag list :: invalid ID", header = "invalid user ID provided in search", og_name = "invalid tag owner", og_description = "invalid user provided for tag list search")
 	if user is None:
 		return render_template('tags.html', search = True, title = f"trashbot tag list :: invalid ID", header = "invalid user ID provided in search", og_name = "invalid tag owner", og_description = "invalid user provided for tag list search")
-	return render_template('tags.html', search = True, title = f"trashbot tag list :: {user}", header = f"all tags owned by ID {user} ({user.id})", og_name = f"list of tags owned by {user}", og_description = f"", user = user, user_id = user_id, tags_list = pickle.load(open(tt.tags_pkl, "rb")))
+	return render_template('tags.html', search = True, title = f"trashbot tag list :: {user}", header = f"all tags owned by {user} ({user.id})", og_name = f"list of tags owned by {user}", og_description = f"", user = user, user_id = user.id, tags_list = pickle.load(open(tt.tags_pkl, "rb")))
 
 # 		========================
 

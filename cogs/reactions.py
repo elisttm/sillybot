@@ -1,5 +1,4 @@
 import discord
-import pickle
 from discord.ext import commands
 import data.constants as tt
 

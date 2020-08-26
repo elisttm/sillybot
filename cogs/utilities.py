@@ -87,6 +87,11 @@ class utilities(commands.Cog):
 		except Exception as e: await ctx.send(tt.msg_e.format(e))
 
 	@commands.command()
+	async def github(self, ctx):
+		await ctx.trigger_typing()
+		await ctx.send(tt.github)
+
+	@commands.command()
 	@commands.guild_only()
 	@commands.cooldown(1, 300, commands.BucketType.user)
 	async def report(self, ctx, *, report=None):
@@ -171,7 +176,6 @@ class utilities(commands.Cog):
 					else:
 						await ctx.send(f"❌ ⠀this guild does not have a custom prefix set!")
 				pickle.dump(custom_prefixes, open(tt.prefixes_pkl, "wb"))
-
 		except Exception as error:
 			await ctx.send(tt.msg_e.format(error))
 

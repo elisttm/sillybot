@@ -20,7 +20,7 @@ import data.constants as tt
 tags_list = pickle.load(open(tt.tags_pkl, "rb"))
 
 reserved_args = [
-	'create', 'c', 'remove', 'r', 'edit', 'transfer', 'owner', 'random', 'forceremove', 'fr', 'forcetransfer', 'ft',
+	'create', 'c', 'remove', 'r', 'edit', 'transfer', 'owner', 'random', 'forceedit', 'fe', 'forceremove', 'fr', 'forcetransfer', 'ft',
 	
 	'@everyone', '@here',
 ]
@@ -70,7 +70,6 @@ class tags(commands.Cog):
 	@commands.cooldown(1, 2)
 	async def create(self, ctx, tag_name:str, *, tag_content:str):
 		tag_name = tag_name.lower()
-		
 		if tag_name in tags_list: 
 			await ctx.send(tag_alreadyexists.format(tag_name))
 		else:
@@ -152,6 +151,19 @@ class tags(commands.Cog):
 		else: 
 			await ctx.send(tag_doesnotexist.format(tag_name))
 
+	@tag.command()
+	@commands.cooldown(1, 2)
+	async def forceedit(self, ctx, tag_name:str, *, tag_content:str):
+		tag_name = tag_name.lower()
+		if tag_name in tags_list:
+			tag_content = tt.sanitize(text = tag_content)
+			tags_list[tag_name]['content'] = tag_content
+			tags_list[tag_name]['date'] = f'{curtime()} (edited)'
+			pickle.dump(tags_list, open(tt.tags_pkl, "wb"))
+			await ctx.send(f"✅ ⠀tag \"{tag_name}\" forcefully updated!")
+		else: 
+			await ctx.send(tag_doesnotexist.format(tag_name))
+
 	@tag.command(aliases=['fr'])
 	@commands.cooldown(1, 2)
 	async def forceremove(self, ctx, tag_name:str):
@@ -194,6 +206,14 @@ class tags(commands.Cog):
 			user_tags_link = tt.tagslist + "?search=" + str(user.id)
 			list_tags_msg = f"ℹ️ ⠀**{user}** owns **{tags_num}** tags:\n{user_tags_link}"
 			await ctx.send(list_tags_msg)
+
+	@tag.command()
+	async def listall(self, ctx):
+		tags_num = 0
+		for tag in tags_list:
+			tags_num += 1	
+		list_tags_msg = f"ℹ️ ⠀there are **{tags_num}** tags in the database:\n{tt.tagslist}"
+		await ctx.send(list_tags_msg)
 
 # 		========================
 

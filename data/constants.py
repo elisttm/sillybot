@@ -43,6 +43,7 @@ presence = discord.Game(f"{tt.p}help | v{tt.v}")
 desc = "a simple discord bot made by elisttm | t!help for commands"
 
 website = 'https://elisttm.space/trashbot'
+github = 'https://github.com/elisttm/trashbot'
 invite = 'https://discordapp.com/oauth2/authorize?client_id=439166087498825728&scope=bot&permissions=8'
 
 helplist = 'https://trashbot.elisttm.space/commands'

@@ -4,7 +4,6 @@ class help_list():
 
 		'general': {
 			'description'	: "basic commands for basic functions",
-			
 			'commands': {
 				'help'		 	: "links to this list of commands",
 				'about'			: "provides useful bot info", 
@@ -14,7 +13,6 @@ class help_list():
 
 		'utilities': {
 			'description'	: "helpful utility/informative commands",
-			
 			'commands': {
 				'ping' : "sends the bot's latency",
 				'server' : "provides info about the current server",
@@ -29,7 +27,6 @@ class help_list():
 
 		'fun': {
 			'description'	: "fun commands for games or whatever",
-			
 			'commands': {
 				'say <message>' : "makes trashbot say a specified message", 
 				
@@ -37,8 +34,7 @@ class help_list():
 		},
 
 		'cats': {
-			'description': "commands for random pictures of funny cats",
-			
+			'description': "commands for random pictures of funny cats (images fetched from my personally hosted cat api)",
 			'commands': {
 				'cat' : "sends a random picture of any cat",
 				'tommy' : "sends a random picture of tommy (zeebrongis' cat)",
@@ -53,7 +49,6 @@ class help_list():
 		
 		'tags': {
 			'description'	: "viewing and management of tags in the database",
-			
 			'commands': {
 				'tag <tag>' : "sends the content of the provided tag",
 				'tag create <tag> <contents>' : "creates a tag with the given name and content",
@@ -62,15 +57,16 @@ class help_list():
 				'tag transfer <tag> <user>' : "transfers ownership of a tag you own to a specified user",
 				'tag owner <tag>' : "provides the owner of the given tag",
 				'tag list <user>' : "gives a list of tags owned by a user",
+				'tag listall' : "gives a list of every tag in the database",
 				'tag random' : "returns a random tag from the database",
-				'*tag forceremove <tag>' : "deletes the specified tag from the database",
+				'*tag forceedit <tag> <content>' : "forcefully edits a tag with the given contents",
+				'*tag forceremove <tag>' : "forcefully deletes the specified tag from the database",
 				'*tag forcetransfer <tag> <user>' : "forcefully gives ownership of a tag to a specified user"
 			}
 		},
 
 		'admin': { 
 			'description'	: "various bot functions restricted to bot admins",
-			
 			'commands': {
 				'admins' : "lists all of trashbot's admins",
 				'*presence <text>' : "changes trashbot's playing status",
@@ -82,8 +78,7 @@ class help_list():
 		},
 
 		'cogmanager': {
-			'description'	: "extension management for debugging or whatever",
-			
+			'description'	: "extension management for debugging or whatever",	
 			'commands': {
 				'cogs' : 'lists all loadable cogs and their statuses', 
 				'*load <cog>' : 'loads a specified cog',
