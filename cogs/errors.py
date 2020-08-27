@@ -24,7 +24,7 @@ class errors(commands.Cog):
 			return
 
 		if isinstance(error, commands.BotMissingPermissions):
-			await ctx.send(f'❌ ⠀i do not have permission to do this!')
+			await ctx.send("❌ ⠀i do not have permission to do this!")
 			return
 
 		if isinstance(error, commands.CommandOnCooldown):
@@ -32,23 +32,23 @@ class errors(commands.Cog):
 			return
 
 		if isinstance(error, commands.MissingPermissions):
-			await ctx.send(f"❌ ⠀you do not have permission to use this command!")
+			await ctx.send("❌ ⠀you do not have permission to use this command!")
 			return
 
 		if isinstance(error, commands.UserInputError):
 			ctx.command.reset_cooldown(ctx)
-			await ctx.send("⚠️ ⠀invalid argument(s) provided!")
+			await ctx.send("⚠️ ⠀invalid argument(s) provided! ")
 			return
 
 		if isinstance(error, commands.NoPrivateMessage):
 			try: 
-				await ctx.author.send('❌ ⠀this command doesnt work in dms!')
+				await ctx.author.send("❌ ⠀this command is disabled in dms!")
 			except discord.Forbidden: 
 				pass
 			return
 
 		if isinstance(error, commands.CheckFailure):
-			await ctx.send(tt.permdeny)
+			await ctx.send("❌ ⠀you do not have permission to use this command!")
 			return
 
 		print('Ignoring exception in command {}:'.format(ctx.command), file=sys.stderr)

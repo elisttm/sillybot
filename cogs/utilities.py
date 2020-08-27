@@ -1,5 +1,6 @@
 import discord 
 import pickle
+import time
 from discord.ext import commands
 import data.constants as tt
 
@@ -8,6 +9,11 @@ import data.constants as tt
 class utilities(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot
+
+	async def send_log(self, log:str):
+		log_msg = f"[{tt._t()}] {log}"
+		print(log_msg)
+		await self.bot.get_channel(tt.logs).send(f"```{log_msg}```")
 
 # 		========================
 
@@ -30,12 +36,15 @@ class utilities(commands.Cog):
 		except Exception as error:
 			await ctx.send(tt.msg_e.format(error))
 
-	@commands.command()
+	@commands.command(pass_context=True)
 	async def ping(self, ctx):
-		await ctx.trigger_typing()
-		ping = 0 
-		ping = round(self.bot.latency * 1000)
-		await ctx.send(f"{ping}ms")
+		try:
+			ptime = time.time()
+			message = await ctx.send("⌛ ⠀pinging...")
+			ping = round((time.time() - ptime) * 1000)
+			await message.edit(content=f"🏓 ⠀pong! ({ping}ms)")
+		except Exception as error:
+			await ctx.send(tt.msg_e.format(error))
 
 	@commands.command()
 	async def invite(self, ctx):
@@ -59,7 +68,8 @@ class utilities(commands.Cog):
 			e_user.set_thumbnail(url=user.avatar_url)
 			e_user.set_footer(text=f"requested by {ctx.author}", icon_url=ctx.author.avatar_url_as(format='png'))
 			await ctx.send(embed=e_user)
-		except Exception as error: await ctx.send(tt.msg_e.format(error))
+		except Exception as error: 
+			await ctx.send(tt.msg_e.format(error))
 
 	@commands.command()
 	@commands.guild_only()
@@ -72,7 +82,8 @@ class utilities(commands.Cog):
 			e_avatar.set_image(url=user.avatar_url)
 			e_avatar.set_footer(text=f"requested by {ctx.author}", icon_url=ctx.author.avatar_url_as(format='png'))
 			await ctx.send(embed=e_avatar)
-		except Exception as error: await ctx.send(tt.msg_e.format(error))
+		except Exception as error: 
+			await ctx.send(tt.msg_e.format(error))
 
 	@commands.command()
 	@commands.guild_only()
@@ -84,7 +95,8 @@ class utilities(commands.Cog):
 			e_server.set_thumbnail(url=ctx.message.guild.icon_url)
 			e_server.set_footer(text=f"requested by {ctx.author}", icon_url=ctx.author.avatar_url_as(format='png'))
 			await ctx.send(embed=e_server)
-		except Exception as e: await ctx.send(tt.msg_e.format(e))
+		except Exception as e: 
+			await ctx.send(tt.msg_e.format(e))
 
 	@commands.command()
 	async def github(self, ctx):
@@ -94,19 +106,17 @@ class utilities(commands.Cog):
 	@commands.command()
 	@commands.guild_only()
 	@commands.cooldown(1, 300, commands.BucketType.user)
-	async def report(self, ctx, *, report=None):
+	async def report(self, ctx, *, report:str):
 		await ctx.trigger_typing()
 		try:
-			if report == None:
-				await ctx.send("ℹ️ ⠀to send feedback or a bug report, use 't!report [message]'")
-			elif len(report) > 1000:
+			if len(report) > 1000:
 				await ctx.send("⚠️ ⠀your report is too long!")
 			else:
 				report = tt.sanitize(text = report)
 				report = report.replace('`', '\`')
-				tt.l = f"[{tt._t()}] feedback recieved from '{ctx.author}' in '{ctx.guild.name}'"
-				await self.bot.get_channel(tt.logs).send(f"{tt.l}\n\"{report}\""); print(tt.l); 
-				await self.bot.get_user(tt.owner_id).send(f"{tt.l}\n> \"```{report}```\"")
+				report_info = f"feedback recieved from '{ctx.author}' in '{ctx.guild.name}'"
+				await self.send_log(log = report_info)
+				await self.bot.get_user(tt.owner_id).send(f"{report_info}\n> ```{report}```")
 				await ctx.send("✅ ⠀your report has been submitted!")
 		except Exception as error:
 			await ctx.send(tt.msg_e.format(error))
@@ -114,21 +124,24 @@ class utilities(commands.Cog):
 	@commands.command()
 	@commands.guild_only()
 	@commands.has_permissions(administrator = True)
-	async def massnick(self, ctx, *, nickmass=None):
+	async def massnick(self, ctx, *, nickname):
 		try:
 			mn_users, mn_changed, mn_failed = 0
 			for member in ctx.guild.members: 
 				mn_users += 1
 			await ctx.send(f"⌛ ⠀attempting to change `{mn_users}` nicknames, please wait...")
+			await self.send_log(log = f"MASSNICK: [{ctx.guild.name}] attempting to change '{mn_users}' nicknames to '{nickname}'...")
 			for member in ctx.guild.members:
 				await ctx.trigger_typing()
 				try: 
-					await member.edit(nick=nickmass); mn_changed += 1
+					await member.edit(nick=nickname)
+					mn_changed += 1
 				except: 
 					mn_failed += 1
 			await ctx.send(f"✅ ⠀`{mn_changed}` nicknames successfully changed, `{mn_failed}` failed.")
-			await self.bot.get_channel(tt.logs).send(f"```{tt.l}```"); print(tt.l)
-		except Exception as e: await ctx.send(tt.msg_e.format(e))
+			await self.send_log(log = f"MASSNICK: [{ctx.guild.name}] '{mn_changed}/{mn_users}' nicknames changed to '{nickname}'")
+		except Exception as error: 
+			await ctx.send(tt.msg_e.format(error))
 
 	@commands.command(aliases=['purge'])
 	@commands.guild_only()

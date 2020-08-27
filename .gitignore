@@ -1,0 +1,12 @@
+# yeah
+TODO
+
+# annoying
+__pycache__/
+cogs/__pycache__/
+
+# packager files
+package-lock.json
+poetry.lock
+pyproject.toml
+requirements.txt

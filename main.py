@@ -15,51 +15,59 @@ async def determine_prefix(bot, message):
 		custom_prefixes = pickle.load(open(tt.prefixes_pkl, "rb"))
 		if message.guild.id in custom_prefixes:
 			return custom_prefixes.get(message.guild.id)
-		else:
-			return tt.p
-	except:
-		return tt.p
+		else: return tt.p
+	except: return tt.p
+
+async def send_log(log:str):
+	log_msg = f"[{tt._t()}] {log}"
+	print(log_msg)
+	await bot.get_channel(tt.logs).send(f"```{log_msg}```")
 
 bot = commands.Bot(
 	command_prefix = determine_prefix,
 	case_insensitive = True,
+	owner_id = tt.owner_id,
 )
 
-ctx = commands.Context
 bot.remove_command('help')
-
-app = Flask('', static_folder='flaskapp/static', template_folder='flaskapp/templates')
-log = logging.getLogger('werkzeug'); log.setLevel(logging.ERROR); logging.getLogger('werkzeug').disabled = True; os.environ['WERKZEUG_RUN_MAIN'] = 'true'
+ctx = commands.Context
 
 # 		========================
 	
-sl_st = f'[{tt._t()}] starting trashbot ...\n'
-print(f"\n{sl_st}")
+startup_starting = f"\n[{tt._t()}] starting trashbot ...\n"
+print(startup_starting)
 
 if __name__ == '__main__':
-	scm_num = 0
-	print(f"[{tt._t()}] COGMANAGER: loading {len(tt.cogs)} cogs ...")
+	startup_cm_num = 0
+	startup_cm_loading = f"[{tt._t()}] loading {len(tt.cogs)} cogs ..."
+	print(startup_cm_loading)
 	for cog in tt.cogs:
 		try: 
 			bot.load_extension('cogs.' + cog)
-			tt.loaded[cog] = True; scm_num += 1
-			print(f"   -- loaded '{cog}'")
+			tt.loaded[cog] = True 
+			startup_cm_num += 1
+			print(f"    -- loaded '{cog}'")
 		except Exception as error:
 			tt.loaded[cog] = False
-			print(f"   -- unable to load '{cog}' [{error}]")
-	scm_fin = f">> [{scm_num}/{len(tt.cogs)} cogs loaded]\n"; print(scm_fin)
+			print(f"    == unable to load '{cog}' [{error}]")
+	startup_cm_loaded = f"[{tt._t()}] {startup_cm_num}/{len(tt.cogs)} cogs loaded!\n" 
+	print(startup_cm_loaded)
 
 @bot.event
 async def on_connect():
-	sl_pre = f"[{tt._t()}] preparing client ..."; print(sl_pre)
+	startup_connected = f"[{tt._t()}] connected to discord!"
+	print(startup_connected)
 
 	@bot.event
 	async def on_ready():
-		sl_on = f"[{tt._t()}] trashbot is online!"; print(sl_on)
-		await bot.change_presence(status=discord.Status.online, activity=tt.presence)
+		startup_ready = f"[{tt._t()}] trashbot is online!"; 
+		print(startup_ready)
+		print(tt.load_ascii.format(tt.v, bot.user.name, bot.user.discriminator, bot.user.id))	
 
-		print(f"\n  ___/-\___    Online | v{tt.v}\n |---------|   {bot.user.name}#{bot.user.discriminator} ({bot.user.id})\n  | | | | |  _                 _     _           _   \n  | | | | | | |_ _ __ __ _ ___| |__ | |__   ___ | |_ \n  | | | | | | __| '__/ _` / __| '_ \| '_ \ / _ \| __|\n  | | | | | | |_| | | (_| \__ \ | | | |_) | (_) | |_ \n  |_______|  \__|_|  \__,_|___/_| |_|_.__/ \___/ \__|\n")	
-		tt.l = f"{sl_st}{scm_fin}\n{sl_pre}\n{sl_on} (v{tt.v})"; await bot.get_channel(tt.logs).send(f"```{tt.l}```")
+		await bot.change_presence(status=discord.Status.online, activity=tt.presence)
+		await bot.get_channel(tt.logs).send(f"```{startup_starting}\n{startup_cm_loading}\n{startup_cm_loaded}\n{startup_connected}\n{startup_ready} (v{tt.v})```")
+
+#			-----  BOT EVENTS  -----
 
 @bot.event
 async def on_message(message):
@@ -69,13 +77,20 @@ async def on_message(message):
 
 @bot.event
 async def on_guild_remove(guild):
-	tt.l = f"[{tt._t()}] removed from guild '{guild}' ({guild.id})"
-	await bot.get_channel(tt.logs).send(f"```{tt.l}```"); print(tt.l)
+	await send_log(log = f"removed from guild '{guild}' ({guild.id})")
 
 @bot.event
 async def on_guild_join(guild):
-	tt.l = f"[{tt._t()}] added to guild '{guild}' ({guild.id})"
-	await bot.get_channel(tt.logs).send(f"```{tt.l}```"); print(tt.l)
+	await send_log(log = f"added to guild '{guild}' ({guild.id})")
+
+#			-----  COMMAND CHECKS  -----
+
+#@bot.check
+#async def global_blacklist(ctx):
+#	blacklist = pickle.load(open(tt.tags_pkl, "rb"))
+#	return ctx.author.id not in blacklist
+
+#			-----  HELP COMMAND  -----
 
 @bot.command()
 async def help(ctx):
@@ -88,16 +103,27 @@ async def help(ctx):
 			desc_prefix = f"'{tt.p}'"
 	except:
 		desc_prefix = f"'{tt.p}'"
-	e_invite = discord.Embed(title=f"click here to see a list of commands", url=tt.helplist, description=f"command prefix: {desc_prefix}", color=tt.clr['pink'])
-	e_invite.set_author(name="help menu", icon_url=tt.ico['info'])
-	e_invite.set_footer(text=f"requested by {ctx.author}", icon_url=ctx.author.avatar_url_as(format='png'))
-	await ctx.send(embed=e_invite)
+	e_help = discord.Embed(title=f"click here to see a list of commands", url=tt.help_list, description=f"command prefix: {desc_prefix}", color=tt.clr['pink'])
+	e_help.set_author(name="help menu", icon_url=tt.ico['info'])
+	e_help.set_footer(text=f"requested by {ctx.author}", icon_url=ctx.author.avatar_url_as(format='png'))
+	await ctx.send(embed=e_help)
 
 def get_user(user_id:int):
 	user = bot.get_user(user_id)
 	return user
 
-# 		========================
+#			-----  FLASK APP  -----
+
+app = Flask('trashbotflask', 
+	static_folder='flaskapp/static', 
+	template_folder='flaskapp/templates'
+)
+
+# this disables the annoying logs that flask creates
+log = logging.getLogger('werkzeug')
+log.setLevel(logging.ERROR)
+logging.getLogger('werkzeug').disabled = True
+os.environ['WERKZEUG_RUN_MAIN'] = 'true'
 
 @app.route('/')
 @app.route('/commands')
