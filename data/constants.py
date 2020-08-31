@@ -7,16 +7,17 @@ import data.constants as tt
 # 		========================
 
 p = 't!'
-v = "1.13.6"
+v = "1.13.8"
 
-desc = "a simple discord bot made by elisttm | t!help for commands"
-presence = discord.Game(f"{tt.p}help | v{tt.v}")
+desc = 'a simple discord bot made by elisttm | t!help for commands'
+presence = discord.Game(f'{tt.p}help | v{tt.v}')
 
 cogs = (
 	'cogmanager',
 	'errors',
 	'admin', 
 	'utilities', 
+	'moderation',
 	'fun',
 	'cats', 
 	'tags',
@@ -37,13 +38,15 @@ website = 'https://elisttm.space/trashbot'
 github = 'https://github.com/elisttm/trashbot'
 invite = 'https://discordapp.com/oauth2/authorize?client_id=439166087498825728&scope=bot&permissions=8'
 
-cat_site = "http://cat.elisttm.space:7777"
+cat_site = 'http://cat.elisttm.space:7777'
 help_list = 'https://trashbot.elisttm.space/commands'
 tags_list = 'https://trashbot.elisttm.space/tags'
 
-blacklist_pkl = "data/pickles/blacklist.pkl"
-prefixes_pkl = "data/pickles/prefixes.pkl"
-tags_pkl = "data/pickles/tags.pkl"
+mcserver = 'mc.elisttm.space'
+
+blacklist_pkl = 'data/pickles/blacklist.pkl'
+prefixes_pkl = 'data/pickles/prefixes.pkl'
+tags_pkl = 'data/pickles/tags.pkl'
 
 time0 = '%m-%d-%y %H:%M:%S'		  # 01-31-05 12:34:56
 time1 = '%H:%M:%S'						  # 12:34:56
@@ -63,6 +66,10 @@ def _t():
 def sanitize(text: str):
 	text = text.replace('@everyone', '@\u200beveryone')
 	text = text.replace('@here', '@\u200bhere')
+	return text
+
+def urban_sanitize(text:str):
+	text = text.replace("\n", " ").replace("\r", " ").replace("[", "").replace("]", "").replace("`", "\`")
 	return text
 
 ico = {

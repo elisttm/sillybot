@@ -10,18 +10,20 @@ from data.commands import help_list
 
 # 		========================
 
+async def send_log(log:str):
+	log_msg = f"[{tt._t()}] {log}"
+	print(log_msg)
+	await bot.get_channel(tt.logs).send(f"```{log_msg}```")
+
 async def determine_prefix(bot, message):
 	try:
 		custom_prefixes = pickle.load(open(tt.prefixes_pkl, "rb"))
 		if message.guild.id in custom_prefixes:
 			return custom_prefixes.get(message.guild.id)
-		else: return tt.p
-	except: return tt.p
-
-async def send_log(log:str):
-	log_msg = f"[{tt._t()}] {log}"
-	print(log_msg)
-	await bot.get_channel(tt.logs).send(f"```{log_msg}```")
+		else: 
+			return tt.p
+	except: 
+		return tt.p
 
 bot = commands.Bot(
 	command_prefix = determine_prefix,
@@ -108,10 +110,6 @@ async def help(ctx):
 	e_help.set_footer(text=f"requested by {ctx.author}", icon_url=ctx.author.avatar_url_as(format='png'))
 	await ctx.send(embed=e_help)
 
-def get_user(user_id:int):
-	user = bot.get_user(user_id)
-	return user
-
 #			-----  FLASK APP  -----
 
 app = Flask('trashbotflask', 
@@ -119,7 +117,7 @@ app = Flask('trashbotflask',
 	template_folder='flaskapp/templates'
 )
 
-# this disables the annoying logs that flask creates
+# this disables the logs that flask creates
 log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR)
 logging.getLogger('werkzeug').disabled = True
@@ -139,7 +137,7 @@ def tags(search):
 	if not search:
 		return render_template('tags.html', search = False, title = f"trashbot tag list", header = "list of all tags in the database", og_name = "list of tags", og_description = "a list of every tag in trashbot's database", tags_list = pickle.load(open(tt.tags_pkl, "rb")))
 	try:
-		user = get_user(int(search))
+		user = bot.get_user(int(search))
 	except:
 		return render_template('tags.html', search = True, title = f"trashbot tag list :: invalid ID", header = "invalid user ID provided in search", og_name = "invalid tag owner", og_description = "invalid user provided for tag list search")
 	if user is None:
@@ -149,8 +147,7 @@ def tags(search):
 # 		========================
 
 if __name__ == '__main__':
-	def run(): 
-		app.run(host="0.0.0.0", port=8080)
+	def run(): app.run(host="0.0.0.0", port=8080)
 	server = Thread(target=run)
 	server.start()
 	bot.run(os.getenv("TOKEN"))

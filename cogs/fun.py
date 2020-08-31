@@ -44,9 +44,9 @@ class fun(commands.Cog):
 			except:
 				await ctx.send("⚠️ ⠀the provided word does not have any definitions!")
 				return
-			urban_word = urban_dict['word'].replace("\n", " ").replace("\r", " ").replace("[", "").replace("]", "").replace("`", "\`").upper()
-			urban_definition = urban_dict['definition'].replace("\n", " ").replace("\r", " ").replace("[", "").replace("]", "").replace("`", "\`")
-			urban_example = urban_dict['example'].replace("\n", " ").replace("\r", "").replace("[", "").replace("]", "").replace("`", "\`")
+			urban_word = tt.urban_sanitize(urban_dict['word'].upper())
+			urban_definition = tt.urban_sanitize(urban_dict['definition'])
+			urban_example = tt.urban_sanitize(urban_dict['example'])
 			urban_date = datetime.datetime.strptime(urban_dict['written_on'], '%Y-%m-%dT%H:%M:%S.%fZ').strftime(tt.time3)
 			urban_msg = f'```fix\n    {urban_word}\n\n{urban_definition}\n\nEXAMPLE: {urban_example}\n\n[{urban_date}]```'
 			await ctx.send(urban_msg)

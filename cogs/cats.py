@@ -8,7 +8,7 @@ import data.constants as tt
 
 cat_api = f"{tt.cat_site}/api"
 
-def requesturl(name:str):
+def get_cat_url(name:str):
 	return request.urlopen(f'{cat_api}/{name}').read().decode('utf8')
 
 class cats(commands.Cog):
@@ -21,7 +21,7 @@ class cats(commands.Cog):
 	async def cat(self, ctx):
 		try:
 			await ctx.trigger_typing()
-			await ctx.send(requesturl(''))
+			await ctx.send(get_cat_url(''))
 		except Exception as error: 
 			await ctx.send(tt.msg_e.format(error))
 
@@ -29,7 +29,7 @@ class cats(commands.Cog):
 	async def tommy(self, ctx):
 		try:
 			await ctx.trigger_typing()
-			await ctx.send(requesturl('tommy'))
+			await ctx.send(get_cat_url('tommy'))
 		except Exception as error: 
 			await ctx.send(tt.msg_e.format(error))
 
@@ -37,7 +37,7 @@ class cats(commands.Cog):
 	async def floppa(self, ctx):
 		try:
 			await ctx.trigger_typing()
-			await ctx.send(requesturl('floppa'))
+			await ctx.send(get_cat_url('floppa'))
 		except Exception as error: 
 			await ctx.send(tt.msg_e.format(error))
 
@@ -45,7 +45,7 @@ class cats(commands.Cog):
 	async def gloop(self, ctx):
 		try:
 			await ctx.trigger_typing()
-			await ctx.send(requesturl('gloop'))
+			await ctx.send(get_cat_url('gloop'))
 		except Exception as error: 
 			await ctx.send(tt.msg_e.format(error))
 
@@ -53,7 +53,7 @@ class cats(commands.Cog):
 	async def nori(self, ctx):
 		try:
 			await ctx.trigger_typing()
-			await ctx.send(requesturl('nori'))
+			await ctx.send(get_cat_url('nori'))
 		except Exception as error: 
 			await ctx.send(tt.msg_e.format(error))
 
@@ -61,7 +61,7 @@ class cats(commands.Cog):
 	async def mish(self, ctx):
 		try:
 			await ctx.trigger_typing()
-			await ctx.send(requesturl('mish'))
+			await ctx.send(get_cat_url('mish'))
 		except Exception as error: 
 			await ctx.send(tt.msg_e.format(error))
 
@@ -69,7 +69,23 @@ class cats(commands.Cog):
 	async def lucas(self, ctx):
 		try:
 			await ctx.trigger_typing()
-			await ctx.send(requesturl('lucas'))
+			await ctx.send(get_cat_url('lucas'))
+		except Exception as error: 
+			await ctx.send(tt.msg_e.format(error))
+
+	@commands.command()
+	async def marley(self, ctx):
+		try:
+			await ctx.trigger_typing()
+			await ctx.send(get_cat_url('marley'))
+		except Exception as error: 
+			await ctx.send(tt.msg_e.format(error))
+
+	@commands.command()
+	async def spock(self, ctx):
+		try:
+			await ctx.trigger_typing()
+			await ctx.send(get_cat_url('spock'))
 		except Exception as error: 
 			await ctx.send(tt.msg_e.format(error))
 

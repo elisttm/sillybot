@@ -1,6 +1,9 @@
 import discord 
 import pickle
 import time
+import json
+import urllib
+import urllib.request
 from discord.ext import commands
 import data.constants as tt
 
@@ -98,7 +101,28 @@ class utilities(commands.Cog):
 		except Exception as e: 
 			await ctx.send(tt.msg_e.format(e))
 
-	@commands.command()
+	@commands.command(aliases=['mc'])
+	async def mcserver(self, ctx):
+		await ctx.trigger_typing()
+		try:
+			clean_ip = urllib.parse.quote(tt.mcserver)
+			mcstats_json = urllib.request.urlopen(f'https://api.mcsrvstat.us/2/{clean_ip}').read().decode('utf8')
+			mcstats = json.loads(mcstats_json)
+			mc_offline = ''; mc_players = ''
+			if mcstats['online'] == True:
+				mc_players = f"\n\n{mcstats['players']['online']}/{mcstats['players']['max']} players online"
+			else:
+				mc_offline = " (offline)"
+				mc_players = ''
+			e_mcserver = discord.Embed(title=f"mc.elisttm.space{mc_offline}", url="https://elisttm.space/minecraft", description=f"{mcstats['version']} ({mcstats['software']}){mc_players}\n\n{mcstats['motd']['clean'][0]}\n{mcstats['motd']['clean'][1]}", color=tt.clr['pink'])
+			e_mcserver.set_author(name=f"minecraft server info", icon_url=tt.ico['info'])
+			e_mcserver.set_thumbnail(url="https://elisttm.space/static/logo.png")
+			e_mcserver.set_footer(text=f"requested by {ctx.author}", icon_url=ctx.author.avatar_url_as(format='png'))
+			await ctx.send(embed=e_mcserver)
+		except Exception as e: 
+			await ctx.send(tt.msg_e.format(e))
+
+	@commands.command(aliases=['sourcecode'])
 	async def github(self, ctx):
 		await ctx.trigger_typing()
 		await ctx.send(tt.github)
@@ -124,13 +148,13 @@ class utilities(commands.Cog):
 	@commands.command()
 	@commands.guild_only()
 	@commands.has_permissions(administrator = True)
-	async def massnick(self, ctx, *, nickname):
+	async def massnick(self, ctx, *, nickname:str):
 		try:
-			mn_users, mn_changed, mn_failed = 0
+			mn_users = 0; mn_changed = 0; mn_failed = 0
 			for member in ctx.guild.members: 
 				mn_users += 1
 			await ctx.send(f"⌛ ⠀attempting to change `{mn_users}` nicknames, please wait...")
-			await self.send_log(log = f"MASSNICK: [{ctx.guild.name}] attempting to change '{mn_users}' nicknames to '{nickname}'...")
+			await self.send_log(log = f"[MASSNICK] [{ctx.guild.name}] attempting to change '{mn_users}' nicknames to '{nickname}'...")
 			for member in ctx.guild.members:
 				await ctx.trigger_typing()
 				try: 
@@ -139,7 +163,7 @@ class utilities(commands.Cog):
 				except: 
 					mn_failed += 1
 			await ctx.send(f"✅ ⠀`{mn_changed}` nicknames successfully changed, `{mn_failed}` failed.")
-			await self.send_log(log = f"MASSNICK: [{ctx.guild.name}] '{mn_changed}/{mn_users}' nicknames changed to '{nickname}'")
+			await self.send_log(log = f"[MASSNICK] [{ctx.guild.name}] '{mn_changed}/{mn_users}' nicknames changed to '{nickname}'")
 		except Exception as error: 
 			await ctx.send(tt.msg_e.format(error))
 
@@ -150,9 +174,9 @@ class utilities(commands.Cog):
 		try:
 			clear_invalidamount = "⚠️ ⠀invalid message clear amount! ({})"
 			if clear == 0: 
-				await ctx.send(clear_invalidamount.format("amount must be at least 1"))
+				await ctx.send(clear_invalidamount.format("must be at least 1"))
 			elif clear > 100: 
-				await ctx.send(clear_invalidamount.format("amount cannot exceed 100"))
+				await ctx.send(clear_invalidamount.format("cannot exceed 100"))
 			else:
 				await ctx.message.delete()
 				await ctx.channel.purge(limit=(clear))

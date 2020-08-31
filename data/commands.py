@@ -7,7 +7,6 @@ class help_list():
 			'commands': {
 				'help'		 	: "links to this list of commands",
 				'about'			: "provides useful bot info", 
-			
 			}
 		},
 
@@ -18,10 +17,10 @@ class help_list():
 				'server' : "provides info about the current server",
 				'user <user>' : "provides info about a given user",
 				'avatar <user>' : "provides the avatar of a given user",
+				'mcserver' : "provides info about the elisttm minecraft server",
 				'clear <amount>' : "deletes a specified number of messages",
 				'massnick <nickname/reset>' : "changes the nickname of everyone in the server (server admins only)",
 				'prefix <set/remove> <prefix>' : "allows management of a custom server prefix (server admins only)",
-			
 			}
 		},
 
@@ -29,7 +28,8 @@ class help_list():
 			'description'	: "fun commands for games or whatever",
 			'commands': {
 				'say <message>' : "makes trashbot say a specified message", 
-				
+				'urban <word>' : "gets the urban dictionary definition of the given word",
+				'urbanshit <word>' : "gets the urban dictionary definition of the given word using a really bad parser",
 			}
 		},
 
@@ -43,7 +43,8 @@ class help_list():
 				'nori' : "sends a random picture of nori (squidd's cat)",
 				'mish' : "sends a random picture of mish (peter's cat)",
 				'lucas' : "sends a random picture of lucas (sharpz's cat)",
-			
+				'marley' : "sends a random picture of marley (fluffer's cat)",
+				'spock' : "sends a random picture of spock (fluffer's cat)",
 			}
 		},
 		
@@ -73,7 +74,6 @@ class help_list():
 				'*echo <channel> <message>' : "makes trashbot echo a message to a provided channel ID",
 				'*shutdown' : "logs out and shuts down the bot",
 				'*restart' : "restarts the bot",
-			
 			}
 		},
 
@@ -83,8 +83,7 @@ class help_list():
 				'cogs' : 'lists all loadable cogs and their statuses', 
 				'*load <cog>' : 'loads a specified cog',
 				'*unload <cog>' : 'unloads a specified cog', 
-				'*reload <cog>' : 'reloads all cogs or a specified cog; ',
-				
+				'*reload <cog>' : 'reloads all cogs or a specified cog',
 			}
 		}
 	}

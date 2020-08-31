@@ -50,6 +50,7 @@ class tags(commands.Cog):
 				await ctx.send("⚠️ ⠀invalid tag/subcommand provided!")
 			else:
 				tag_name = ctx.subcommand_passed.lower()
+				tags_list = pickle.load(open(tt.tags_pkl, "rb"))
 				if tag_name not in reserved_args:
 					if tag_name in tags_list:
 						tag_content = tags_list[tag_name]['content'] 
