@@ -3,6 +3,7 @@ import urbandict
 import json
 import urllib
 import random
+fromr rhcooc import moment_dict
 import datetime
 from urllib import request
 from discord.ext import commands
@@ -31,6 +32,20 @@ class fun(commands.Cog):
 			await ctx.send(message)
 		except Exception as error: 
 			await ctx.send(tt.msg_e.format(error))
+				await ctx.send(tt.msg_e.format(error)
+					       
+# 		========================
+					       
+	@commands.command()
+	async def rhcooc(self,  ctx, *, moment:str):
+		try:
+		       if ctx.guild.id != '695967253900034048' or '718547049678635129':
+			        await ctx.send("hi :)")
+			elif ctx.guild.id == '695967253900034048' or '718547049678635129':	   
+	                         moment = random.choice(list(moment_dict.values()))
+		                 await ctx.send(moment)
+		       except Exception as error:
+		                 await ctx.send(tt.msg_e.format(error)
 
 	@commands.command()
 	async def urban(self, ctx, *, word:str):
