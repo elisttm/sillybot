@@ -2,6 +2,8 @@ import discord
 import sys, os
 import pickle
 from discord.ext import commands
+from utils import checks
+from utils.funcs import funcs
 import data.constants as tt
 
 # 		========================
@@ -9,74 +11,62 @@ import data.constants as tt
 class admin(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot
-
-	async def is_admin(ctx):
-		return ctx.author.id in tt.admins
-
-	async def send_log(self, log:str):
-		log_msg = f"[{tt._t()}] [ADMIN] {log}"
-		print(log_msg)
-		await self.bot.get_channel(tt.logs).send(f"```{log_msg}```")
+		self.send_log = funcs.send_log
+		self.log_prefix = "[ADMIN] "
 		
 # 		========================
 	
 	@commands.command()
-	async def admins(self, ctx): 
+	async def admins(self, ctx):
+		await ctx.trigger_typing() 
 		try:
-			await ctx.trigger_typing()
 			admin_list = ''; admin_num = 0
-			for user_id in tt.admins:
-				user = self.bot.get_user(user_id)
+			for admin in tt.admins:
+				user = self.bot.get_user(admin)
 				admin_num += 1
 				admin_list += f"{user} ({user.id})\n"; 
 			e_adm = discord.Embed(color=tt.clr['pink'])
-			e_adm.add_field(name=f"admins `[{admin_num}]`", value=admin_list)
-			e_adm.set_author(name="admin list", icon_url=tt.ico['info'])
+			e_adm.add_field(name=f"admins [{admin_num}]", value=admin_list)
+			e_adm.set_author(name="list of trashbot's admins", icon_url=tt.ico['info'])
 			e_adm.set_footer(text=f"requested by {ctx.author}", icon_url=ctx.author.avatar_url_as(format='png'))
 			await ctx.send(embed=e_adm)
 		except Exception as error: 
 			await ctx.send(tt.msg_e.format(error))
 
 	@commands.command()
-	@commands.check(is_admin)
-	async def presence(self, ctx, *, presence=None):
+	@checks.is_admin()
+	async def presence(self, ctx, *, presence = None):
+		await ctx.trigger_typing()
 		try:
-			await ctx.trigger_typing()
 			if presence is None:
-				presence = discord.Game(tt.presence)
-				await self.bot.change_presence(status=discord.Status.online, activity=presence)
-				await self.send_log(log = f"presence reset by '{ctx.author}'")
-				await ctx.send('✅ ⠀presence reset to default.')	
-			else:
-				#presence = presence.replace("{version}", f"{tt.v}")
-				presence = discord.Game(presence)
-				await self.bot.change_presence(status=discord.Status.online, activity=presence)
-				await self.send_log(log = f"presence set to '{presence}' by '{ctx.author}'")
-				await ctx.send(f'✅ ⠀presence set to `{presence}`.')
+				presence = tt.presence
+			await self.bot.change_presence(status=discord.Status.online, activity=discord.Game(presence))
+			await self.send_log(self, log = f"presence set to '{presence}' by '{ctx.author}'", prefix = self.log_prefix)
+			await ctx.send(f"✅ ⠀presence set to '{presence}''")
 		except Exception as error: 
 			await ctx.send(tt.msg_e.format(error))
 
 	@commands.command()
-	@commands.check(is_admin)
+	@checks.is_admin()
 	async def guilds(self, ctx):
 		try:
-			await ctx.trigger_typing()
-			guildlist = ''; guildnum = 0
+			guilds_list = ''; guilds_num = 0
 			for guild in self.bot.guilds: 
-				guildnum += 1
-				guildlist += f"  {guildnum}. {guild.name} ({guild.owner}) [{guild.id}]\n"
-			await self.send_log(log = f"'{ctx.author}' called for the list of guilds ({guildnum})\n{guildlist}")
-			await ctx.send("✅ ⠀guild list sent to logs!")
+				guilds_num += 1
+				guilds_list += f"  {guilds_num}. {guild.name} ({guild.owner}) [{guild.id}]\n"
+			await self.send_log(self, log = f"'{ctx.author}' called for the list of guilds ({guilds_num})\n{guilds_list}", prefix = self.log_prefix)
+			await ctx.message.add_reaction('✅')
 		except Exception as error: 
 			await ctx.send(tt.msg_e.format(error))
 
 	@commands.command()
-	@commands.check(is_admin)
-	async def echo(self, ctx, channel:discord.TextChannel, *, message:str):
+	@checks.is_admin()
+	async def echo(self, ctx, echo_channel:int, *, message:str):
 		try:
 			message = tt.sanitize(message)
-			await self.send_log(log = f"'{ctx.author}' in '{ctx.guild.name}' said '{message}'")
-			await ctx.send(message)
+			await self.bot.get_channel(int(echo_channel)).send(message)
+			await self.send_log(self, log = f"'{ctx.author}' in '{ctx.guild.name}' echoed '{message}' to channel ID '{echo_channel}'", prefix = self.log_prefix)
+			await ctx.message.add_reaction('✅')
 		except Exception as e: 
 			await ctx.send(tt.msg_e.format(e))
 
@@ -84,8 +74,8 @@ class admin(commands.Cog):
 	@commands.is_owner()
 	async def leave(self, ctx):
 		try:
+			await self.send_log(self, log = f"trashbot left '{ctx.guild.name}'", prefix = self.log_prefix)
 			await ctx.message.add_reaction('✅')
-			await self.send_log(log = f"'{ctx.author}' used leave in '{ctx.guild.name}'")
 			await ctx.guild.leave()
 		except Exception as error: 
 			await ctx.send(tt.msg_e.format(error))
@@ -93,23 +83,27 @@ class admin(commands.Cog):
 	@commands.command()
 	@commands.is_owner()
 	async def shutdown(self, ctx):
-		await self.send_log(log = f"shutdown by '{ctx.author}'")
-		await ctx.message.add_reaction('✅')
-		await self.bot.logout()
+		try:
+			await self.send_log(self, log = f"shutdown by '{ctx.author}'", prefix = self.log_prefix)
+			await ctx.message.add_reaction('✅')
+			await self.bot.logout()
+		except Exception as error: 
+			await ctx.send(tt.msg_e.format(error))
 	
 	@commands.command()
-	@commands.check(is_admin)
+	@checks.is_admin()
 	async def restart(self, ctx):
 		try:
-			await self.send_log(log = f"restarted by '{ctx.author}'")
+			await self.send_log(self, log = f"restarted by '{ctx.author}'", prefix = self.log_prefix)
 			await ctx.message.add_reaction('✅')
 			await os.execv(sys.executable, ['python'] + sys.argv)
 		except Exception as error: 
 			await ctx.send(tt.msg_e.format(error))
 
+	# this needs to be optimized
 	@commands.command()
-	@commands.check(is_admin)
-	async def blacklist(self, ctx, arg1=None, user: discord.Member = None):
+	@checks.is_admin()
+	async def blacklist(self, ctx, arg1=None, user: discord.User = None):
 		try:
 			blacklist = pickle.load(open(tt.blacklist_pkl, "rb"))
 			if arg1 == None:
@@ -117,8 +111,8 @@ class admin(commands.Cog):
 					blacklist_list = ''
 					for x in blacklist:
 						user = self.bot.get_user(x)
-						blacklist_list = blacklist_list + f"- {user} ({user.id})\n"
-						await ctx.send(f"```list of blacklisted users ({len(blacklist)}):\n{blacklist_list}```")
+						blacklist_list += f"- {user} ({user.id})\n"
+					await ctx.send(f"```list of blacklisted users ({len(blacklist)}):\n{blacklist_list}```")
 			elif arg1 == 'add':
 				if user == None:
 					await ctx.send("⚠️ ⠀please provide a user ID or mention!")

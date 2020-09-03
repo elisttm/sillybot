@@ -2,10 +2,13 @@ import discord
 import os
 import pickle
 import logging
+import time, datetime
 from flask import Flask, render_template, request
 from threading import Thread
 from discord.ext import commands
 import data.constants as tt
+from utils import checks
+from utils.funcs import funcs
 from data.commands import help_list
 
 # 		========================
@@ -39,7 +42,7 @@ ctx = commands.Context
 startup_starting = f"\n[{tt._t()}] starting trashbot ...\n"
 print(startup_starting)
 
-if __name__ == '__main__':
+if __name__ == '__main__': # initial cog loader
 	startup_cm_num = 0
 	startup_cm_loading = f"[{tt._t()}] loading {len(tt.cogs)} cogs ..."
 	print(startup_cm_loading)
@@ -56,12 +59,12 @@ if __name__ == '__main__':
 	print(startup_cm_loaded)
 
 @bot.event
-async def on_connect():
-	startup_connected = f"[{tt._t()}] connected to discord!"
+async def on_connect(): 
+	startup_connected = f"[{tt._t()}] connected!"
 	print(startup_connected)
 
 	@bot.event
-	async def on_ready():
+	async def on_ready(): 
 		startup_ready = f"[{tt._t()}] trashbot is online!"; 
 		print(startup_ready)
 		print(tt.load_ascii.format(tt.v, bot.user.name, bot.user.discriminator, bot.user.id))	
@@ -73,8 +76,11 @@ async def on_connect():
 
 @bot.event
 async def on_message(message):
+	blacklist = pickle.load(open(tt.blacklist_pkl, "rb"))
 	if message.author.bot:
 		pass
+	if message.author.id in blacklist:
+		return
 	await bot.process_commands(message)
 
 @bot.event
@@ -85,39 +91,25 @@ async def on_guild_remove(guild):
 async def on_guild_join(guild):
 	await send_log(log = f"added to guild '{guild}' ({guild.id})")
 
-#			-----  COMMAND CHECKS  -----
-
-#@bot.check
-#async def global_blacklist(ctx):
-#	blacklist = pickle.load(open(tt.tags_pkl, "rb"))
-#	return ctx.author.id not in blacklist
-
 #			-----  HELP COMMAND  -----
 
 @bot.command()
 async def help(ctx):
 	await ctx.trigger_typing()
-	try:
-		custom_prefixes = pickle.load(open(tt.prefixes_pkl, "rb"))
-		if ctx.message.guild.id in custom_prefixes: 
-			desc_prefix = f"'{custom_prefixes[ctx.message.guild.id]}' (custom)"
-		else: 
-			desc_prefix = f"'{tt.p}'"
-	except:
-		desc_prefix = f"'{tt.p}'"
-	e_help = discord.Embed(title=f"click here to see a list of commands", url=tt.help_list, description=f"command prefix: {desc_prefix}", color=tt.clr['pink'])
+	e_help = discord.Embed(title=f"click here to see a list of commands", url=tt.help_list, color=tt.clr['pink'])
 	e_help.set_author(name="help menu", icon_url=tt.ico['info'])
 	e_help.set_footer(text=f"requested by {ctx.author}", icon_url=ctx.author.avatar_url_as(format='png'))
 	await ctx.send(embed=e_help)
 
 #			-----  FLASK APP  -----
 
-app = Flask('trashbotflask', 
+app = Flask(
+	'trashbot_flask', 
 	static_folder='flaskapp/static', 
 	template_folder='flaskapp/templates'
 )
 
-# this disables the logs that flask creates
+# disables flask logs
 log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR)
 logging.getLogger('werkzeug').disabled = True
@@ -127,6 +119,10 @@ os.environ['WERKZEUG_RUN_MAIN'] = 'true'
 @app.route('/commands')
 def main(): 
 	return render_template('helplist.html', cmd = help_list(), version = tt.v)	
+
+@app.route('/rhcooc')
+def rhcooc(): 
+	return render_template('rhcooc.html', rhcooc_list = pickle.load(open(tt.rhcooc_pkl, "rb")))	
 
 @app.route('/tags', defaults={'search': None})
 @app.route('/tags/', defaults={'search': None})

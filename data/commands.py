@@ -1,5 +1,10 @@
 class help_list():
 	
+	#	command <param1> <param2>
+	#	command <param1a> <param1b> OR <param2>
+
+	#	*command : command usable by trashbot admins/owners only
+
 	categories = {
 
 		'general': {
@@ -11,16 +16,16 @@ class help_list():
 		},
 
 		'utilities': {
-			'description'	: "helpful utility/informative commands",
+			'description'	: "helpful commands for information and/or utility",
 			'commands': {
-				'ping' : "sends the bot's latency",
-				'server' : "provides info about the current server",
-				'user <user>' : "provides info about a given user",
+				'ping' : "gives trashbots command latency",
+				'server' : "gives information about a server",
+				'user <user>' : "gives information about a user",
 				'avatar <user>' : "provides the avatar of a given user",
-				'mcserver' : "provides info about the elisttm minecraft server",
+				'mcserver' : "gives information about the elisttm minecraft server",
 				'clear <amount>' : "deletes a specified number of messages",
-				'massnick <nickname/reset>' : "changes the nickname of everyone in the server (server admins only)",
-				'prefix <set/remove> <prefix>' : "allows management of a custom server prefix (server admins only)",
+				'massnick <nickname> OR "reset"' : "changes the nickname of everyone in the server (server admins only)",
+				'prefix set <prefix> OR "reset"' : "allows management of a custom server prefix (server admins only)",
 			}
 		},
 
@@ -36,7 +41,7 @@ class help_list():
 		'cats': {
 			'description': "commands for random pictures of funny cats (images fetched from my personally hosted cat api)",
 			'commands': {
-				'cat' : "sends a random picture of any cat",
+				'cat <cat>' : "sends a random cat picture (all other cat commands are aliases of this one)",
 				'tommy' : "sends a random picture of tommy (zeebrongis' cat)",
 				'floppa' : "sends a random image of big floppa",
 				'gloop' : "sends a random gloop aesthetic cat",
@@ -49,7 +54,7 @@ class help_list():
 		},
 		
 		'tags': {
-			'description'	: "viewing and management of tags in the database",
+			'description'	: "commands related to trashbots tag database",
 			'commands': {
 				'tag <tag>' : "sends the content of the provided tag",
 				'tag create <tag> <contents>' : "creates a tag with the given name and content",
@@ -60,8 +65,8 @@ class help_list():
 				'tag list <user>' : "gives a list of tags owned by a user",
 				'tag listall' : "gives a list of every tag in the database",
 				'tag random' : "returns a random tag from the database",
-				'*tag forceedit <tag> <content>' : "forcefully edits a tag with the given contents",
 				'*tag forceremove <tag>' : "forcefully deletes the specified tag from the database",
+				'*tag forceedit <tag> <content>' : "forcefully edits a tag with the given contents",
 				'*tag forcetransfer <tag> <user>' : "forcefully gives ownership of a tag to a specified user"
 			}
 		},
@@ -71,7 +76,7 @@ class help_list():
 			'commands': {
 				'admins' : "lists all of trashbot's admins",
 				'*presence <text>' : "changes trashbot's playing status",
-				'*echo <channel> <message>' : "makes trashbot echo a message to a provided channel ID",
+				'*echo <channel ID> <message>' : "makes trashbot echo a message to a provided channel ID",
 				'*shutdown' : "logs out and shuts down the bot",
 				'*restart' : "restarts the bot",
 			}

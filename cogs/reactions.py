@@ -12,8 +12,6 @@ class reactions(commands.Cog):
 
 	@commands.Cog.listener()
 	async def on_message(self, message):
-	#	if "doing stuff" in message.content:
-	#		await ctx.send(message.channel, 'im stuff')
 		if 'y/n' in message.content.lower():
 			await message.add_reaction('👍')
 			await message.add_reaction('👎')

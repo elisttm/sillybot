@@ -3,6 +3,8 @@ import traceback
 import sys
 import math
 from discord.ext import commands
+from utils import checks
+from utils.funcs import funcs
 import data.constants as tt
 
 # 		========================
@@ -37,7 +39,7 @@ class errors(commands.Cog):
 
 		if isinstance(error, commands.UserInputError):
 			ctx.command.reset_cooldown(ctx)
-			await ctx.send("⚠️ ⠀invalid argument(s) provided! ")
+			await ctx.send("⚠️ ⠀invalid command parameter(s) provided!")
 			return
 
 		if isinstance(error, commands.NoPrivateMessage):
@@ -45,6 +47,14 @@ class errors(commands.Cog):
 				await ctx.author.send("❌ ⠀this command is disabled in dms!")
 			except discord.Forbidden: 
 				pass
+			return
+
+		if isinstance(error, checks.No_Permission):
+			await ctx.send("❌ ⠀you do not have permission to use this command!")
+			return
+
+		if isinstance(error, checks.Unmatched_Guild):
+			await ctx.send("❌ ⠀that command is not enabled in this server!")
 			return
 
 		if isinstance(error, commands.CheckFailure):
