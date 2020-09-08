@@ -1,4 +1,6 @@
 import discord
+import os
+import json
 from discord.ext import commands
 from utils import checks
 from utils.funcs import funcs
@@ -6,12 +8,21 @@ import data.constants as tt
 
 # 		========================
 
+rhc_restrictions = {
+	'serious' : 705870681849594027,
+	'reaction' : 747664614493519962,
+	'image' : 714875237644108140,
+	'vc' : 719987120441131048,
+	'dino' : 746068022401302663,
+	'poop' : 745008022773956609,
+}
+
 class moderation(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot
+		self.load_db = funcs.load_db
+		self.dump_db = funcs.dump_db
 	
-
-
 # 		========================
 	
 	@commands.command()
@@ -21,10 +32,9 @@ class moderation(commands.Cog):
 	async def restrict(self, ctx, user:discord.Member, restriction:str):
 		await ctx.trigger_typing()
 		try:
-			if restriction not in tt.rhc_restrictions:
-				await ctx.send(f"❌ ⠀invalid restriction! ({', '.join(tt.rhc_restrictions)})")
-				return
-			role = ctx.guild.get_role(tt.rhc_restrictions[restriction])
+			if restriction not in rhc_restrictions:
+				return await ctx.send(f"❌ ⠀invalid restriction! ({', '.join(rhc_restrictions)})")
+			role = ctx.guild.get_role(rhc_restrictions[restriction])
 			if role in user.roles:
 				await ctx.send(f"❌ ⠀{user.name} already has the restriction '{restriction}'")
 			else:
@@ -40,10 +50,9 @@ class moderation(commands.Cog):
 	async def unrestrict(self, ctx, user:discord.Member, restriction:str):
 		await ctx.trigger_typing()
 		try:
-			if restriction not in tt.rhc_restrictions:
-				await ctx.send(f"❌ ⠀invalid restriction! ({', '.join(tt.rhc_restrictions)})")
-				return
-			role = ctx.guild.get_role(tt.rhc_restrictions[restriction])
+			if restriction not in rhc_restrictions:
+				return await ctx.send(f"❌ ⠀invalid restriction! ({', '.join(rhc_restrictions)})")
+			role = ctx.guild.get_role(rhc_restrictions[restriction])
 			if role in user.roles:
 				await user.remove_roles(role)
 				await ctx.send(f"✅ ⠀removed the restriction '{restriction}' from {user.name}")

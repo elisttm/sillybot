@@ -1,17 +1,18 @@
 import discord
-import urbandict
 import json
-import urllib
 import random
-import pickle
-import datetime
-from urllib import request
+import urbandict
+import time, datetime
+import urllib, urllib.request
 from discord.ext import commands
 from utils import checks
 from utils.funcs import funcs
 import data.constants as tt
 
 # 		========================
+
+with open(tt.rhcooc_db) as rhcooc_list_json:
+	rhcooc_list = json.load(rhcooc_list_json)
 
 def urban_sanitize(text:str):
 	text = text.replace("\n", " ").replace("\r", " ").replace("[", "").replace("]", "").replace("`", "\`")
@@ -21,6 +22,8 @@ def urban_sanitize(text:str):
 class fun(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot
+		self.load_db = funcs.load_db
+		self.dump_db = funcs.dump_db
 		self.send_log = funcs.send_log
 		self.log_prefix = "[FUN] "
 
@@ -37,13 +40,23 @@ class fun(commands.Cog):
 			await ctx.send(tt.msg_e.format(error))
 
 	@commands.command()
+	@checks.is_server_or_bot_admin()
+	async def echo(self, ctx, channel:discord.TextChannel, *, message:str):
+		try:
+			message = tt.sanitize(message)
+			await channel.send(message)
+			await self.send_log(self, f"'{ctx.author}' in '{ctx.guild.name}' echoed '{message}' to '{channel}'", self.log_prefix)
+			await ctx.message.add_reaction('✅')
+		except Exception as e: 
+			await ctx.send(tt.msg_e.format(e))
+
+	@commands.command()
 	async def urban(self, ctx, *, word:str):
 		await ctx.trigger_typing()
 		try:
-			urban_list = json.loads(request.urlopen(f"https://api.urbandictionary.com/v0/define?term={urllib.parse.quote(word)}").read().decode('utf8'))
+			urban_list = json.loads(urllib.request.urlopen(f"https://api.urbandictionary.com/v0/define?term={urllib.parse.quote(word)}").read().decode('utf8'))
 			if len(dict(urban_list)['list']) == 0:
-				await ctx.send("⚠️ ⠀the provided word does not have any definitions!")
-				return
+				return await ctx.send("⚠️ ⠀the provided word does not have any definitions!")
 			urban_dict = dict(random.choice(urban_list['list']))
 			e_urban = discord.Embed(title=f"**{urban_sanitize(urban_dict['word']).upper()}**", color=tt.clr['pink'])
 			e_urban.add_field(name=f"__**definition**__", value=f"{urban_sanitize(urban_dict['definition'])}\n", inline = False)
@@ -57,11 +70,7 @@ class fun(commands.Cog):
 	async def urbanshit(self, ctx, *, word:str):
 		await ctx.trigger_typing()
 		try:
-			urb = urbandict.define(word)
-			msg = f"```fix\n    {word.upper()}\n\n"
-			msg += "{0}".format(urb[0]['def'].replace("\n", ""))
-			msg += "\n\nEXAMPLE: {0}```".format(urb[0]['example'].replace("\n", ""))
-			await ctx.send(msg)
+			await ctx.send(f"```fix\n    {word.upper()}\n\n{urbandict.define(word)[0]['def']}\nEXAMPLE: {urbandict.define(word)[0]['example']}```")
 		except Exception as error: 
 			await ctx.send(tt.msg_e.format(error))
 
@@ -72,7 +81,7 @@ class fun(commands.Cog):
 		await ctx.trigger_typing()
 		if ctx.invoked_subcommand is None:
 			try:
-				rhcooc_list = pickle.load(open(tt.rhcooc_pkl, "rb"))
+				rhcooc_list = self.load_db(tt.rhcooc_db)
 				await ctx.send(random.choice(rhcooc_list))
 			except Exception as error:
 				await ctx.send(tt.msg_e.format(error))
@@ -80,7 +89,7 @@ class fun(commands.Cog):
 	@rhcooc.command(name = 'add')
 	@checks.is_admin()
 	async def rhcooc_add(self, ctx, *, rhcooc_url = None):
-		rhcooc_list = pickle.load(open(tt.rhcooc_pkl, "rb"))
+		rhcooc_list = self.load_db(tt.rhcooc_db)
 		rhcooc_additions = []
 		try:
 			if rhcooc_url is not None:
@@ -90,11 +99,10 @@ class fun(commands.Cog):
 				for attachment in ctx.message.attachments:
 					rhcooc_additions.append(attachment.url)
 			if not rhcooc_additions:
-				await ctx.send("⚠️ ⠀unable to get urls! (none provided)")
-				return
+				return await ctx.send("⚠️ ⠀unable to get urls! (none provided)")
 			for url in rhcooc_additions:
 				rhcooc_list.append(url)
-			pickle.dump(rhcooc_list, open(tt.rhcooc_pkl, "wb"))
+			self.dump_db(tt.rhcooc_db, rhcooc_list)
 			await ctx.send(f"✅ ⠀added `{', '.join(rhcooc_additions)}` to rhcooc database!")
 			await self.send_log(self, log = f"'{ctx.author}' added '{', '.join(rhcooc_additions)}' to the rhcooc database", prefix = self.log_prefix)
 		except Exception as error:
@@ -103,20 +111,20 @@ class fun(commands.Cog):
 	@rhcooc.command(name = 'remove')
 	@checks.is_admin()
 	async def rhcooc_remove(self, ctx, rhcooc_url:str):
-		rhcooc_list = pickle.load(open(tt.rhcooc_pkl, "rb"))
+		rhcooc_list = self.load_db(tt.rhcooc_db)
 		try:
 			rhcooc_list.remove(rhcooc_url)
-			pickle.dump(rhcooc_list, open(tt.rhcooc_pkl, "wb"))
+			self.dump_db(tt.rhcooc_db, rhcooc_list)
 			await ctx.send(f"✅ ⠀removed '{rhcooc_url}' from rhcooc database!")
 			await self.send_log(self, log = f"'{ctx.author}' removed '{rhcooc_url}' from the rhcooc database", prefix = self.log_prefix)
 		except Exception as error:
 			await ctx.send(tt.msg_e.format(error))
 
 	@rhcooc.command(name = 'list')
-	async def rhcooc_list(self, ctx):
-		rhcooc_list = pickle.load(open(tt.rhcooc_pkl, "rb"))
+	async def rhcooc_listall(self, ctx):
+		rhcooc_list = self.load_db(tt.rhcooc_db)
 		rhcooc_num = 0
-		for image in rhcooc_list: 
+		for url in rhcooc_list: 
 			rhcooc_num += 1	
 		await ctx.send(f"ℹ️ ⠀there are **{rhcooc_num}** rhcooc images in the database:\n{tt.rhcooc_list}")
 

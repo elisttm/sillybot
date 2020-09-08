@@ -1,0 +1,51 @@
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="icon" src="/static/favicon.ico" type='image/x-icon' />
+	<link rel="shortcut icon" href="/static/favicon.ico">
+	<link rel="stylesheet" href="/static/style.css" type="text/css" />
+	<title>names list</title>
+	<meta property="og:type" content="website">
+	<meta property="og:site_name" content="trashbot">
+	<meta property="og:title" content="list of names">
+	<meta property="og:description" content="a tracked list of names">
+	<style>
+		h3 {padding-top:2px;}
+		li {padding-bottom: 8px}
+		b {font-size: 14px}
+	</style>
+</head>
+
+<body>
+
+<div style="padding:0 25% 0 25%;">
+
+	{% if no_names == True %}
+		<br><h1 align="center">no names for user ID {{ user }}</h1>
+	{% elif invalid_user == True %}
+		<br><h1 align="center">invalid user provided</h1>
+	{% else %}
+		<br><h1 align="center">list of names for user ID {{ user }}</h1>
+	{% endif %}
+
+		<form align="center" action="/names">
+			<input type="text" placeholder="search name changes by user ID" name="user"></input>
+			<input type="submit" value="user"></input>
+		</form><br>
+
+		{% if no_names == True %}
+			<h3 align="center">the provided user does not have any name changes on record!</h3>
+		{% endif %}
+
+		<ul>
+		{% for timestamp, name_change in names_list.items(): %}
+			<li><b>{{ timestamp }} :</b> {{ name_change }}</li>
+		{% endfor %}
+		</ul>
+
+</div><br>
+
+</body>
+</html>

@@ -1,17 +1,17 @@
 import discord
-import urllib
-from urllib import request
+import json
+import urllib, urllib.request
 from discord.ext import commands
+from utils import checks
+from utils.funcs import funcs
 import data.constants as tt
 
 # 		========================
 
-# rework these commands to invoke the cat command with cat_name queries
+def get_cat_url(name:str): 
+	return urllib.request.urlopen(f'{tt.cat_site}/api/{name}').read().decode('utf8')
 
-def get_cat_url(name:str):
-	return request.urlopen(f'{tt.cat_site}/api/{name}').read().decode('utf8')
-
-cat_dirs = str(request.urlopen(f'http://cat.elisttm.space:7777/directories/').read())
+cat_dirs = str(urllib.request.urlopen(f'http://cat.elisttm.space:7777/directories/').read())
 cat_dirs = str(cat_dirs.split(' '))
 
 class cats(commands.Cog):

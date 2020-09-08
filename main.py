@@ -1,15 +1,16 @@
 import discord
-import os
-import pickle
+import os, sys 
 import logging
-import time, datetime
-from flask import Flask, render_template, request
+import json
+import flask
+import time, datetime, pytz
+from flask import Flask, render_template, request, send_from_directory
 from threading import Thread
 from discord.ext import commands
-import data.constants as tt
 from utils import checks
 from utils.funcs import funcs
 from data.commands import help_list
+import data.constants as tt
 
 # 		========================
 
@@ -20,9 +21,10 @@ async def send_log(log:str):
 
 async def determine_prefix(bot, message):
 	try:
-		custom_prefixes = pickle.load(open(tt.prefixes_pkl, "rb"))
-		if message.guild.id in custom_prefixes:
-			return custom_prefixes.get(message.guild.id)
+		guild_data_path = tt.guild_data_path.format(str(message.guild.id))
+		if os.path.exists(guild_data_path):
+			guild_data = funcs.load_db(guild_data_path)
+			return guild_data['prefix']
 		else: 
 			return tt.p
 	except: 
@@ -42,7 +44,7 @@ ctx = commands.Context
 startup_starting = f"\n[{tt._t()}] starting trashbot ...\n"
 print(startup_starting)
 
-if __name__ == '__main__': # initial cog loader
+if __name__ == '__main__':
 	startup_cm_num = 0
 	startup_cm_loading = f"[{tt._t()}] loading {len(tt.cogs)} cogs ..."
 	print(startup_cm_loading)
@@ -76,20 +78,20 @@ async def on_connect():
 
 @bot.event
 async def on_message(message):
-	blacklist = pickle.load(open(tt.blacklist_pkl, "rb"))
+	blacklist_list = funcs.load_db(tt.blacklist_db)
 	if message.author.bot:
 		pass
-	if message.author.id in blacklist:
+	if message.author.id in blacklist_list:
 		return
 	await bot.process_commands(message)
 
 @bot.event
 async def on_guild_remove(guild):
-	await send_log(log = f"removed from guild '{guild}' ({guild.id})")
+	await send_log(f"removed from guild '{guild}' ({guild.id})")
 
 @bot.event
 async def on_guild_join(guild):
-	await send_log(log = f"added to guild '{guild}' ({guild.id})")
+	await send_log(f"added to guild '{guild}' ({guild.id})")
 
 #			-----  HELP COMMAND  -----
 
@@ -122,23 +124,52 @@ def main():
 
 @app.route('/rhcooc')
 def rhcooc(): 
-	return render_template('rhcooc.html', rhcooc_list = pickle.load(open(tt.rhcooc_pkl, "rb")))	
+	with open(tt.rhcooc_db) as rhcooc_list_json:
+		rhcooc_list = json.load(rhcooc_list_json)
+	return render_template('rhcooc.html', rhcooc_list = rhcooc_list)	
 
 @app.route('/tags', defaults={'search': None})
 @app.route('/tags/', defaults={'search': None})
 @app.route('/tags/<search>')
 def tags(search):
+	invalid_user = False
+	tags_list = funcs.load_db(tt.tags_db)
 	if not search:
 		search = request.args.get('search')
 	if not search:
-		return render_template('tags.html', search = False, title = f"trashbot tag list", header = "list of all tags in the database", og_name = "list of tags", og_description = "a list of every tag in trashbot's database", tags_list = pickle.load(open(tt.tags_pkl, "rb")))
+		return render_template('tags.html', search = False, title = f"trashbot tag list", header = "list of all tags in the database", og_name = "list of tags", og_description = "a list of every tag in trashbot's database", tags_list = tags_list)
 	try:
 		user = bot.get_user(int(search))
 	except:
+		invalid_user = True
+	if (user is None) or (invalid_user == True):
 		return render_template('tags.html', search = True, title = f"trashbot tag list :: invalid ID", header = "invalid user ID provided in search", og_name = "invalid tag owner", og_description = "invalid user provided for tag list search")
-	if user is None:
-		return render_template('tags.html', search = True, title = f"trashbot tag list :: invalid ID", header = "invalid user ID provided in search", og_name = "invalid tag owner", og_description = "invalid user provided for tag list search")
-	return render_template('tags.html', search = True, title = f"trashbot tag list :: {user}", header = f"all tags owned by {user} ({user.id})", og_name = f"list of tags owned by {user}", og_description = f"", user = user, user_id = user.id, tags_list = pickle.load(open(tt.tags_pkl, "rb")))
+	return render_template('tags.html', search = True, title = f"trashbot tag list :: {user}", header = f"all tags owned by {user} ({user.id})", og_name = f"list of tags owned by {user}", og_description = f"", user = user, user_id = user.id, tags_list = tags_list)
+
+@app.route('/names', defaults={'user': None})
+@app.route('/names/', defaults={'user': None})
+@app.route('/names/<user>')
+def names(user):
+	if not user:
+		user = request.args.get('user')
+	if not user:
+		return render_template('names.html', invalid_user = True, names_list = {})
+	try:
+		user = str(int(user))
+	except:
+		return render_template('names.html', invalid_user = True, names_list = {})
+	user_names_path = tt.user_names_path.format(str(user))
+	if os.path.exists(user_names_path):
+		names_list = funcs.load_db(user_names_path)
+		no_names = False
+	else:
+		names_list = {}
+		no_names = True
+	return render_template('names.html', user = user, no_names = no_names, names_list = names_list)
+
+@app.route('/settings.txt')
+def static_from_root():
+	return send_from_directory(app.static_folder, request.path[1:])
 
 # 		========================
 

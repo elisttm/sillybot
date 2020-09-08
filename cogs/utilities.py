@@ -1,8 +1,8 @@
 import discord 
-import pickle
-import time, datetime
+import os
 import json
 import urllib, urllib.request
+import time, datetime
 from discord.ext import commands
 from utils import checks
 from utils.funcs import funcs
@@ -13,6 +13,8 @@ import data.constants as tt
 class utilities(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot
+		self.load_db = funcs.load_db
+		self.dump_db = funcs.dump_db
 		self.send_log = funcs.send_log
 		self.log_prefix = ""
 
@@ -27,7 +29,7 @@ class utilities(commands.Cog):
 			for user in self.bot.users:
 				if user.bot is True: continue 
 				else: user_num += 1
-			e_about = discord.Embed(title=f"trashbot | v{tt.v}", url=tt.website, description=f"{tt.desc}\n\n**bot name**: {self.bot.user}\n**bot ID**: `{self.bot.user.id}`", color=tt.clr['pink'])
+			e_about = discord.Embed(title=f"trashbot | v{tt.v}", url=tt.website, description=f"{tt.desc}\n", color=tt.clr['pink'])
 			e_about.add_field(name="stats", value=f"servers: `{guild_num}`, users: `{user_num}`", inline=True)
 			e_about.add_field(name=f"client uptime", value=f"{tt.uptime()}", inline=True)
 			e_about.set_author(name=f"about trashbot", icon_url=tt.ico['info'])
@@ -58,7 +60,7 @@ class utilities(commands.Cog):
 	async def user(self, ctx, user: discord.User = None):
 		await ctx.trigger_typing()
 		user = ctx.author if not user else user
-		blacklist = pickle.load(open(tt.blacklist_pkl, "rb"))
+		blacklist_list = self.load_db(tt.blacklist_db)
 		try:
 			user_nick = ''; user_tag = ''; perm_tag = ''; trashbot_tag = ''
 			if user.system: 
@@ -69,7 +71,7 @@ class utilities(commands.Cog):
 				trashbot_tag += '\n`trashbot owner`'
 			if user.id in tt.admins:
 				trashbot_tag += '\n`trashbot admin`'
-			if user.id in blacklist:
+			if user.id in blacklist_list:
 				trashbot_tag += '\n`trashbot blacklisted`'
 			if user in ctx.guild.members:
 				user = ctx.guild.get_member(user.id)
@@ -102,6 +104,16 @@ class utilities(commands.Cog):
 			await ctx.send(embed=e_avatar)
 		except Exception as error: 
 			await ctx.send(tt.msg_e.format(error))
+
+	@commands.command()
+	async def names(self, ctx, user:discord.User = None):
+		user = ctx.author if not user else user
+		user_names_path = tt.user_names_path.format(str(user.id))
+		if not os.path.exists(user_names_path):
+			await ctx.send("⚠️ ⠀this user does not have any name changes on record!")
+			return
+		names_list = funcs.load_db(user_names_path)
+		await ctx.send(f"ℹ️ ⠀**{user.name}** has **{len(names_list)}** name changes on record:\n{tt.names_list}/{str(user.id)}")
 
 	@commands.command()
 	@commands.guild_only()
@@ -189,50 +201,6 @@ class utilities(commands.Cog):
 			await ctx.channel.purge(limit=(clear))
 			await ctx.send(f"✅ ⠀cleared `{clear}` messages", delete_after=2)
 		except Exception as error: 
-			await ctx.send(tt.msg_e.format(error))
-
-	@commands.group(name = 'prefix')
-	@commands.guild_only()
-	async def prefix(self, ctx):
-		await ctx.trigger_typing()
-		if ctx.invoked_subcommand is None:
-			try:
-				custom_prefixes = pickle.load(open(tt.prefixes_pkl, "rb"))
-				if ctx.guild.id not in custom_prefixes:
-					await ctx.send("⚠️ ⠀no custom prefix for this guild. do `t!prefix set [prefix]` to create one!")
-					return
-				await ctx.send(f"ℹ️ ⠀this guild's custom prefix is '{custom_prefixes[ctx.guild.id]}'")
-			except Exception as error:
-				await ctx.send(tt.msg_e.format(error))
-
-	@prefix.command(name = 'set')
-	@checks.is_server_or_bot_admin()
-	async def prefix_set(self, ctx, prefix:str):
-		try:
-			if len(prefix) > 10:
-				await ctx.send("⚠️ ⠀prefix too long! (max of 10 characters)")
-				return
-			custom_prefixes = pickle.load(open(tt.prefixes_pkl, "rb"))
-			if ctx.guild.id in custom_prefixes:
-				del custom_prefixes[ctx.guild.id]
-			custom_prefixes[ctx.guild.id] = prefix
-			pickle.dump(custom_prefixes, open(tt.prefixes_pkl, "wb"))
-			await ctx.send(f"✅ ⠀custom prefix for this guild set to '{prefix}'!")
-		except Exception as error:
-			await ctx.send(tt.msg_e.format(error))
-
-	@prefix.command(name = 'reset')
-	@checks.is_server_or_bot_admin()
-	async def prefix_reset(self, ctx):
-		try:
-			custom_prefixes = pickle.load(open(tt.prefixes_pkl, "rb"))
-			if ctx.guild.id not in custom_prefixes:
-				await ctx.send(f"❌ ⠀this guild does not have a custom prefix set!")
-				return
-			del custom_prefixes[ctx.guild.id]
-			pickle.dump(custom_prefixes, open(tt.prefixes_pkl, "wb"))
-			await ctx.send(f"✅ ⠀removed custom prefix for this guild!")
-		except Exception as error:
 			await ctx.send(tt.msg_e.format(error))
 
 # 		========================

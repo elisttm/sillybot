@@ -1,7 +1,8 @@
 import discord
-import traceback
-import sys
+import os, sys
+import json
 import math
+import traceback
 from discord.ext import commands
 from utils import checks
 from utils.funcs import funcs
@@ -26,7 +27,7 @@ class errors(commands.Cog):
 			return
 
 		if isinstance(error, commands.BotMissingPermissions):
-			await ctx.send("❌ ⠀i do not have permission to do this!")
+			await ctx.send("❌ ⠀i do not have permission to use that command here!")
 			return
 
 		if isinstance(error, commands.CommandOnCooldown):
@@ -49,11 +50,11 @@ class errors(commands.Cog):
 				pass
 			return
 
-		if isinstance(error, checks.No_Permission):
+		if isinstance(error, checks.NoPermission):
 			await ctx.send("❌ ⠀you do not have permission to use this command!")
 			return
 
-		if isinstance(error, checks.Unmatched_Guild):
+		if isinstance(error, checks.UnmatchedGuild):
 			await ctx.send("❌ ⠀that command is not enabled in this server!")
 			return
 

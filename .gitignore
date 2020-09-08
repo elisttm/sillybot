@@ -1,11 +1,14 @@
-# yeah
+#  unwanted files
 TODO
 .env
 
-# annoying
+# database files
+data/db/
+
+#  temporary files
 **/__pycache__/
 
-# packager files
+#  packager files
 package-lock.json
 poetry.lock
 pyproject.toml

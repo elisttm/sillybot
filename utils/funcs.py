@@ -1,6 +1,6 @@
 import discord
 import os
-import pickle
+import json
 from discord.ext import commands
 import data.constants as tt
 
@@ -17,3 +17,19 @@ class funcs():
 			log_msg = log
 		print(log_msg)
 		await self.bot.get_channel(tt.logs).send(f"```{log_msg}```")
+
+	def load_db(path:str):
+		with open(path) as data_json: 
+			return json.load(data_json)
+
+	def dump_db(path:str, data):
+		with open(path, 'w') as outfile: 
+			json.dump(data, outfile)
+
+	def check_for_db(path:str):
+		if not os.path.exists(path):
+			os.mknod(path)	
+			data = {}
+			with open(path, 'w') as outfile: 
+				json.dump(data, outfile)
+			print(f"[{tt._t()}] created file '{path}'")

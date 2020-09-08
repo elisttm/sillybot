@@ -8,7 +8,7 @@ import data.constants as tt
 # 		========================
 
 p = 't!'
-v = "1.14.4"
+v = "1.15.3"
 
 desc = 'a simple discord bot made by elisttm | t!help for commands'
 presence = discord.Game(f'{tt.p}help | v{tt.v}')
@@ -16,8 +16,10 @@ presence = discord.Game(f'{tt.p}help | v{tt.v}')
 cogs = (
 	'cogmanager',
 	'errors',
+	'events',
 	'admin',
 	'utilities',
+	'customization',
 	'moderation',
 	'fun',
 	'cats',
@@ -51,13 +53,19 @@ cat_site = 'http://cat.elisttm.space:7777'
 help_list = 'https://trashbot.elisttm.space/commands'
 tags_list = 'https://trashbot.elisttm.space/tags'
 rhcooc_list = 'https://trashbot.elisttm.space/rhcooc'
+names_list = 'https://trashbot.elisttm.space/names'
+settings_page = 'https://trashbot.elisttm.space/settings.txt'
 
 mcserver = 'mc.elisttm.space'
 
-blacklist_pkl = 'data/pickles/blacklist.pkl'
-prefixes_pkl = 'data/pickles/prefixes.pkl'
-tags_pkl = 'data/pickles/tags.pkl'
-rhcooc_pkl = 'data/pickles/rhcooc.pkl'
+blacklist_db = 'data/db/blacklist.json'
+reactions_db = 'data/db/reactions.json'
+rhcooc_db = 'data/db/rhcooc.json'
+tags_db = 'data/db/tags.json'
+
+guild_data_path = 'data/db/guilds/{}.json'
+user_data_path = 'data/db/users/{}.json'
+user_names_path = 'data/db/users/names/{}.json'
 
 time0 = '%m/%d/%y %I:%M:%S %p'	# 01/31/20 12:34:56 PM
 time1 = '%H:%M:%S'						  # 12:34:56
@@ -75,10 +83,10 @@ def sanitize(text: str): return text.replace('@here', '@\u200bhere').replace('@e
 ico = {
 	'info' : 'https://i.imgur.com/3AccYL9.png',
 	'cog'	 : 'https://i.imgur.com/6kiSbJl.png',
-	'warn' : 'https://i.imgur.com/MXbitfx.png',
-	'deny' : 'https://i.imgur.com/9g29yLh.png',
-	'good' : 'https://i.imgur.com/54DgIma.png',
-	'empty': 'https://i.imgur.com/TjsJ4Tv.png',
+#	'warn' : 'https://i.imgur.com/MXbitfx.png',
+#	'deny' : 'https://i.imgur.com/9g29yLh.png',
+#	'good' : 'https://i.imgur.com/54DgIma.png',
+#	'empty': 'https://i.imgur.com/TjsJ4Tv.png',
 }
 clr = {
 	'red'		: 0xff0000,
@@ -86,15 +94,6 @@ clr = {
 	'blue'	: 0x0000ff,
 	'pink'	: 0xff78d3,
 	'yellow': 0xbf993a,
-}
-
-rhc_restrictions = {
-	'serious' : 705870681849594027,
-	'reaction' : 747664614493519962,
-	'image' : 714875237644108140,
-	'vc' : 719987120441131048,
-	'dino' : 746068022401302663,
-	'poop' : 745008022773956609,
 }
 
 loaded = {}

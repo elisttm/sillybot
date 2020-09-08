@@ -18,14 +18,13 @@ class help_list():
 		'utilities': {
 			'description'	: "helpful commands for information and/or utility",
 			'commands': {
-				'ping' : "gives trashbots command latency",
+				'ping' : "gives trashbots latency",
 				'server' : "gives information about a server",
 				'user <user>' : "gives information about a user",
 				'avatar <user>' : "provides the avatar of a given user",
 				'mcserver' : "gives information about the elisttm minecraft server",
 				'clear <amount>' : "deletes a specified number of messages",
-				'massnick <nickname> OR "reset"' : "changes the nickname of everyone in the server (server admins only)",
-				'prefix set <prefix> OR "reset"' : "allows management of a custom server prefix (server admins only)",
+				'massnick <nickname> OR massnick reset' : "changes the nickname of everyone in the server (server admins only)",
 			}
 		},
 
@@ -41,7 +40,7 @@ class help_list():
 		'cats': {
 			'description': "commands for random pictures of funny cats (images fetched from my personally hosted cat api)",
 			'commands': {
-				'cat <cat>' : "sends a random cat picture (all other cat commands are aliases of this one)",
+				'cat <cat>' : "sends a random cat picture",
 				'tommy' : "sends a random picture of tommy (zeebrongis' cat)",
 				'floppa' : "sends a random image of big floppa",
 				'gloop' : "sends a random gloop aesthetic cat",
@@ -71,12 +70,20 @@ class help_list():
 			}
 		},
 
+		'customization': {
+			'description' : "",
+			'commands': {
+				'prefix set <prefix> OR prefix reset' : "allows management of a custom server prefix",
+			}
+		},
+
 		'admin': { 
 			'description'	: "various bot functions restricted to bot admins",
 			'commands': {
 				'admins' : "lists all of trashbot's admins",
 				'*presence <text>' : "changes trashbot's playing status",
 				'*echo <channel ID> <message>' : "makes trashbot echo a message to a provided channel ID",
+				'*blacklist <user>' : "blacklists/unblacklists users from using trashbot's commands",
 				'*shutdown' : "logs out and shuts down the bot",
 				'*restart' : "restarts the bot",
 			}
