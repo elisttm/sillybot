@@ -3,6 +3,7 @@ import json
 from discord.ext import commands
 from utils import checks
 from utils.funcs import funcs
+from data.messages import _cm
 import data.constants as tt
 
 # 		========================
@@ -37,16 +38,16 @@ class cogmanager(commands.Cog):
 	async def load(self, ctx, cog:str):
 		await ctx.trigger_typing()
 		if cog not in tt.cogs: 
-			await ctx.send("⚠️ ⠀please specify a valid cog!")
+			await ctx.send(_cm.invalid_cog)
 			return
 		try:
 			self.bot.load_extension('cogs.' + cog)
 			tt.loaded[cog] = True
 			cm_msg = f"loaded '{cog}'"
-			await ctx.send(f"✅ ⠀{cm_msg}")
+			await ctx.send(tt.y+f"{cm_msg}")
 		except Exception as error:
 			cm_msg = f"'{cog}' failed to load [{error}]"
-			await ctx.send(f"❌ ⠀{cm_msg}")
+			await ctx.send(tt.x+f"{cm_msg}")
 		await self.send_log(self, f"{cm_msg}", self.log_prefix)
 			
 	@commands.command(aliases=['u', 'ul'])
@@ -54,16 +55,16 @@ class cogmanager(commands.Cog):
 	async def unload(self, ctx, cog:str):
 		await ctx.trigger_typing()
 		if cog not in tt.cogs:
-			await ctx.send("⚠️ ⠀please specify a valid cog!")
+			await ctx.send(_cm.invalid_cog)
 			return 
 		try:
 			self.bot.unload_extension('cogs.' + cog)
 			tt.loaded[cog] = False
 			cm_msg = f"unloaded '{cog}'"
-			await ctx.send(f"✅ ⠀{cm_msg}")
+			await ctx.send(tt.y+f"{cm_msg}")
 		except Exception as error:
 			cm_msg = f"'{cog}' failed to unload [{error}]"
-			await ctx.send(f"❌ ⠀{cm_msg}")
+			await ctx.send(tt.x+f"{cm_msg}")
 		await self.send_log(self, f"{cm_msg}", self.log_prefix)
 
 	@commands.command(aliases=['rl'])
@@ -79,11 +80,11 @@ class cogmanager(commands.Cog):
 					self.bot.reload_extension('cogs.' + cog)
 					tt.loaded[cog] = True
 					cm_num += 1
-					cm_msg += f"✅ ⠀{cog}\n" 
+					cm_msg += tt.y+f"{cog}\n" 
 					cm_log += f"    -- reloaded '{cog}'\n"
 				except Exception as error:
 					tt.loaded[cog] = False
-					cm_msg += f"❌ ⠀{cog} [{error}]\n"
+					cm_msg += tt.x+f"{cog} [{error}]\n"
 					cm_log += f"    == '{cog}' failed to reload [{error}]\n"
 			cm_rld = f"[{cm_num}/{len(tt.cogs)}] cogs reloaded!"
 			await self.send_log(self, f"{cm_log}[{tt._t()}] {cm_rld}", show_prefix = False)
@@ -93,13 +94,13 @@ class cogmanager(commands.Cog):
 				self.bot.reload_extension('cogs.' + cog)
 				tt.loaded[cog] = True
 				cm_msg = f"reloaded '{cog}'"
-				await ctx.send(f"✅ ⠀{cm_msg}")
+				await ctx.send(tt.y+f"{cm_msg}")
 			except Exception as error:
 				cm_msg = f"'{cog}' failed to reload [{error}]"
-				await ctx.send(f"❌ ⠀{cm_msg}")
+				await ctx.send(tt.x+f"{cm_msg}")
 			await self.send_log(self, f"{cm_msg}", self.log_prefix)
 		else: 
-			await ctx.send("⚠️ ⠀please specify a valid cog!")
+			await ctx.send(_cm.invalid_cog)
 
 # 		========================
 

@@ -4,9 +4,46 @@ import json
 from discord.ext import commands
 from utils import checks
 from utils.funcs import funcs
+from data.messages import _c
 import data.constants as tt
 
 # 		========================
+
+settings_groups_list = {
+	'general': {
+		'prefix': 'prefix',
+	}, 
+	'roles': {
+		'default': 'defaultrole',
+	}, 
+	'channels': {
+		'msgchannel': 'msgchannel',
+	},
+	'messages': {
+		'join': 'joinmsg',
+		'leave': 'leavemsg',
+		'ban': 'banmsg',
+	}
+}
+
+cosmetic_groups = {
+	'roles':'role', 
+	'messages':'message', 
+	'channels':'channel',
+}
+cosmetic_config = {
+	'msgchannel':'message channel', 
+	'defaultrole':'default role',
+}
+
+config_subcommands = ['set', 'reset']
+
+undefined = {'prefix': 'default',}
+
+def undefined_value(setting):
+	if setting not in undefined:
+		return f'not set'
+	return undefined[setting]
 
 class customization(commands.Cog):
 	def __init__(self, bot):
@@ -23,222 +60,142 @@ class customization(commands.Cog):
 	@commands.guild_only()
 	async def settings(self, ctx):
 		if ctx.invoked_subcommand is None:
-			guild_data_path = tt.guild_data_path.format(str(ctx.guild.id))
-			prefix = 'default'; msgchannel = 'not set'; joinmsg = 'not set'; leavemsg = 'not set'; banmsg = 'not set'
-			if not os.path.exists(guild_data_path):
-				await ctx.send("⚠️ ⠀this guild does not have any custom settings!")
-				return
-			guild_data = self.load_db(guild_data_path)
-			if 'prefix' in guild_data:
-				prefix = guild_data['prefix']
-			if 'events' in guild_data:
-				if 'channel' in guild_data['events']:
-					msgchannel = self.bot.get_channel(guild_data['events']['channel'])
-				if 'join' in guild_data['events']:
-					joinmsg = guild_data['events']['join']
-				if 'leave' in guild_data['events']:
-					leavemsg = guild_data['events']['leave']
-				if 'ban' in guild_data['events']:
-					banmsg = guild_data['events']['ban']
-			e_settings = discord.Embed(title=f"click here for documentation on using this command", url=tt.settings_page, description=f"these are the settings for trashbot for this specific guild\n", color=tt.clr['pink'])
-			e_settings.set_author(name=f"trashbot settings", icon_url=tt.ico['cog'])
-			e_settings.add_field(name="general", value=f"```py\nprefix : \"{prefix}\"\n```", inline=False)
-			e_settings.add_field(name="events", value=f"```py\nmsgchannel : \"#{msgchannel}\"\njoinmsg : \"{joinmsg}\"\nleavemsg : \"{leavemsg}\"\nbanmsg : \"{banmsg}\"\n```", inline=False)
-			#e_user.set_footer(text=f"requested by {ctx.author}", icon_url=ctx.author.avatar_url_as(format='png'))
-			await ctx.send(embed=e_settings)
-
-	#			-----  CUSTOM PREFIX  -----
-
-	@settings.group(name = 'prefix')
-	async def prefix(self, ctx):
-		await ctx.trigger_typing()
-		if ctx.invoked_subcommand is None:
+			if ctx.subcommand_passed is not None:
+				raise(commands.UserInputError)
+				return 
 			try:
 				guild_data_path = tt.guild_data_path.format(str(ctx.guild.id))
-				if not os.path.exists(guild_data_path):
-					await ctx.send("⚠️ ⠀no custom prefix for this guild!")
-					return
-				guild_data = self.load_db(guild_data_path)
-				if 'prefix' not in guild_data:
-					await ctx.send("⚠️ ⠀no custom prefix for this guild!")
-					return
-				await ctx.send(f"ℹ️ ⠀this guild's custom prefix is '{guild_data['prefix']}'")
+				e_settings = discord.Embed(title=f"click here for documentation on using this command", url=tt.settings_page, description=f"these are the settings for trashbot for this specific guild\n", color=tt.clr['pink'])
+				e_settings.set_author(name=f"trashbot settings", icon_url=tt.ico['cog'])
+				if os.path.exists(guild_data_path):
+					guild_data = self.load_db(guild_data_path)
+				else:
+					guild_data = {}
+				for group in settings_groups_list:
+					embvalue = ''
+					for x, y in settings_groups_list[group].items():
+						embvalue += f'{y} : '
+						if (group not in guild_data) or (x not in guild_data[group]):
+							embvalue += f'"{undefined_value(x)}"\n'
+							continue
+						if group == 'roles':
+							role = ctx.guild.get_role(guild_data[group][x])
+							embvalue += f'"{role.name}" ({role.id})\n'
+							continue
+						if group == 'channels':
+							channel = self.bot.get_channel(guild_data[group][x])
+							embvalue += f'"{channel.name}" ({channel.id})\n'
+							continue
+						else:
+							embvalue += f'"{guild_data[group][x]}"\n'
+					e_settings.add_field(name=group, value=f"```py\n{embvalue}\n```", inline=False)
+				await ctx.send(embed=e_settings)
 			except Exception as error:
 				await ctx.send(tt.msg_e.format(error))
 
-	@prefix.command(name = 'set')
-	@checks.is_server_or_bot_admin()
-	async def prefix_set(self, ctx, prefix:str):
-		try:
-			if prefix == tt.p:
-				await ctx.invoke(self.bot.get_command('prefix reset'))
-				return
-			if len(prefix) > 10:
-				await ctx.send("⚠️ ⠀prefix too long! (max of 10 characters)")
-				return
-			guild_data_path = tt.guild_data_path.format(str(ctx.guild.id))
-			self.check_for_db(guild_data_path)
-			guild_data = self.load_db(guild_data_path)
-			guild_data['prefix'] = prefix
-			self.dump_db(guild_data_path, guild_data)
-			await ctx.send(f"✅ ⠀custom prefix for this guild set to '{prefix}'")
-		except Exception as error:
-			await ctx.send(tt.msg_e.format(error))
-
-	@prefix.command(name = 'reset')
-	@checks.is_server_or_bot_admin()
-	async def prefix_reset(self, ctx):
-		try:
-			guild_data_path = tt.guild_data_path.format(str(ctx.guild.id))
-			if not os.path.exists(guild_data_path):
-				await ctx.send(f"❌ ⠀this guild does not have a custom prefix set!")
-				return
-			guild_data = self.load_db(guild_data_path)
-			if 'prefix' not in guild_data:
-				await ctx.send(f"❌ ⠀this guild does not have a custom prefix set!")
-				return
-			del guild_data['prefix']
-			self.dump_db(guild_data_path, guild_data)
-			await ctx.send(f"✅ ⠀prefix for this guild set to default!")
-		except Exception as error:
-			await ctx.send(tt.msg_e.format(error))
-
-	#			-----  EVENT MESSAGES CHANNEL  -----
-
-	@settings.group(name = 'msgchannel')
-	async def msgchannel(self, ctx):
-		if ctx.invoked_subcommand is None:
-			try:
-				guild_data_path = tt.guild_data_path.format(str(ctx.guild.id))
-				if not os.path.exists(guild_data_path):
-					await ctx.send("❌ ⠀this guild does not have an event messages channel set!")
-					return
-				guild_data = self.load_db(guild_data_path)
-				if ('events' not in guild_data) or ('channel' not in guild_data['events']):
-					await ctx.send("❌ ⠀this guild does not have an event messages channel set!")
-					return
-				guild_data = self.load_db(guild_data_path)
-				channel = self.bot.get_channel(guild_data['events']['channel'])
-				await ctx.send(f"ℹ️ ⠀the event messages channel for this guild is {channel.mention}")
-			except Exception as error:
-				await ctx.send(tt.msg_e.format(error))
-
-	@msgchannel.command(name = 'set')
-	@checks.is_server_or_bot_admin()
-	async def msgchannel_set(self, ctx, channel:discord.TextChannel = None):
-		try:
-			guild_data_path = tt.guild_data_path.format(str(ctx.guild.id))
-			self.check_for_db(guild_data_path)
-			guild_data = self.load_db(guild_data_path)
-			guild_data['events']['channel'] = channel
-			self.dump_db(guild_data_path, guild_data)
-			await ctx.send(f"✅ ⠀set the guild event messages channel!")
-		except Exception as error:
-			await ctx.send(tt.msg_e.format(error))
-
-	@msgchannel.command(name = 'reset')
-	@checks.is_server_or_bot_admin()
-	async def msgchannel_reset(self, ctx):
-		try:
-			guild_data_path = tt.guild_data_path.format(str(ctx.guild.id))
-			if not os.path.exists(guild_data_path):
-				await ctx.send("❌ ⠀this guild does not have an event messages channel set!")
-				return
-			guild_data = self.load_db(guild_data_path)
-			del guild_data['events']['channel']
-			self.dump_db(guild_data_path, guild_data)
-			await ctx.send(f"✅ ⠀removed the guild event messages channel!")
-		except Exception as error:
-			await ctx.send(tt.msg_e.format(error))
-
-	#			-----  EVENT MESSAGES  -----
+	#			-----  BASE CONFIG THING  -----
 
 	@commands.command()
-	async def event(self, ctx, action, event, message = None):
+	@commands.guild_only()
+	async def cfg_cmd(self, ctx, group, config, action, param = None):
+		c_config = config; c_group = group
+		if config in cosmetic_config:
+			c_config = cosmetic_config[config]
+		if group in cosmetic_groups:
+			c_group = cosmetic_groups[group]
+		st = f"{c_config} {c_group}"
+		guild_data_path = tt.guild_data_path.format(str(ctx.guild.id))
 		try:
-			guild_data_path = tt.guild_data_path.format(str(ctx.guild.id))
-			if action == 'check':
-				if not os.path.exists(guild_data_path):
-					await ctx.send(f"❌ ⠀this guild does not have a {event} message set!")
-					return
-				guild_data = self.load_db(guild_data_path)
-				if ('events' not in guild_data) or (event not in guild_data['events']):
-					await ctx.send(f"❌ ⠀this guild does not have a {event} message set!")
-					return
-				await ctx.send(f"ℹ️ ⠀the custom join message for this guild is '{guild_data['events']['join']}'")
-				return
 			if action == 'set':
 				self.check_for_db(guild_data_path)
 				guild_data = self.load_db(guild_data_path)
-				if (event in guild_data['events']) and (guild_data['events'][event] == message):
-					await ctx.send(f"❌ ⠀this guilds {event} message is already set to that!")
-					return
-				guild_data['events'][event] = message
-				await ctx.send(f"✅ ⠀set the guild {event} message!")
+				if group not in guild_data:
+					guild_data[group] = {}
+				if group == 'roles':
+					guild_data[group][config] = param.id
+					param = param.id
+				if group == 'channels':
+					guild_data[group][config] = param.id
+					param = param.mention
+				else:
+					guild_data[group][config] = param
+				await ctx.send(_c._set.format(st, param))
 			if action == 'reset':
 				if not os.path.exists(guild_data_path):
-					await ctx.send(f"❌ ⠀this guild does not have a {event} message set!")
+					await ctx.send(_c.none_set.format(st))
 					return
 				guild_data = self.load_db(guild_data_path)
-				if event not in guild_data['events']:
-					await ctx.send(f"❌ ⠀this guild does not have a {event} message set!")
+				if (group not in guild_data) or (config not in guild_data[group]):
+					await ctx.send(_c.none_set.format(st))
 					return
-				del guild_data['events'][event]
-				await ctx.send(f"✅ ⠀removed the guild {event} message!")
+				del guild_data[group][config]
+				await ctx.send(_c.removed.format(st))
 			self.dump_db(guild_data_path, guild_data)
 		except Exception as error:
 			await ctx.send(tt.msg_e.format(error))
 
-	#			-----  JOIN  -----
+	#			-----  PREFIX  -----
 
-	@settings.group(name = 'joinmsg')
-	async def joinmsg(self, ctx):
-		if ctx.invoked_subcommand is None:
-			await ctx.invoke(self.bot.get_command('event'), action='check', event='join')
-
-	@joinmsg.command(name = 'set')
+	@settings.command(name = 'prefix')
 	@checks.is_server_or_bot_admin()
-	async def joinmsg_set(self, ctx, *, message:str):
-		await ctx.invoke(self.bot.get_command('event'), action='set', event='join', message=message)
+	async def prefix(self, ctx, action=None, *, prefix:str = None):
+		group = 'general'; config = 'prefix'
+		if action not in config_subcommands:
+			raise(commands.UserInputError)
+			return
+		await ctx.invoke(self.bot.get_command('cfg_cmd'), action=action, group=group, config=config, param=prefix)
 
-	@joinmsg.command(name = 'reset')
+	#			-----  MESSAGES  -----
+
+	@settings.command(name = 'joinmsg')
 	@checks.is_server_or_bot_admin()
-	async def joinmsg_reset(self, ctx):
-		await ctx.invoke(self.bot.get_command('event'), action='reset', event='join')
+	async def joinmsg(self, ctx, action=None, *, message:str = None):
+		group = 'messages'; config = 'join'
+		if action not in config_subcommands:
+			raise(commands.UserInputError)
+			return
+		await ctx.invoke(self.bot.get_command('cfg_cmd'), action=action, group=group, config=config, param=message)
 
-	#			-----  LEAVE  -----
-
-	@settings.group(name = 'leavemsg')
-	async def leavemsg(self, ctx):
-		if ctx.invoked_subcommand is None:
-			await ctx.invoke(self.bot.get_command('event'), action='check', event='leave')
-
-	@leavemsg.command(name = 'set')
+	@settings.command(name = 'leavemsg')
 	@checks.is_server_or_bot_admin()
-	async def leavemsg_set(self, ctx, *, message:str):
-		await ctx.invoke(self.bot.get_command('event'), action='set', event='leave', message=message)
+	async def leavemsg(self, ctx, action, *, message:str = None):
+		group = 'messages'; config = 'leave'
+		if action not in config_subcommands:
+			raise(commands.UserInputError)
+			return
+		await ctx.invoke(self.bot.get_command('cfg_cmd'), action=action, group=group, config=config, param=message)
 
-	@leavemsg.command(name = 'reset')
+	@settings.command(name = 'banmsg')
 	@checks.is_server_or_bot_admin()
-	async def leavemsg_reset(self, ctx):
-		await ctx.invoke(self.bot.get_command('event'), action='reset', event='leave')
+	async def banmsg(self, ctx, action, *, message:str = None):
+		group = 'messages'; config = 'ban'
+		if action not in config_subcommands:
+			raise(commands.UserInputError)
+			return
+		await ctx.invoke(self.bot.get_command('cfg_cmd'), action=action, group=group, config=config, param=message)			
 
-	#			-----  BAN  -----
+	#			-----  ROLES  -----
 
-	@settings.group(name = 'banmsg')
-	async def banmsg(self, ctx):
-		if ctx.invoked_subcommand is None:
-			await ctx.invoke(self.bot.get_command('event'), action='check', event='ban')
-
-	@banmsg.command(name = 'set')
+	@settings.command(name = 'defaultrole')
 	@checks.is_server_or_bot_admin()
-	async def banmsg_set(self, ctx, *, message:str):
-		await ctx.invoke(self.bot.get_command('event'), action='set', event='ban', message=message)
+	async def defaultrole(self, ctx, action=None, *, role:discord.Role = None):
+		group = 'roles'; config = 'default'
+		if action not in config_subcommands:
+			raise(commands.UserInputError)
+			return
+		await ctx.invoke(self.bot.get_command('cfg_cmd'), action=action, group=group, config=config, param=role)
 
-	@banmsg.command(name = 'reset')
+	#			-----  CHANNELS  -----
+
+	@settings.command(name = 'msgchannel')
 	@checks.is_server_or_bot_admin()
-	async def banmsg_reset(self, ctx):
-		await ctx.invoke(self.bot.get_command('event'), action='reset', event='ban')
+	async def msgchannel(self, ctx, action=None, *, channel:discord.TextChannel = None):
+		channel = ctx.channel if not channel else channel
+		group = 'channels'; config = 'msgchannel'
+		if action not in config_subcommands:
+			raise(commands.UserInputError)
+			return
+		await ctx.invoke(self.bot.get_command('cfg_cmd'), action=action, group=group, config=config, param=channel)
 
 # 		========================
 

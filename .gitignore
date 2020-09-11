@@ -1,14 +1,13 @@
-#  unwanted files
+# unwanted files
 TODO
 .env
-
-# database files
 data/db/
+/node_modules/
 
-#  temporary files
+# temporary files
 **/__pycache__/
 
-#  packager files
+# packager files
 package-lock.json
 poetry.lock
 pyproject.toml

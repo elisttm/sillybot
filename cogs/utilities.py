@@ -20,7 +20,7 @@ class utilities(commands.Cog):
 
 # 		========================
 
-	@commands.command()
+	@commands.command(description="", usage="")
 	async def about(self, ctx):
 		await ctx.trigger_typing()
 		try:
@@ -110,10 +110,10 @@ class utilities(commands.Cog):
 		user = ctx.author if not user else user
 		user_names_path = tt.user_names_path.format(str(user.id))
 		if not os.path.exists(user_names_path):
-			await ctx.send("⚠️ ⠀this user does not have any name changes on record!")
+			await ctx.send(tt.w+"this user does not have any name changes on record!")
 			return
 		names_list = funcs.load_db(user_names_path)
-		await ctx.send(f"ℹ️ ⠀**{user.name}** has **{len(names_list)}** name changes on record:\n{tt.names_list}/{str(user.id)}")
+		await ctx.send(tt.i+f"**{user.name}** has **{len(names_list)}** name changes on record:\n{tt.names_list}/{str(user.id)}")
 
 	@commands.command()
 	@commands.guild_only()
@@ -131,14 +131,13 @@ class utilities(commands.Cog):
 	@commands.command(aliases=['mc'])
 	async def mcserver(self, ctx):
 		await ctx.trigger_typing()
+		mc_offline = ''; mc_players = ''
 		try:
-			mcstats = json.loads(urllib.request.urlopen(f'https://api.mcsrvstat.us/2/{urllib.parse.quote(tt.mcserver)}').read().decode('utf8'))
-			if mcstats['online'] == True:
-				mc_offline = ''
+			mcstats = json.loads(tt.get_url(tt.mcserver_api+urllib.parse.quote('mc.elisttm.space')))
+			if mcstats['online']:
 				mc_players = f"\n\n{mcstats['players']['online']}/{mcstats['players']['max']} players online"
 			else:
 				mc_offline = "(offline)"
-				mc_players = ''
 			e_mcserver = discord.Embed(title=f"mc.elisttm.space {mc_offline}", url="https://elisttm.space/minecraft", description=f"{mcstats['version']} ({mcstats['software']}){mc_players}\n\n{mcstats['motd']['clean'][0]}\n{mcstats['motd']['clean'][1]}", color=tt.clr['pink'])
 			e_mcserver.set_author(name=f"minecraft server info", icon_url=tt.ico['info'])
 			e_mcserver.set_footer(text=f"requested by {ctx.author}", icon_url=ctx.author.avatar_url_as(format='png'))
@@ -153,13 +152,13 @@ class utilities(commands.Cog):
 		await ctx.trigger_typing()
 		try:
 			if len(report) > 1000:
-				await ctx.send("⚠️ ⠀your report is too long!")
+				await ctx.send(tt.w+"your report is too long!")
 				return
 			report = (tt.sanitize(text = report)).replace('`', '\`')
 			report_msg = f"feedback recieved from '{ctx.author}' in '{ctx.guild.name}'"
 			await self.send_log(self, log = f"{report_msg}\n{report}", prefix = self.log_prefix)
 			await self.bot.get_user(tt.owner_id).send(f"{report_msg}\n> ```{report}```")
-			await ctx.send("✅ ⠀your report has been submitted!")
+			await ctx.send(tt.y+"your report has been submitted!")
 		except Exception as error:
 			await ctx.send(tt.msg_e.format(error))
 
@@ -183,7 +182,7 @@ class utilities(commands.Cog):
 					mn_changed += 1
 				except: 
 					continue
-			await ctx.send(f"✅ ⠀`{mn_changed}/{mn_users}` nicknames successfully changed!")
+			await ctx.send(tt.y+f"`{mn_changed}/{mn_users}` nicknames successfully changed!")
 			await self.send_log(self, log = f"'{mn_changed}/{mn_users}' nicknames changed to '{nickname}' in '{ctx.guild.name}'!", prefix = '[MASSNICK] ')
 		except Exception as error: 
 			await ctx.send(tt.msg_e.format(error))
@@ -195,11 +194,11 @@ class utilities(commands.Cog):
 		await ctx.trigger_typing()
 		try:
 			if (clear == 0) or (clear > 100): 
-				await ctx.send("⚠️ ⠀invalid message amount! (must be between 1 - 100)")
+				await ctx.send(tt.w+"invalid message amount! (must be between 1 - 100)")
 				return
 			await ctx.message.delete()
 			await ctx.channel.purge(limit=(clear))
-			await ctx.send(f"✅ ⠀cleared `{clear}` messages", delete_after=2)
+			await ctx.send(tt.y+f"cleared `{clear}` messages", delete_after=2)
 		except Exception as error: 
 			await ctx.send(tt.msg_e.format(error))
 

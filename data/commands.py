@@ -1,9 +1,4 @@
 class help_list():
-	
-	#	command <param1> <param2>
-	#	command <param1a> <param1b> OR <param2>
-
-	#	*command : command usable by trashbot admins/owners only
 
 	categories = {
 
@@ -32,8 +27,10 @@ class help_list():
 			'description'	: "fun commands for games or whatever",
 			'commands': {
 				'say <message>' : "makes trashbot say a specified message", 
+				'echo <channel> <message>' : "makes trashbot echo a message to a provided channel (server admin only)",
 				'urban <word>' : "gets the urban dictionary definition of the given word",
-				'urbanshit <word>' : "gets the urban dictionary definition of the given word using a really bad parser",
+				'penis <user>' : "gets a users penis size",
+				'penisrank <top/bottom>' : "ranks the biggest or smallest penis sizes in the current guild",
 			}
 		},
 
@@ -51,29 +48,29 @@ class help_list():
 				'spock' : "sends a random picture of spock (fluffer's cat)",
 			}
 		},
-		
+
 		'tags': {
 			'description'	: "commands related to trashbots tag database",
 			'commands': {
-				'tag <tag>' : "sends the content of the provided tag",
-				'tag create <tag> <contents>' : "creates a tag with the given name and content",
-				'tag remove <tag>' : "deletes a tag that you own",
-				'tag edit <tag> <contents>' : "updates the contents of a tag you own",
-				'tag transfer <tag> <user>' : "transfers ownership of a tag you own to a specified user",
-				'tag owner <tag>' : "provides the owner of the given tag",
-				'tag list <user>' : "gives a list of tags owned by a user",
-				'tag listall' : "gives a list of every tag in the database",
-				'tag random' : "returns a random tag from the database",
-				'*tag forceremove <tag>' : "forcefully deletes the specified tag from the database",
-				'*tag forceedit <tag> <content>' : "forcefully edits a tag with the given contents",
-				'*tag forcetransfer <tag> <user>' : "forcefully gives ownership of a tag to a specified user"
+				'tag <subcommand> OR <tag>' : "sends the content of the provided tag",
+				'create <tag> <contents>' : "creates a tag with the given name and content",
+				'remove <tag>' : "deletes a tag that you own",
+				'edit <tag> <contents>' : "updates the contents of a tag you own",
+				'transfer <tag> <user>' : "transfers ownership of a tag you own to a specified user",
+				'owner <tag>' : "provides the owner of the given tag",
+				'list <user>' : "gives a list of tags owned by a user",
+				'listall' : "gives a list of every tag in the database",
+				'random' : "returns a random tag from the database",
+				'forceremove <tag>' : "forcefully deletes the specified tag from the database",
+				'forceedit <tag> <content>' : "forcefully edits a tag with the given contents",
+				'forcetransfer <tag> <user>' : "forcefully gives ownership of a tag to a specified user"
 			}
 		},
 
 		'customization': {
-			'description' : "",
+			'description' : "per server customization for the bot",
 			'commands': {
-				'prefix set <prefix> OR prefix reset' : "allows management of a custom server prefix",
+				'settings <setting> <action> <param>': "management and viewing of trashbots configuration",
 			}
 		},
 
@@ -81,11 +78,10 @@ class help_list():
 			'description'	: "various bot functions restricted to bot admins",
 			'commands': {
 				'admins' : "lists all of trashbot's admins",
-				'*presence <text>' : "changes trashbot's playing status",
-				'*echo <channel ID> <message>' : "makes trashbot echo a message to a provided channel ID",
-				'*blacklist <user>' : "blacklists/unblacklists users from using trashbot's commands",
-				'*shutdown' : "logs out and shuts down the bot",
-				'*restart' : "restarts the bot",
+				'presence <text>' : "changes trashbot's playing status",
+				'blacklist <user>' : "blacklists/unblacklists users from using trashbot's commands",
+				'shutdown' : "logs out and shuts down the bot",
+				'restart' : "restarts the bot",
 			}
 		},
 
@@ -93,9 +89,9 @@ class help_list():
 			'description'	: "extension management for debugging or whatever",	
 			'commands': {
 				'cogs' : 'lists all loadable cogs and their statuses', 
-				'*load <cog>' : 'loads a specified cog',
-				'*unload <cog>' : 'unloads a specified cog', 
-				'*reload <cog>' : 'reloads all cogs or a specified cog',
+				'load <cog>' : 'loads a specified cog',
+				'unload <cog>' : 'unloads a specified cog', 
+				'reload <cog>' : 'reloads all cogs or a specified cog',
 			}
 		}
 	}

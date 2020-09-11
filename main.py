@@ -1,6 +1,5 @@
 import discord
-import os, sys 
-import logging
+import os, logging
 import json
 import flask
 import time, datetime, pytz
@@ -19,19 +18,8 @@ async def send_log(log:str):
 	print(log_msg)
 	await bot.get_channel(tt.logs).send(f"```{log_msg}```")
 
-async def determine_prefix(bot, message):
-	try:
-		guild_data_path = tt.guild_data_path.format(str(message.guild.id))
-		if os.path.exists(guild_data_path):
-			guild_data = funcs.load_db(guild_data_path)
-			return guild_data['prefix']
-		else: 
-			return tt.p
-	except: 
-		return tt.p
-
 bot = commands.Bot(
-	command_prefix = determine_prefix,
+	command_prefix = funcs.determine_prefix,
 	case_insensitive = True,
 	owner_id = tt.owner_id,
 )
@@ -74,15 +62,17 @@ async def on_connect():
 		await bot.change_presence(status=discord.Status.online, activity=tt.presence)
 		await bot.get_channel(tt.logs).send(f"```{startup_starting}\n{startup_cm_loading}\n{startup_cm_loaded}\n{startup_connected}\n{startup_ready} (v{tt.v})```")
 
-#			-----  BOT EVENTS  -----
+#			-----  EVENTS  -----
+
+@bot.check_once
+def blacklist(ctx):
+	blacklist_list = funcs.load_db(tt.blacklist_db)
+	return not ctx.message.author.id in blacklist_list
 
 @bot.event
 async def on_message(message):
-	blacklist_list = funcs.load_db(tt.blacklist_db)
 	if message.author.bot:
 		pass
-	if message.author.id in blacklist_list:
-		return
 	await bot.process_commands(message)
 
 @bot.event
@@ -100,7 +90,6 @@ async def help(ctx):
 	await ctx.trigger_typing()
 	e_help = discord.Embed(title=f"click here to see a list of commands", url=tt.help_list, color=tt.clr['pink'])
 	e_help.set_author(name="help menu", icon_url=tt.ico['info'])
-	e_help.set_footer(text=f"requested by {ctx.author}", icon_url=ctx.author.avatar_url_as(format='png'))
 	await ctx.send(embed=e_help)
 
 #			-----  FLASK APP  -----
@@ -112,8 +101,7 @@ app = Flask(
 )
 
 # disables flask logs
-log = logging.getLogger('werkzeug')
-log.setLevel(logging.ERROR)
+logging.getLogger('werkzeug').setLevel(logging.ERROR)
 logging.getLogger('werkzeug').disabled = True
 os.environ['WERKZEUG_RUN_MAIN'] = 'true'
 

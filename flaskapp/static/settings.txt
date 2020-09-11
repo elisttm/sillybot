@@ -5,11 +5,12 @@ in this case, <setting> is a keyword for a configurable setting, <subcommand> is
 
 a list of configurable settings is as follows:
 
-	prefix		:	custom prefix
+	prefix			:	custom prefix
 	msgchannel	:	channel to send join/leave/ban messages to
-	joinmsg		:	content for the guild join message
-	leavemsg	:	content for the guild leave message
-	bansmsg		:	content for the guild ban message
+	defaultrole	: the role assigned to members when they join
+	joinmsg			:	content for the guild join message
+	leavemsg		:	content for the guild leave message
+	bansmsg			:	content for the guild ban message
 
 
 using the settings command without any setting provided will output a list with all the configured settings for the server

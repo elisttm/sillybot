@@ -1,6 +1,7 @@
 import discord
 import json
 import random
+import math
 import urbandict
 import time, datetime
 import urllib, urllib.request
@@ -11,13 +12,14 @@ import data.constants as tt
 
 # 		========================
 
-with open(tt.rhcooc_db) as rhcooc_list_json:
-	rhcooc_list = json.load(rhcooc_list_json)
+with open(tt.rhcooc_db) as rhcooc_list_json: rhcooc_list = json.load(rhcooc_list_json)
+
+def penis_eqn(user_id:int): return math.floor((100-int(str(user_id)[-2:]))/int(str(user_id)[:1]))
+penis_leaderboard = {}
 
 def urban_sanitize(text:str):
 	text = text.replace("\n", " ").replace("\r", " ").replace("[", "").replace("]", "").replace("`", "\`")
-	text = (text[:500] + f' ... (+{len(text) - 500})') if len(text) > 500 else text
-	return text
+	return (text[:500] + f' ... (+{len(text) - 500})') if len(text) > 500 else text
 
 class fun(commands.Cog):
 	def __init__(self, bot):
@@ -45,7 +47,7 @@ class fun(commands.Cog):
 		try:
 			message = tt.sanitize(message)
 			await channel.send(message)
-			await self.send_log(self, f"'{ctx.author}' in '{ctx.guild.name}' echoed '{message}' to '{channel}'", self.log_prefix)
+			await self.send_log(self, f"'{ctx.author}' echoed '{message}' from '{ctx.guild.name}' to '{channel}' ({channel.guild.name})", self.log_prefix)
 			await ctx.message.add_reaction('✅')
 		except Exception as e: 
 			await ctx.send(tt.msg_e.format(e))
@@ -54,9 +56,10 @@ class fun(commands.Cog):
 	async def urban(self, ctx, *, word:str):
 		await ctx.trigger_typing()
 		try:
-			urban_list = json.loads(urllib.request.urlopen(f"https://api.urbandictionary.com/v0/define?term={urllib.parse.quote(word)}").read().decode('utf8'))
+			urban_list = json.loads(tt.get_url(tt.urbandict_api+urllib.parse.quote(word)))
 			if len(dict(urban_list)['list']) == 0:
-				return await ctx.send("⚠️ ⠀the provided word does not have any definitions!")
+				await ctx.send("⚠️ ⠀the provided word does not have any definitions!")
+				return
 			urban_dict = dict(random.choice(urban_list['list']))
 			e_urban = discord.Embed(title=f"**{urban_sanitize(urban_dict['word']).upper()}**", color=tt.clr['pink'])
 			e_urban.add_field(name=f"__**definition**__", value=f"{urban_sanitize(urban_dict['definition'])}\n", inline = False)
@@ -74,6 +77,37 @@ class fun(commands.Cog):
 		except Exception as error: 
 			await ctx.send(tt.msg_e.format(error))
 
+	@commands.command()
+	async def penis(self, ctx, user:discord.User=None):
+		await ctx.trigger_typing()
+		if ctx.invoked_subcommand is None:
+			user = ctx.author if not user else user
+			try:
+				await ctx.send(f"**{user.name}'s penis**:\n"+"8"+"="*penis_eqn(user.id)+"D")
+			except Exception as error: 
+				await ctx.send(tt.msg_e.format(error))
+
+	@commands.group()
+	@commands.guild_only()
+	async def penisrank(self, ctx, ranking:str):
+		ranking = ranking.lower()
+		if (ranking != 'top') and (ranking != 'bottom'):
+			raise(commands.UserInputError)
+			return
+		for user in ctx.guild.members:
+			penis_leaderboard[f"{user.name}"] = penis_eqn(user.id)
+		penis_leaderboard_num = 0
+		if ranking == 'top':
+			sort_reverse = True
+		if ranking == 'bottom':
+			sort_reverse = False
+		sorted_penis_leaderboard = sorted(penis_leaderboard.items(), key=lambda x: x[1], reverse=sort_reverse)[:10]
+		penis_leaderboard_msg = f"**list of this guilds {ranking} penises:**\n"
+		for stupid in sorted_penis_leaderboard:
+			penis_leaderboard_num += 1
+			penis_leaderboard_msg += f"**{penis_leaderboard_num}. {stupid[0]}**: {stupid[1]}\n"
+		await ctx.send(penis_leaderboard_msg)
+
 	@commands.group(name = 'rhcooc')
 	@commands.guild_only()
 	@checks.is_in_guild([tt.srv['rhc'], tt.srv['test']])
@@ -88,7 +122,7 @@ class fun(commands.Cog):
 
 	@rhcooc.command(name = 'add')
 	@checks.is_admin()
-	async def rhcooc_add(self, ctx, *, rhcooc_url = None):
+	async def rhcooc_add(self, ctx, *, rhcooc_url=None):
 		rhcooc_list = self.load_db(tt.rhcooc_db)
 		rhcooc_additions = []
 		try:
@@ -99,11 +133,12 @@ class fun(commands.Cog):
 				for attachment in ctx.message.attachments:
 					rhcooc_additions.append(attachment.url)
 			if not rhcooc_additions:
-				return await ctx.send("⚠️ ⠀unable to get urls! (none provided)")
+				await ctx.send(tt.w+"no urls provided!")
+				return
 			for url in rhcooc_additions:
 				rhcooc_list.append(url)
 			self.dump_db(tt.rhcooc_db, rhcooc_list)
-			await ctx.send(f"✅ ⠀added `{', '.join(rhcooc_additions)}` to rhcooc database!")
+			await ctx.send(tt.y+f"added `{', '.join(rhcooc_additions)}` to rhcooc database!")
 			await self.send_log(self, log = f"'{ctx.author}' added '{', '.join(rhcooc_additions)}' to the rhcooc database", prefix = self.log_prefix)
 		except Exception as error:
 			await ctx.send(tt.msg_e.format(error))
@@ -115,7 +150,7 @@ class fun(commands.Cog):
 		try:
 			rhcooc_list.remove(rhcooc_url)
 			self.dump_db(tt.rhcooc_db, rhcooc_list)
-			await ctx.send(f"✅ ⠀removed '{rhcooc_url}' from rhcooc database!")
+			await ctx.send(tt.y+f"removed '{rhcooc_url}' from rhcooc database!")
 			await self.send_log(self, log = f"'{ctx.author}' removed '{rhcooc_url}' from the rhcooc database", prefix = self.log_prefix)
 		except Exception as error:
 			await ctx.send(tt.msg_e.format(error))

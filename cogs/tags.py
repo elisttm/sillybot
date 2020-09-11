@@ -6,6 +6,7 @@ from pytz import timezone
 from discord.ext import commands
 from utils import checks
 from utils.funcs import funcs
+from data.messages import _t
 import data.constants as tt
 
 # 		========================
@@ -18,8 +19,7 @@ import data.constants as tt
 # 	},
 # }
 
-with open(tt.tags_db) as tags_list_json:
-	tags_list = json.load(tags_list_json)
+with open(tt.tags_db) as tags_list_json: tags_list = json.load(tags_list_json)
 
 reserved_tags = [
 	'create',
@@ -54,13 +54,13 @@ class tags(commands.Cog):
 	async def tag(self, ctx):
 		if ctx.invoked_subcommand is None:
 			if ctx.subcommand_passed is None:
-				await ctx.send("⚠️ ⠀invalid subcommand provided!")
+				raise(commands.UserInputError)
 				return
 			tag_name = ctx.subcommand_passed.lower()
 			if tag_name not in reserved_tags:
 				tags_list = self.load_db(tt.tags_db)
 				if tag_name not in tags_list:
-					await ctx.send(f"⚠️ ⠀tag \"{tag_name}\" does not exist!")
+					await ctx.send(_t.does_not_exist.format(tag_name))
 					return
 				tag_content = tags_list[tag_name]['content'] 
 				tag_content = tt.sanitize(tag_content)
@@ -75,10 +75,10 @@ class tags(commands.Cog):
 		tags_list = self.load_db(tt.tags_db)
 		tag_name = tag_name.lower()
 		if tag_name in reserved_tags:
-			await ctx.send(f"❌ ⠀that tag is reserved!")
+			await ctx.send(_t.reserved)
 			return
 		if tag_name in tags_list: 
-			await ctx.send(f"❌ ⠀tag \"{tag_name}\" already exists!")
+			await ctx.send(_t.already_exists.format(tag_name))
 			return
 		if ctx.message.attachments:
 			if tag_content == None:
@@ -89,7 +89,8 @@ class tags(commands.Cog):
 			raise(commands.UserInputError)
 			return
 		if (len(tag_name) > 100) or (len(tag_content) > 1000):
-			await ctx.send("⚠️ ⠀too many characters! (up to 100 for tag names and up to 1000 for tag contents)") 
+			charlimit_help = "(up to 100 for tag names and up to 1000 for tag contents)"
+			await ctx.send(_t.charlimit.format(charlimit_help)) 
 			return
 		tag_content = tt.sanitize(tag_content)
 		tags_list[tag_name] = {'content':'', 'owner':0, 'date':''}
@@ -97,7 +98,7 @@ class tags(commands.Cog):
 		tags_list[tag_name]['owner'] = ctx.author.id
 		tags_list[tag_name]['date'] = tt.curtime()
 		self.dump_db(tt.tags_db, tags_list)
-		await ctx.send(f"✅ ⠀tag \"{tag_name}\" created!")
+		await ctx.send(tt.y+f"tag \"{tag_name}\" created!")
 		await self.send_log(self, f"'{ctx.author.name}' created the tag '{tag_name}'", self.log_prefix)
 				
 	@tag.command(name = 'edit')
@@ -105,10 +106,10 @@ class tags(commands.Cog):
 		tags_list = self.load_db(tt.tags_db)
 		tag_name = tag_name.lower()
 		if tag_name not in tags_list:
-			await ctx.send(f"⚠️ ⠀tag \"{tag_name}\" does not exist!")
+			await ctx.send(_t.does_not_exist.format(tag_name))
 			return
 		if tags_list[tag_name]['owner'] != ctx.author.id:
-			await ctx.send("❌ ⠀you are not the owner of this tag!")
+			await ctx.send(_t.not_owner)
 			return
 		if ctx.message.attachments:
 			if tag_content == None:
@@ -118,13 +119,14 @@ class tags(commands.Cog):
 			raise(commands.UserInputError)
 			return
 		if len(tag_content) > 1000: 
-			await ctx.send("⚠️ ⠀too many characters! (up to 1000 for tag contents)")
+			charlimit_help = "(up to 1000 for tag contents)"
+			await ctx.send(_t.charlimit.format(charlimit_help))
 			return
 		tag_content = tt.sanitize(tag_content)
 		tags_list[tag_name]['content'] = tag_content
 		tags_list[tag_name]['date'] = f'{tt.curtime()} (edited)'
 		self.dump_db(tt.tags_db, tags_list)
-		await ctx.send(f"✅ ⠀tag \"{tag_name}\" updated!")
+		await ctx.send(tt.y+f"updated \"{tag_name}\"!")
 		await self.send_log(self, f"'{ctx.author}' updated the tag '{tag_name}'", self.log_prefix)
 
 	@tag.command(name = 'remove', aliases=['r'])
@@ -132,14 +134,14 @@ class tags(commands.Cog):
 		tags_list = self.load_db(tt.tags_db)
 		tag_name = tag_name.lower()
 		if tag_name not in tags_list:
-			await ctx.send(f"⚠️ ⠀tag \"{tag_name}\" does not exist!")
+			await ctx.send(_t.does_not_exist.format(tag_name))
 			return
 		if tags_list[tag_name]['owner'] != ctx.author.id:
-			await ctx.send("❌ ⠀you are not the owner of this tag!")
+			await ctx.send(_t.not_owner)
 			return
 		del tags_list[tag_name]
 		self.dump_db(tt.tags_db, tags_list)
-		await ctx.send(f"✅ ⠀tag \"{tag_name}\" deleted!")
+		await ctx.send(tt.y+f"deleted \"{tag_name}\"!")
 		await self.send_log(self, f"'{ctx.author}' deleted the tag '{tag_name}'", self.log_prefix)
 
 	@tag.command(name = 'transfer')
@@ -147,15 +149,15 @@ class tags(commands.Cog):
 		tags_list = self.load_db(tt.tags_db)
 		tag_name = tag_name.lower()
 		if tag_name not in tags_list:
-			await ctx.send(f"⚠️ ⠀tag \"{tag_name}\" does not exist!")
+			await ctx.send(_t.does_not_exist.format(tag_name))
 			return
 		if tags_list[tag_name]['owner'] != ctx.author.id:
-			await ctx.send("❌ ⠀you are not the owner of this tag!")
+			await ctx.send(_t.not_owner)
 			return
 		tags_list[tag_name]['owner'] = user.id
 		tags_list[tag_name]['date'] = f'{tt.curtime()} (transferred)'
 		self.dump_db(tt.tags_db, tags_list)
-		await ctx.send(f"✅ ⠀ownership of tag \"{tag_name}\" has been transferred to **{user}**!")
+		await ctx.send(tt.y+f"ownership of tag \"{tag_name}\" has been transferred to **{user}**!")
 		await self.send_log(self, f"'{ctx.author}' transferred the tag '{tag_name}' to '{user}'", self.log_prefix)
 
 	@tag.command(name = 'forceedit', aliases=['fe'])
@@ -164,7 +166,7 @@ class tags(commands.Cog):
 		tags_list = self.load_db(tt.tags_db)
 		tag_name = tag_name.lower()
 		if tag_name not in tags_list:
-			await ctx.send(f"⚠️ ⠀tag \"{tag_name}\" does not exist!")
+			await ctx.send(_t.does_not_exist.format(tag_name))
 			return
 		if ctx.message.attachments:
 			if tag_content == None:
@@ -177,7 +179,7 @@ class tags(commands.Cog):
 		tags_list[tag_name]['content'] = tag_content
 		tags_list[tag_name]['date'] = f'{tt.curtime()} (edited)'
 		self.dump_db(tt.tags_db, tags_list)
-		await ctx.send(f"✅ ⠀tag \"{tag_name}\" forcefully updated!")
+		await ctx.send(tt.y+f"tag \"{tag_name}\" forcefully updated!")
 		await self.send_log(self, f"'{ctx.author}' forcefully updated the tag '{tag_name}'", self.log_prefix)
 
 	@tag.command(name = 'forceremove', aliases=['fr'])
@@ -186,11 +188,11 @@ class tags(commands.Cog):
 		tags_list = self.load_db(tt.tags_db)
 		tag_name = tag_name.lower()			
 		if tag_name not in tags_list:
-			await ctx.send(f"⚠️ ⠀tag \"{tag_name}\" does not exist!")
+			await ctx.send(_t.does_not_exist.format(tag_name))
 			return
 		del tags_list[tag_name]
 		self.dump_db(tt.tags_db, tags_list)
-		await ctx.send(f"✅ ⠀tag \"{tag_name}\" was forcefully deleted!")
+		await ctx.send(tt.y+f"tag \"{tag_name}\" was forcefully deleted!")
 		await self.send_log(self, f"'{ctx.author}' forcefully deleted the tag '{tag_name}'", self.log_prefix)
 
 	@tag.command(name = 'forcetransfer', aliases=['ft'])
@@ -199,12 +201,12 @@ class tags(commands.Cog):
 		tags_list = self.load_db(tt.tags_db)
 		tag_name = tag_name.lower()
 		if tag_name not in tags_list:
-			await ctx.send(f"⚠️ ⠀tag \"{tag_name}\" does not exist!")
+			await ctx.send(_t.does_not_exist.format(tag_name))
 			return
 		tags_list[tag_name]['owner'] = user.id
 		tags_list[tag_name]['date'] = f'{tt.curtime()} (transferred)'
 		self.dump_db(tt.tags_db, tags_list)
-		await ctx.send(f"✅ ⠀ownership of tag \"{tag_name}\" has been forcefully transferred to **{user}**!")
+		await ctx.send(tt.y+f"ownership of tag \"{tag_name}\" has been forcefully transferred to **{user}**!")
 		await self.send_log(self, f"'{ctx.author}' forcefully transferred the tag '{tag_name}' to '{user}'", self.log_prefix)
 
 	@tag.command(name = 'owner')
@@ -212,13 +214,13 @@ class tags(commands.Cog):
 		tags_list = self.load_db(tt.tags_db)
 		tag_name = tag_name.lower()		
 		if tag_name not in tags_list:
-			await ctx.send(f"⚠️ ⠀tag \"{tag_name}\" does not exist!")
+			await ctx.send(_t.does_not_exist.format(tag_name))
 			return
 		if tag_name in reserved_tags:
-			await ctx.send("⚠️ ⠀invalid or reserved tag given!")
+			await ctx.send(_t.reserved)
 			return
 		user = self.bot.get_user(tags_list[tag_name]['owner'])
-		await ctx.send(f"ℹ️ ⠀tag \"{tag_name}\" is owned by **{user}** ({user.id})")
+		await ctx.send(tt.i+f"tag \"{tag_name}\" is owned by **{user}** ({user.id})")
 
 	@tag.command(name = 'random')
 	async def tag_random(self, ctx):
@@ -235,9 +237,9 @@ class tags(commands.Cog):
 			if tags_list[tag]['owner'] == user.id:
 				tags_num += 1	
 		if tags_num == 0:
-			await ctx.send(f"ℹ️ ⠀**{user.name}** does not own any tags!")
+			await ctx.send(tt.i+f"**{user.name}** does not own any tags!")
 			return
-		await ctx.send(f"ℹ️ ⠀**{user}** owns **{tags_num}** tags:\n{tt.tags_list}/{str(user.id)}")
+		await ctx.send(tt.i+f"**{user}** owns **{tags_num}** tags:\n{tt.tags_list}/{str(user.id)}")
 
 	@tag.command(name = 'listall')
 	async def tag_listall(self, ctx):
@@ -245,7 +247,7 @@ class tags(commands.Cog):
 		tags_num = 0
 		for tag in tags_list: 
 			tags_num += 1	
-		await ctx.send(f"ℹ️ ⠀there are **{tags_num}** tags in the database:\n{tt.tags_list}")
+		await ctx.send(tt.i+f"there are **{tags_num}** tags in the database:\n{tt.tags_list}")
 
 # 		========================
 

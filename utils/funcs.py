@@ -1,6 +1,8 @@
 import discord
 import os
 import json
+import asyncio, aiohttp
+from io import BytesIO, StringIO
 from discord.ext import commands
 import data.constants as tt
 
@@ -17,6 +19,18 @@ class funcs():
 			log_msg = log
 		print(log_msg)
 		await self.bot.get_channel(tt.logs).send(f"```{log_msg}```")
+
+	def determine_prefix(self, message):
+		try:
+			guild_data_path = tt.guild_data_path.format(str(message.guild.id))
+			if os.path.exists(guild_data_path):
+				guild_data = funcs.load_db(guild_data_path)
+				if 'general' in guild_data:
+					if 'prefix' in guild_data['general']:
+						return guild_data['general']['prefix']
+			return tt.p
+		except:
+			return tt.p
 
 	def load_db(path:str):
 		with open(path) as data_json: 

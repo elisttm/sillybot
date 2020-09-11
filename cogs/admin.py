@@ -30,7 +30,6 @@ class admin(commands.Cog):
 			e_adm = discord.Embed(color=tt.clr['pink'])
 			e_adm.add_field(name=f"admins [{admin_num}]", value=admin_list)
 			e_adm.set_author(name="list of trashbot's admins", icon_url=tt.ico['info'])
-			e_adm.set_footer(text=f"requested by {ctx.author}", icon_url=ctx.author.avatar_url_as(format='png'))
 			await ctx.send(embed=e_adm)
 		except Exception as error: 
 			await ctx.send(tt.msg_e.format(error))
@@ -44,7 +43,7 @@ class admin(commands.Cog):
 				presence = tt.presence
 			await self.bot.change_presence(status=discord.Status.online, activity=discord.Game(presence))
 			await self.send_log(self, f"presence set to '{presence}' by '{ctx.author}'", self.log_prefix)
-			await ctx.send(f"✅ ⠀presence set to '{presence}''")
+			await ctx.message.add_reaction('✅')
 		except Exception as error: 
 			await ctx.send(tt.msg_e.format(error))
 
@@ -104,7 +103,7 @@ class admin(commands.Cog):
 				await ctx.send(f"```blacklisted users [{len(blacklist_list)}]:\n{bl_user_list}```")
 				return
 			if user.id in tt.admins:
-				await ctx.send("❌ ⠀cannot blacklist trashbot admins!")
+				await ctx.send("❌ ⠀cannot blacklist bot admins!")
 				return
 			if user.id not in blacklist_list:
 				blacklist_list.append(user.id)

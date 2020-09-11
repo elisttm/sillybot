@@ -33,13 +33,13 @@ class moderation(commands.Cog):
 		await ctx.trigger_typing()
 		try:
 			if restriction not in rhc_restrictions:
-				return await ctx.send(f"❌ ⠀invalid restriction! ({', '.join(rhc_restrictions)})")
+				return await ctx.send(tt.x+f"invalid restriction! ({', '.join(rhc_restrictions)})")
 			role = ctx.guild.get_role(rhc_restrictions[restriction])
 			if role in user.roles:
-				await ctx.send(f"❌ ⠀{user.name} already has the restriction '{restriction}'")
+				await ctx.send(tt.x+f"{user.name} already has the restriction '{restriction}'")
 			else:
 				await user.add_roles(role)
-				await ctx.send(f"✅ ⠀{user.name} has been given the restriction '{restriction}'")
+				await ctx.send(tt.y+f"{user.name} has been given the restriction '{restriction}'")
 		except Exception as e: 
 			await ctx.send(tt.msg_e.format(e))
 
@@ -51,13 +51,13 @@ class moderation(commands.Cog):
 		await ctx.trigger_typing()
 		try:
 			if restriction not in rhc_restrictions:
-				return await ctx.send(f"❌ ⠀invalid restriction! ({', '.join(rhc_restrictions)})")
+				return await ctx.send(tt.x+f"invalid restriction! ({', '.join(rhc_restrictions)})")
 			role = ctx.guild.get_role(rhc_restrictions[restriction])
 			if role in user.roles:
 				await user.remove_roles(role)
-				await ctx.send(f"✅ ⠀removed the restriction '{restriction}' from {user.name}")
+				await ctx.send(tt.y+f"removed the restriction '{restriction}' from {user.name}")
 			else:
-				await ctx.send(f"❌ ⠀{user.name} does not have the restriction '{restriction}'")
+				await ctx.send(tt.x+f"{user.name} does not have the restriction '{restriction}'")
 		except Exception as e: 
 			await ctx.send(tt.msg_e.format(e))
 

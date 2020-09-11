@@ -2,13 +2,14 @@ import discord
 import time, datetime
 import pytz
 import re
+import urllib, urllib.request
 from pytz import timezone
 import data.constants as tt
 
 # 		========================
 
 p = 't!'
-v = "1.15.3"
+v = "1.15.7"
 
 desc = 'a simple discord bot made by elisttm | t!help for commands'
 presence = discord.Game(f'{tt.p}help | v{tt.v}')
@@ -32,11 +33,12 @@ logs = 718646246482378782
 
 admins = (
 	owner_id,						# eli
-	609059779805184001, # squidd
-	530937484218204172, # peter
 	217663207895072768, # fluffer
+	530937484218204172, # peter
 	376813566591762444, # regaul
 	462354301025779733, # grumm
+	319101801012133889, # sharpz
+	609059779805184001, # squidd
 
 )
 srv = {
@@ -45,24 +47,28 @@ srv = {
 	"test": 439187286278537226,
 }
 
+# important bot urls
 website = 'https://elisttm.space/trashbot'
 github = 'https://github.com/elisttm/trashbot'
 invite = 'https://discordapp.com/oauth2/authorize?client_id=439166087498825728&scope=bot&permissions=8'
 
-cat_site = 'http://cat.elisttm.space:7777'
+# trashbot website urls
 help_list = 'https://trashbot.elisttm.space/commands'
 tags_list = 'https://trashbot.elisttm.space/tags'
 rhcooc_list = 'https://trashbot.elisttm.space/rhcooc'
 names_list = 'https://trashbot.elisttm.space/names'
 settings_page = 'https://trashbot.elisttm.space/settings.txt'
 
-mcserver = 'mc.elisttm.space'
+# api urls
+cat_site = 'http://cat.elisttm.space:7777'
+urbandict_api = 'https://api.urbandictionary.com/v0/define?term='
+mcserver_api = 'https://api.mcsrvstat.us/2/'
 
-blacklist_db = 'data/db/blacklist.json'
+# database file paths
+blacklist_db = 'data/db/users/blacklist.json'
 reactions_db = 'data/db/reactions.json'
 rhcooc_db = 'data/db/rhcooc.json'
 tags_db = 'data/db/tags.json'
-
 guild_data_path = 'data/db/guilds/{}.json'
 user_data_path = 'data/db/users/{}.json'
 user_names_path = 'data/db/users/names/{}.json'
@@ -77,6 +83,8 @@ start_time = time.time()
 def uptime(): return str(datetime.timedelta(seconds=int(round(time.time() - start_time))))
 def curtime(): return datetime.datetime.now(timezone('US/Eastern')).strftime(tt.time0)
 def _t(): return datetime.datetime.now(timezone('US/Eastern')).strftime(tt.time2)
+
+def get_url(url:str): return urllib.request.urlopen(url).read().decode('utf8')
 
 def sanitize(text: str): return text.replace('@here', '@\u200bhere').replace('@everyone', '@\u200beveryone')
 
@@ -95,6 +103,11 @@ clr = {
 	'pink'	: 0xff78d3,
 	'yellow': 0xbf993a,
 }
+
+y = "✅ ⠀"
+w = "⚠️ ⠀"
+x = "❌ ⠀"
+i = "ℹ️ ⠀"
 
 loaded = {}
 
