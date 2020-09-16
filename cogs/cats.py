@@ -1,6 +1,7 @@
 import discord
 import json
 import urllib, urllib.request
+import random
 from discord.ext import commands
 from utils import checks
 from utils.funcs import funcs
@@ -8,8 +9,16 @@ import data.constants as tt
 
 # 		========================
 
-def get_cat_url(cat_name:str): return tt.get_url(tt.cat_site+'/api/'+cat_name)
-cat_dirs = (str(tt.get_url(tt.cat_site+'/directories/'))).split(' ')
+cat_url = 'http://cat.elisttm.space:7777'
+
+cat_json = json.loads(tt.get_url(cat_url+'/api/all'))
+cat_dirs = (str(tt.get_url(cat_url+'/directories/'))).split(' ')
+
+def get_cat_url(cat_name:str):
+	if cat_name == '':
+		cat_name = random.choice(cat_dirs)
+	label = 'cats' + cat_name
+	return f'{cat_url}/static/cat/{cat_name}/{funcs.smart_random(cat_json[cat_name], label)}'
 
 class cats(commands.Cog):
 	def __init__(self, bot):
@@ -18,21 +27,21 @@ class cats(commands.Cog):
 # 		========================
 
 	@commands.command()
-	async def cat(self, ctx, cat_name:str = None):
+	async def cat(self, ctx, cat_name:str = ''):
 		await ctx.trigger_typing()
 		try:
-			if cat_name is None:
-				cat_name = ''
-			else:
-				cat_name = cat_name.lower()
-				if cat_name not in cat_dirs:
-					await ctx.send(tt.w+f"invalid cat directory provided! ({', '.join(cat_dirs)})")
-					return
+			cat_name = cat_name.lower()
+			if cat_name == 'list':
+				await ctx.send(tt.i+f"valid cat directories: {', '.join(cat_dirs)}")
+				return
+			if (cat_name not in cat_dirs) and (cat_name != ''):
+				await ctx.send(tt.w+f"invalid cat directory provided! ({', '.join(cat_dirs)})")
+				return
 			await ctx.send(get_cat_url(cat_name))
 		except Exception as error: 
 			await ctx.send(tt.msg_e.format(error))
 
-	@commands.command(usage = "", description = "")
+	@commands.command()
 	async def tommy(self, ctx): 
 		await ctx.invoke(self.bot.get_command('cat'), cat_name='tommy')
 	@commands.command()
@@ -56,6 +65,9 @@ class cats(commands.Cog):
 	@commands.command()
 	async def spock(self, ctx): 
 		await ctx.invoke(self.bot.get_command('cat'), cat_name='spock')
+	@commands.command()
+	async def thomas(self, ctx): 
+		await ctx.invoke(self.bot.get_command('cat'), cat_name='thomas')
 
 # 		========================
 

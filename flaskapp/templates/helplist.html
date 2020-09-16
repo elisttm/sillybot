@@ -1,40 +1,30 @@
-<html>
-<head>
-	<meta charset="utf-8">
-	<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<link rel="icon" src="/static/favicon.ico" type='image/x-icon' />
-	<link rel="shortcut icon" href="/static/favicon.ico">
-	<link rel="stylesheet" href="/static/style.css" type="text/css" />
-	<title>trashbot command list</title>
-	<meta property="og:type" content="website">
-	<meta property="og:site_name" content="trashbot">
-	<meta property="og:title" content="list of commands">
-	<meta property="og:description" content="a simple list of every command on trashbot">
-	<style>
-		h2 {padding-top:4px;}
-		li {padding-bottom: 2px}
-		b {font-size: 14px}
-	</style>
-</head>
+{% extends "base.html" %}
 
-<body>
-	
+{% block page_title %}trashbot commands{% endblock %}
+{% block og_title %}trashbot command list{% endblock %}
+{% block og_desc %}a list of trashbots commands{% endblock %}
+
+{% block head %}<style>h2 {padding-top:4px;} li {padding-bottom: 2px} b {font-size: 14px}</style>{% endblock %}
+
+{% block content %}
+
 <p align="center">trashbot is online! | v{{ version }}</p>
 	
 <div style="padding:0 15% 0 15%;">
 
 	<h1 align="center">trashbot command list</h1><br>
 
-	{% for category in cmd.categories: %}
-		</ul><h2>{{ category }}</h2><ul>
-			<p style="font-size:14px">{{ cmd.categories[category]['description'] }}</p>
-				{% for x, y in cmd.categories[category]['commands'].items(): %}
-					<li><b>{{ x }}</b>  :  {{ y }}</li>
+	{% for ctg in ctgs: %}
+		</ul><h2>{{ ctg }}</h2><ul>
+			<p style="font-size:14px">{{ ctgs[ctg]['desc'] }}</p>
+				{% for cmd in ctgs[ctg]['cmds'] %}
+          {% if 'desc' not in ctgs[ctg]['cmds'][cmd] %}
+          {% else %}
+					  <li><b>{{ ctgs[ctg]['cmds'][cmd]['usage'] }}</b>  :  {{ ctgs[ctg]['cmds'][cmd]['desc'] }} {{ ctgs[ctg]['cmds'][cmd]['perms'] }}</li>
+          {% endif %}
 				{% endfor %}
 	{% endfor %}
 
 </ul></div><br>
 
-</body>
-</html>
+{% endblock %}

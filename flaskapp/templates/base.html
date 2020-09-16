@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+
+<html lang="en-US">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="icon" src="/static/favicon.ico" type='image/x-icon' />
+	<link rel="shortcut icon" href="/static/favicon.ico">
+	<link rel="stylesheet" href="/static/style.css" type="text/css" />
+	<title>{% block page_title %}{% endblock %}</title>
+	<meta property="og:type" content="website">
+	<meta property="og:site_name" content="trashbot">
+	<meta property="og:title" content="{% block og_title %}{% endblock %}">
+	<meta property="og:description" content="{% block desc %}{% endblock %}">
+	{% block header %}{% endblock %}
+</head>
+<body>
+
+{% block content %}{% endblock %}
+
+</body>
+</html>

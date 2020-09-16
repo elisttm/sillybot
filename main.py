@@ -1,4 +1,4 @@
-import discord
+import discord, asyncio
 import os, logging
 import json
 import flask
@@ -8,7 +8,7 @@ from threading import Thread
 from discord.ext import commands
 from utils import checks
 from utils.funcs import funcs
-from data.commands import help_list
+from data.commands import cmdl
 import data.constants as tt
 
 # 		========================
@@ -108,7 +108,8 @@ os.environ['WERKZEUG_RUN_MAIN'] = 'true'
 @app.route('/')
 @app.route('/commands')
 def main(): 
-	return render_template('helplist.html', cmd = help_list(), version = tt.v)	
+	ctgs = cmdl.ctgs
+	return render_template('helplist.html', ctgs = ctgs, version = tt.v)	
 
 @app.route('/rhcooc')
 def rhcooc(): 
@@ -133,27 +134,6 @@ def tags(search):
 	if (user is None) or (invalid_user == True):
 		return render_template('tags.html', search = True, title = f"trashbot tag list :: invalid ID", header = "invalid user ID provided in search", og_name = "invalid tag owner", og_description = "invalid user provided for tag list search")
 	return render_template('tags.html', search = True, title = f"trashbot tag list :: {user}", header = f"all tags owned by {user} ({user.id})", og_name = f"list of tags owned by {user}", og_description = f"", user = user, user_id = user.id, tags_list = tags_list)
-
-@app.route('/names', defaults={'user': None})
-@app.route('/names/', defaults={'user': None})
-@app.route('/names/<user>')
-def names(user):
-	if not user:
-		user = request.args.get('user')
-	if not user:
-		return render_template('names.html', invalid_user = True, names_list = {})
-	try:
-		user = str(int(user))
-	except:
-		return render_template('names.html', invalid_user = True, names_list = {})
-	user_names_path = tt.user_names_path.format(str(user))
-	if os.path.exists(user_names_path):
-		names_list = funcs.load_db(user_names_path)
-		no_names = False
-	else:
-		names_list = {}
-		no_names = True
-	return render_template('names.html', user = user, no_names = no_names, names_list = names_list)
 
 @app.route('/settings.txt')
 def static_from_root():

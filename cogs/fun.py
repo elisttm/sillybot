@@ -12,10 +12,10 @@ import data.constants as tt
 
 # 		========================
 
-with open(tt.rhcooc_db) as rhcooc_list_json: rhcooc_list = json.load(rhcooc_list_json)
-
-def penis_eqn(user_id:int): return math.floor((100-int(str(user_id)[-2:]))/int(str(user_id)[:1]))
 penis_leaderboard = {}
+
+def penis_eqn(user_id:int): 
+	return math.floor((100-int(str(user_id)[-2:]))/int(str(user_id)[:1]))
 
 def urban_sanitize(text:str):
 	text = text.replace("\n", " ").replace("\r", " ").replace("[", "").replace("]", "").replace("`", "\`")
@@ -24,10 +24,14 @@ def urban_sanitize(text:str):
 class fun(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot
+		self.smart_random = funcs.smart_random
 		self.load_db = funcs.load_db
 		self.dump_db = funcs.dump_db
+		self.check_for_db = funcs.check_for_db
 		self.send_log = funcs.send_log
-		self.log_prefix = "[FUN] "
+		self.log_prefix = "[FUN]"
+		
+		self.rhcooc_list = self.load_db(tt.rhcooc_db)
 
 # 		========================
 
@@ -36,7 +40,7 @@ class fun(commands.Cog):
 		await ctx.trigger_typing()
 		try:
 			message = tt.sanitize(message)
-			await self.send_log(self, log = f"'{ctx.author}' in '{ctx.guild.name}' said '{message}'", prefix = self.log_prefix)
+			await self.send_log(self, f"'{ctx.author}' in '{ctx.guild.name}' said '{message}'", self.log_prefix)
 			await ctx.send(message)
 		except Exception as error: 
 			await ctx.send(tt.msg_e.format(error))
@@ -44,21 +48,26 @@ class fun(commands.Cog):
 	@commands.command()
 	@checks.is_server_or_bot_admin()
 	async def echo(self, ctx, channel:discord.TextChannel, *, message:str):
+		await ctx.trigger_typing()
 		try:
 			message = tt.sanitize(message)
 			await channel.send(message)
 			await self.send_log(self, f"'{ctx.author}' echoed '{message}' from '{ctx.guild.name}' to '{channel}' ({channel.guild.name})", self.log_prefix)
-			await ctx.message.add_reaction('✅')
+			await ctx.message.add_reaction(tt.e['check'])
 		except Exception as e: 
 			await ctx.send(tt.msg_e.format(e))
+
+	@commands.command()
+	async def roll(self, ctx):
+		await ctx.send(tt.e['dice']+tt.s+str(random.randint(1, 6)))
 
 	@commands.command()
 	async def urban(self, ctx, *, word:str):
 		await ctx.trigger_typing()
 		try:
-			urban_list = json.loads(tt.get_url(tt.urbandict_api+urllib.parse.quote(word)))
+			urban_list = json.loads(tt.get_url('https://api.urbandictionary.com/v0/define?term='+urllib.parse.quote(word)))
 			if len(dict(urban_list)['list']) == 0:
-				await ctx.send("⚠️ ⠀the provided word does not have any definitions!")
+				await ctx.send(tt.w+"the provided word does not have any definitions!")
 				return
 			urban_dict = dict(random.choice(urban_list['list']))
 			e_urban = discord.Embed(title=f"**{urban_sanitize(urban_dict['word']).upper()}**", color=tt.clr['pink'])
@@ -77,32 +86,39 @@ class fun(commands.Cog):
 		except Exception as error: 
 			await ctx.send(tt.msg_e.format(error))
 
+	@commands.command() 
+	@checks.is_admin()
+	async def blackdude(self, ctx):
+		blackdude_server = self.bot.get_guild(747195327530139759)
+		for emoji in blackdude_server.emojis:
+			await ctx.message.add_reaction(self.bot.get_emoji(emoji.id))
+
 	@commands.command()
 	async def penis(self, ctx, user:discord.User=None):
 		await ctx.trigger_typing()
-		if ctx.invoked_subcommand is None:
-			user = ctx.author if not user else user
-			try:
-				await ctx.send(f"**{user.name}'s penis**:\n"+"8"+"="*penis_eqn(user.id)+"D")
-			except Exception as error: 
-				await ctx.send(tt.msg_e.format(error))
+		user = ctx.author if not user else user
+		try:
+			await ctx.send(f"**{user.name}'s penis**:\n"+"8"+"="*penis_eqn(user.id)+"D")
+		except Exception as error: 
+			await ctx.send(tt.msg_e.format(error))
 
 	@commands.group()
 	@commands.guild_only()
-	async def penisrank(self, ctx, ranking:str):
+	async def penisrank(self, ctx, ranking:str = 'top'):
+		await ctx.trigger_typing()
 		ranking = ranking.lower()
+		penis_leaderboard = {}
 		if (ranking != 'top') and (ranking != 'bottom'):
 			raise(commands.UserInputError)
 			return
 		for user in ctx.guild.members:
 			penis_leaderboard[f"{user.name}"] = penis_eqn(user.id)
 		penis_leaderboard_num = 0
-		if ranking == 'top':
-			sort_reverse = True
+		sort_reverse = True
 		if ranking == 'bottom':
 			sort_reverse = False
 		sorted_penis_leaderboard = sorted(penis_leaderboard.items(), key=lambda x: x[1], reverse=sort_reverse)[:10]
-		penis_leaderboard_msg = f"**list of this guilds {ranking} penises:**\n"
+		penis_leaderboard_msg = f"**list of this guilds {ranking} ranking penises:**\n"
 		for stupid in sorted_penis_leaderboard:
 			penis_leaderboard_num += 1
 			penis_leaderboard_msg += f"**{penis_leaderboard_num}. {stupid[0]}**: {stupid[1]}\n"
@@ -110,20 +126,18 @@ class fun(commands.Cog):
 
 	@commands.group(name = 'rhcooc')
 	@commands.guild_only()
-	@checks.is_in_guild([tt.srv['rhc'], tt.srv['test']])
+	@checks.is_in_guilds([tt.srv['rhc'], tt.srv['test']])
 	async def rhcooc(self, ctx):
 		await ctx.trigger_typing()
 		if ctx.invoked_subcommand is None:
 			try:
-				rhcooc_list = self.load_db(tt.rhcooc_db)
-				await ctx.send(random.choice(rhcooc_list))
+				await ctx.send(self.smart_random(self.rhcooc_list, 'rhcooc'))
 			except Exception as error:
 				await ctx.send(tt.msg_e.format(error))
 
 	@rhcooc.command(name = 'add')
 	@checks.is_admin()
 	async def rhcooc_add(self, ctx, *, rhcooc_url=None):
-		rhcooc_list = self.load_db(tt.rhcooc_db)
 		rhcooc_additions = []
 		try:
 			if rhcooc_url is not None:
@@ -136,22 +150,21 @@ class fun(commands.Cog):
 				await ctx.send(tt.w+"no urls provided!")
 				return
 			for url in rhcooc_additions:
-				rhcooc_list.append(url)
-			self.dump_db(tt.rhcooc_db, rhcooc_list)
+				self.rhcooc_list.append(url)
+			self.dump_db(tt.rhcooc_db, self.rhcooc_list)
 			await ctx.send(tt.y+f"added `{', '.join(rhcooc_additions)}` to rhcooc database!")
-			await self.send_log(self, log = f"'{ctx.author}' added '{', '.join(rhcooc_additions)}' to the rhcooc database", prefix = self.log_prefix)
+			await self.send_log(self, f"'{ctx.author}' added '{', '.join(rhcooc_additions)}' to the rhcooc database", self.log_prefix)
 		except Exception as error:
 			await ctx.send(tt.msg_e.format(error))
 
 	@rhcooc.command(name = 'remove')
 	@checks.is_admin()
 	async def rhcooc_remove(self, ctx, rhcooc_url:str):
-		rhcooc_list = self.load_db(tt.rhcooc_db)
 		try:
-			rhcooc_list.remove(rhcooc_url)
-			self.dump_db(tt.rhcooc_db, rhcooc_list)
+			self.rhcooc_list.remove(rhcooc_url)
+			self.dump_db(tt.rhcooc_db, self.rhcooc_list)
 			await ctx.send(tt.y+f"removed '{rhcooc_url}' from rhcooc database!")
-			await self.send_log(self, log = f"'{ctx.author}' removed '{rhcooc_url}' from the rhcooc database", prefix = self.log_prefix)
+			await self.send_log(self, f"'{ctx.author}' removed '{rhcooc_url}' from the rhcooc database", self.log_prefix)
 		except Exception as error:
 			await ctx.send(tt.msg_e.format(error))
 

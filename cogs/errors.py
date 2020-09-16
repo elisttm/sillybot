@@ -7,10 +7,17 @@ from discord.ext import commands
 from utils import checks
 from utils.funcs import funcs
 from data.messages import _a
-from data.commands import help_list
+from data.commands import cmdl
 import data.constants as tt
 
 # 		========================
+
+no_perm_note_list = {
+	'botowner': '(must be bot owner)',
+	'botadmin': '(must be bot admin)',
+	'serverbotadmin': '(must be server or bot admin)',
+	'botadminoruser': '()',
+}
 
 class errors(commands.Cog):
 	def __init__(self, bot):
@@ -47,13 +54,11 @@ class errors(commands.Cog):
 			invoked_command = ctx.command.name
 			if ctx.invoked_subcommand is not None:
 				invoked_command = ctx.invoked_subcommand.name
-			for cog in help_list.categories:
-				for command in help_list.categories[cog]['commands']:
-					if command.startswith(invoked_command):
-						command_usage = command
+			for ctg in cmdl.ctgs:
+				for cmd in cmdl.ctgs[ctg]['cmds']:
+					if cmd == invoked_command:
+						command_usage = cmdl.ctgs[ctg]['cmds'][cmd]['usage']
 			if command_usage != '':
-				if ctx.invoked_subcommand is not None:
-					command_usage = ctx.command.parent.name+' '+command_usage
 				command_usage = f'`({self.determine_prefix(self, ctx.message)}{command_usage})`'
 			await ctx.send(_a.invalid_params.format(command_usage))
 			return
@@ -66,11 +71,17 @@ class errors(commands.Cog):
 			return
 
 		if isinstance(error, checks.NoPermission):
-			await ctx.send(_a.no_permission)
+			no_perm_note = ''
+			if tt.error_noperm in no_perm_note_list:
+				no_perm_note = no_perm_note_list[tt.error_noperm]
+			await ctx.send(_a.no_permission.format(no_perm_note))
 			return
 
 		if isinstance(error, checks.UnmatchedGuild):
-			await ctx.send(_a.guild_not_enabled)
+			guilds = []
+			for guild_id in tt.error_guild_ids:
+				guilds.append(self.bot.get_guild(guild_id).name)
+			await ctx.send(_a.guild_not_enabled.format("', '".join(guilds)))
 			return
 
 		if isinstance(error, commands.CheckFailure):

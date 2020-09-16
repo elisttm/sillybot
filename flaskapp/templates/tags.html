@@ -1,24 +1,12 @@
-<html>
-<head>
-	<meta charset="utf-8">
-	<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<link rel="icon" src="/static/favicon.ico" type='image/x-icon' />
-	<link rel="shortcut icon" href="/static/favicon.ico">
-	<link rel="stylesheet" href="/static/style.css" type="text/css" />
-	<title>{{ title }}</title>
-	<meta property="og:type" content="website">
-	<meta property="og:site_name" content="trashbot">
-	<meta property="og:title" content="{{ og_name }}">
-	<meta property="og:description" content="{{ og_description }}">
-	<style>
-		h3 {padding-top:2px;}
-		li {padding-bottom: 2px}
-		b {font-size: 14px}
-	</style>
-</head>
+{% extends "base.html" %}
 
-<body>
+{% block page_title %}{{ title }}{% endblock %}
+{% block og_title %}{{ og_name }}{% endblock %}
+{% block og_desc %}{{ og_description }}{% endblock %}
+
+{% block head %}<style>h2 {padding-top:2px;} li {padding-bottom: 2px} b {font-size: 14px}</style>{% endblock %}
+
+{% block content %}
 
 <div style="padding:0 15% 0 15%;">
 
@@ -50,5 +38,4 @@
 
 </div><br>
 
-</body>
-</html>
+{% endblock %}

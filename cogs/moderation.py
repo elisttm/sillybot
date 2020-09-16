@@ -22,12 +22,15 @@ class moderation(commands.Cog):
 		self.bot = bot
 		self.load_db = funcs.load_db
 		self.dump_db = funcs.dump_db
+		self.check_for_db = funcs.check_for_db
+		self.send_log = funcs.send_log
+		self.log_prefix = "[MODERATION]"
 	
 # 		========================
 	
 	@commands.command()
 	@commands.guild_only()
-	@checks.is_in_guild([tt.srv['rhc']])
+	@checks.is_in_guilds([tt.srv['rhc']])
 	@commands.has_permissions(manage_roles = True)
 	async def restrict(self, ctx, user:discord.Member, restriction:str):
 		await ctx.trigger_typing()
@@ -45,7 +48,7 @@ class moderation(commands.Cog):
 
 	@commands.command()
 	@commands.guild_only()
-	@checks.is_in_guild([tt.srv['rhc']])
+	@checks.is_in_guilds([tt.srv['rhc']])
 	@commands.has_permissions(manage_roles = True)
 	async def unrestrict(self, ctx, user:discord.Member, restriction:str):
 		await ctx.trigger_typing()

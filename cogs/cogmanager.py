@@ -14,12 +14,13 @@ class cogmanager(commands.Cog):
 		self.load_db = funcs.load_db
 		self.dump_db = funcs.dump_db
 		self.send_log = funcs.send_log
-		self.log_prefix = "[COGMANAGER] "
+		self.log_prefix = "[COGMANAGER]"
 
 	# 		========================
 
 	@commands.command(aliases=['coglist'])
 	async def cogs(self, ctx):
+		await ctx.trigger_typing()
 		cm_list_loaded = ''; cm_list_unloaded = ''; cm_num = 0
 		for cog, status in tt.loaded.items():
 			if status == True: 
@@ -29,7 +30,8 @@ class cogmanager(commands.Cog):
 				cm_list_unloaded += f"{cog}\n"
 		e_cm = discord.Embed(color=tt.clr['pink'])
 		e_cm.add_field(name=f"loaded cogs `[{cm_num}/{len(tt.cogs)}]`", value=cm_list_loaded)
-		e_cm.add_field(name=f"unloaded cogs", value=cm_list_unloaded)
+		if cm_list_unloaded != '':
+			e_cm.add_field(name=f"unloaded cogs", value=cm_list_unloaded)
 		e_cm.set_author(name="cog manager", icon_url=tt.ico['cog'])
 		await ctx.send(embed=e_cm)
 

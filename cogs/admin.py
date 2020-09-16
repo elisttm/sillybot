@@ -14,7 +14,7 @@ class admin(commands.Cog):
 		self.load_db = funcs.load_db
 		self.dump_db = funcs.dump_db
 		self.send_log = funcs.send_log
-		self.log_prefix = "[ADMIN] "
+		self.log_prefix = "[ADMIN]"
 		
 # 		========================
 	
@@ -43,7 +43,7 @@ class admin(commands.Cog):
 				presence = tt.presence
 			await self.bot.change_presence(status=discord.Status.online, activity=discord.Game(presence))
 			await self.send_log(self, f"presence set to '{presence}' by '{ctx.author}'", self.log_prefix)
-			await ctx.message.add_reaction('✅')
+			await ctx.message.add_reaction(tt.e['check'])
 		except Exception as error: 
 			await ctx.send(tt.msg_e.format(error))
 
@@ -56,7 +56,7 @@ class admin(commands.Cog):
 				guilds_num += 1
 				guilds_list += f"  {guilds_num}. {guild.name} ({guild.owner}) [{guild.id}]\n"
 			await self.send_log(self, f"'{ctx.author}' called for the list of guilds ({guilds_num})\n{guilds_list}", self.log_prefix)
-			await ctx.message.add_reaction('✅')
+			await ctx.message.add_reaction(tt.e['check'])
 		except Exception as error: 
 			await ctx.send(tt.msg_e.format(error))
 
@@ -65,7 +65,7 @@ class admin(commands.Cog):
 	async def leave(self, ctx):
 		try:
 			await self.send_log(self, f"trashbot left '{ctx.guild.name}'", self.log_prefix)
-			await ctx.message.add_reaction('✅')
+			await ctx.message.add_reaction(tt.e['check'])
 			await ctx.guild.leave()
 		except Exception as error: 
 			await ctx.send(tt.msg_e.format(error))
@@ -75,7 +75,7 @@ class admin(commands.Cog):
 	async def shutdown(self, ctx):
 		try:
 			await self.send_log(self, f"shutdown by '{ctx.author}'", self.log_prefix)
-			await ctx.message.add_reaction('✅')
+			await ctx.message.add_reaction(tt.e['check'])
 			await self.bot.logout()
 		except Exception as error: 
 			await ctx.send(tt.msg_e.format(error))
@@ -85,7 +85,7 @@ class admin(commands.Cog):
 	async def restart(self, ctx):
 		try:
 			await self.send_log(self, f"restarted by '{ctx.author}'", self.log_prefix)
-			await ctx.message.add_reaction('✅')
+			await ctx.message.add_reaction(tt.e['check'])
 			await os.execv(sys.executable, ['python'] + sys.argv)
 		except Exception as error: 
 			await ctx.send(tt.msg_e.format(error))
@@ -103,7 +103,7 @@ class admin(commands.Cog):
 				await ctx.send(f"```blacklisted users [{len(blacklist_list)}]:\n{bl_user_list}```")
 				return
 			if user.id in tt.admins:
-				await ctx.send("❌ ⠀cannot blacklist bot admins!")
+				await ctx.send(tt.x+"cannot blacklist bot admins!")
 				return
 			if user.id not in blacklist_list:
 				blacklist_list.append(user.id)
@@ -113,7 +113,7 @@ class admin(commands.Cog):
 				blacklist_msg = f"{user} removed from blacklist"
 			self.dump_db(tt.blacklist_db, blacklist_list)
 			await self.send_log(self, blacklist_msg, self.log_prefix)
-			await ctx.send(f"✅ ⠀{blacklist_msg}")
+			await ctx.send(tt.y+f"{blacklist_msg}")
 		except Exception as error: 
 			await ctx.send(tt.msg_e.format(error))
 

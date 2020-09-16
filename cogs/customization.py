@@ -10,37 +10,19 @@ import data.constants as tt
 # 		========================
 
 settings_groups_list = {
-	'general': {
-		'prefix': 'prefix',
-	}, 
-	'roles': {
-		'default': 'defaultrole',
-	}, 
-	'channels': {
-		'msgchannel': 'msgchannel',
-	},
-	'messages': {
-		'join': 'joinmsg',
-		'leave': 'leavemsg',
-		'ban': 'banmsg',
-	}
+#	'group': {'label':'keyword',},
+	'general': {'prefix':'prefix',}, 
+	'roles': {'default':'defaultrole',}, 
+	'channels': {'msgchannel':'msgchannel',},
+	'messages': {'join':'joinmsg', 'leave':'leavemsg', 'ban':'banmsg',}
 }
-
-cosmetic_groups = {
-	'roles':'role', 
-	'messages':'message', 
-	'channels':'channel',
-}
-cosmetic_config = {
-	'msgchannel':'message channel', 
-	'defaultrole':'default role',
-}
+cosmetic_groups = {'roles':'role', 'messages':'message', 'channels':'channel',}
+cosmetic_config = {'msgchannel':'message channel', 'defaultrole':'default role',}
 
 config_subcommands = ['set', 'reset']
 
-undefined = {'prefix': 'default',}
-
 def undefined_value(setting):
+	undefined = {'prefix':'default','msgchannel':'default'}
 	if setting not in undefined:
 		return f'not set'
 	return undefined[setting]
@@ -52,20 +34,21 @@ class customization(commands.Cog):
 		self.dump_db = funcs.dump_db
 		self.check_for_db = funcs.check_for_db
 		self.send_log = funcs.send_log
-		self.log_prefix = "[CUSTOMIZATION] "
+		self.log_prefix = "[CUSTOMIZATION]"
 		
 # 		========================
 
-	@commands.group(name = 'settings', aliases=['s', 'custom'])
+	@commands.group(name='settings', aliases=['s'])
 	@commands.guild_only()
 	async def settings(self, ctx):
+		await ctx.trigger_typing()
 		if ctx.invoked_subcommand is None:
 			if ctx.subcommand_passed is not None:
 				raise(commands.UserInputError)
 				return 
 			try:
 				guild_data_path = tt.guild_data_path.format(str(ctx.guild.id))
-				e_settings = discord.Embed(title=f"click here for documentation on using this command", url=tt.settings_page, description=f"these are the settings for trashbot for this specific guild\n", color=tt.clr['pink'])
+				e_settings = discord.Embed(title=f"click here for documentation on using this command", url=tt.settings_page, description=f"these are the settings for trashbot in this specific guild\n", color=tt.clr['pink'])
 				e_settings.set_author(name=f"trashbot settings", icon_url=tt.ico['cog'])
 				if os.path.exists(guild_data_path):
 					guild_data = self.load_db(guild_data_path)
@@ -84,7 +67,7 @@ class customization(commands.Cog):
 							continue
 						if group == 'channels':
 							channel = self.bot.get_channel(guild_data[group][x])
-							embvalue += f'"{channel.name}" ({channel.id})\n'
+							embvalue += f'"#{channel.name}" ({channel.id})\n'
 							continue
 						else:
 							embvalue += f'"{guild_data[group][x]}"\n'
@@ -97,12 +80,10 @@ class customization(commands.Cog):
 
 	@commands.command()
 	@commands.guild_only()
-	async def cfg_cmd(self, ctx, group, config, action, param = None):
-		c_config = config; c_group = group
-		if config in cosmetic_config:
-			c_config = cosmetic_config[config]
-		if group in cosmetic_groups:
-			c_group = cosmetic_groups[group]
+	async def cfg_cmd(self, ctx, group, config, action, param=None):
+		c_config = config; c_group = group; note = ''
+		if config in cosmetic_config : c_config = cosmetic_config[config]
+		if group in cosmetic_groups : c_group = cosmetic_groups[group]
 		st = f"{c_config} {c_group}"
 		guild_data_path = tt.guild_data_path.format(str(ctx.guild.id))
 		try:
@@ -119,7 +100,7 @@ class customization(commands.Cog):
 					param = param.mention
 				else:
 					guild_data[group][config] = param
-				await ctx.send(_c._set.format(st, param))
+				await ctx.send(_c._set.format(st, param)+' '+note)
 			if action == 'reset':
 				if not os.path.exists(guild_data_path):
 					await ctx.send(_c.none_set.format(st))
@@ -138,7 +119,7 @@ class customization(commands.Cog):
 
 	@settings.command(name = 'prefix')
 	@checks.is_server_or_bot_admin()
-	async def prefix(self, ctx, action=None, *, prefix:str = None):
+	async def settings_prefix(self, ctx, action, *, prefix:str=None):
 		group = 'general'; config = 'prefix'
 		if action not in config_subcommands:
 			raise(commands.UserInputError)
@@ -149,7 +130,7 @@ class customization(commands.Cog):
 
 	@settings.command(name = 'joinmsg')
 	@checks.is_server_or_bot_admin()
-	async def joinmsg(self, ctx, action=None, *, message:str = None):
+	async def settings_joinmsg(self, ctx, action, *, message:str=None):
 		group = 'messages'; config = 'join'
 		if action not in config_subcommands:
 			raise(commands.UserInputError)
@@ -158,7 +139,7 @@ class customization(commands.Cog):
 
 	@settings.command(name = 'leavemsg')
 	@checks.is_server_or_bot_admin()
-	async def leavemsg(self, ctx, action, *, message:str = None):
+	async def settings_leavemsg(self, ctx, action, *, message:str=None):
 		group = 'messages'; config = 'leave'
 		if action not in config_subcommands:
 			raise(commands.UserInputError)
@@ -167,7 +148,7 @@ class customization(commands.Cog):
 
 	@settings.command(name = 'banmsg')
 	@checks.is_server_or_bot_admin()
-	async def banmsg(self, ctx, action, *, message:str = None):
+	async def settings_banmsg(self, ctx, action, *, message:str=None):
 		group = 'messages'; config = 'ban'
 		if action not in config_subcommands:
 			raise(commands.UserInputError)
@@ -178,7 +159,7 @@ class customization(commands.Cog):
 
 	@settings.command(name = 'defaultrole')
 	@checks.is_server_or_bot_admin()
-	async def defaultrole(self, ctx, action=None, *, role:discord.Role = None):
+	async def settings_defaultrole(self, ctx, action, *, role:discord.Role=None):
 		group = 'roles'; config = 'default'
 		if action not in config_subcommands:
 			raise(commands.UserInputError)
@@ -189,7 +170,7 @@ class customization(commands.Cog):
 
 	@settings.command(name = 'msgchannel')
 	@checks.is_server_or_bot_admin()
-	async def msgchannel(self, ctx, action=None, *, channel:discord.TextChannel = None):
+	async def settings_msgchannel(self, ctx, action, *, channel:discord.TextChannel=None):
 		channel = ctx.channel if not channel else channel
 		group = 'channels'; config = 'msgchannel'
 		if action not in config_subcommands:
