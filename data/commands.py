@@ -47,7 +47,7 @@ class cmdl():
 					'desc': "deletes a specified number of messages",
 				},
 				'massnick': {
-					'usage': "massnick <nickname> OR massnick reset OR massnick revert",
+					'usage': "massnick <nickname> OR reset/revert",
 					'desc': "changes the nickname of everyone in the server (server admins only)",
 				},
 			},

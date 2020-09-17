@@ -11,13 +11,24 @@ import data.constants as tt
 
 settings_groups_list = {
 #	'group': {'label':'keyword',},
-	'general': {'prefix':'prefix',}, 
-	'roles': {'default':'defaultrole',}, 
-	'channels': {'msgchannel':'msgchannel',},
-	'messages': {'join':'joinmsg', 'leave':'leavemsg', 'ban':'banmsg',}
+	'general': {
+		'prefix':'prefix',
+	}, 
+	'roles': {
+		'default':'defaultrole',
+	}, 
+	'channels': {
+		'msgchannel':'msgchannel',
+		'starboard':'starboard',
+	},
+	'messages': {
+		'join':'joinmsg', 
+		'leave':'leavemsg', 
+		'ban':'banmsg'
+	,}
 }
-cosmetic_groups = {'roles':'role', 'messages':'message', 'channels':'channel',}
-cosmetic_config = {'msgchannel':'message channel', 'defaultrole':'default role',}
+
+cosmetic_config = {'msgchannel':'message channel', 'defaultrole':'default role','prefix':'custom prefix'}
 
 config_subcommands = ['set', 'reset']
 
@@ -37,6 +48,8 @@ class customization(commands.Cog):
 		self.log_prefix = "[CUSTOMIZATION]"
 		
 # 		========================
+
+# typing.Union[discord.TextChannel, discord.Member]
 
 	@commands.group(name='settings', aliases=['s'])
 	@commands.guild_only()
@@ -82,8 +95,11 @@ class customization(commands.Cog):
 	@commands.guild_only()
 	async def cfg_cmd(self, ctx, group, config, action, param=None):
 		c_config = config; c_group = group; note = ''
-		if config in cosmetic_config : c_config = cosmetic_config[config]
-		if group in cosmetic_groups : c_group = cosmetic_groups[group]
+		if group[-1] == 's':
+			c_group = group[:len(group)-1]
+		if config in cosmetic_config : 
+			c_config = cosmetic_config[config]
+			c_group = ''
 		st = f"{c_config} {c_group}"
 		guild_data_path = tt.guild_data_path.format(str(ctx.guild.id))
 		try:
@@ -115,10 +131,10 @@ class customization(commands.Cog):
 		except Exception as error:
 			await ctx.send(tt.msg_e.format(error))
 
-	#			-----  PREFIX  -----
+	#			-----  GENERAL  -----
 
 	@settings.command(name = 'prefix')
-	@checks.is_server_or_bot_admin()
+	@checks.is_guild_admin()
 	async def settings_prefix(self, ctx, action, *, prefix:str=None):
 		group = 'general'; config = 'prefix'
 		if action not in config_subcommands:
@@ -126,10 +142,42 @@ class customization(commands.Cog):
 			return
 		await ctx.invoke(self.bot.get_command('cfg_cmd'), action=action, group=group, config=config, param=prefix)
 
+	#			-----  CHANNELS  -----
+
+	@settings.command(name = 'msgchannel')
+	@checks.is_guild_admin()
+	async def settings_msgchannel(self, ctx, action, *, channel:discord.TextChannel=None):
+		channel = ctx.channel if not channel else channel
+		group = 'channels'; config = 'msgchannel'
+		if action not in config_subcommands:
+			raise(commands.UserInputError)
+			return
+		await ctx.invoke(self.bot.get_command('cfg_cmd'), action=action, group=group, config=config, param=channel)
+
+	@settings.command(name = 'starboard')
+	@checks.is_guild_admin()
+	async def settings_starboard(self, ctx, action, *, channel:discord.TextChannel=None):
+		group = 'channels'; config = 'starboard'
+		if action not in config_subcommands:
+			raise(commands.UserInputError)
+			return
+		await ctx.invoke(self.bot.get_command('cfg_cmd'), action=action, group=group, config=config, param=channel)
+
+	#			-----  ROLES  -----
+
+	@settings.command(name = 'defaultrole')
+	@checks.is_guild_admin()
+	async def settings_defaultrole(self, ctx, action, *, role:discord.Role=None):
+		group = 'roles'; config = 'default'
+		if action not in config_subcommands:
+			raise(commands.UserInputError)
+			return
+		await ctx.invoke(self.bot.get_command('cfg_cmd'), action=action, group=group, config=config, param=role)
+
 	#			-----  MESSAGES  -----
 
 	@settings.command(name = 'joinmsg')
-	@checks.is_server_or_bot_admin()
+	@checks.is_guild_admin()
 	async def settings_joinmsg(self, ctx, action, *, message:str=None):
 		group = 'messages'; config = 'join'
 		if action not in config_subcommands:
@@ -138,7 +186,7 @@ class customization(commands.Cog):
 		await ctx.invoke(self.bot.get_command('cfg_cmd'), action=action, group=group, config=config, param=message)
 
 	@settings.command(name = 'leavemsg')
-	@checks.is_server_or_bot_admin()
+	@checks.is_guild_admin()
 	async def settings_leavemsg(self, ctx, action, *, message:str=None):
 		group = 'messages'; config = 'leave'
 		if action not in config_subcommands:
@@ -147,36 +195,13 @@ class customization(commands.Cog):
 		await ctx.invoke(self.bot.get_command('cfg_cmd'), action=action, group=group, config=config, param=message)
 
 	@settings.command(name = 'banmsg')
-	@checks.is_server_or_bot_admin()
+	@checks.is_guild_admin()
 	async def settings_banmsg(self, ctx, action, *, message:str=None):
 		group = 'messages'; config = 'ban'
 		if action not in config_subcommands:
 			raise(commands.UserInputError)
 			return
 		await ctx.invoke(self.bot.get_command('cfg_cmd'), action=action, group=group, config=config, param=message)			
-
-	#			-----  ROLES  -----
-
-	@settings.command(name = 'defaultrole')
-	@checks.is_server_or_bot_admin()
-	async def settings_defaultrole(self, ctx, action, *, role:discord.Role=None):
-		group = 'roles'; config = 'default'
-		if action not in config_subcommands:
-			raise(commands.UserInputError)
-			return
-		await ctx.invoke(self.bot.get_command('cfg_cmd'), action=action, group=group, config=config, param=role)
-
-	#			-----  CHANNELS  -----
-
-	@settings.command(name = 'msgchannel')
-	@checks.is_server_or_bot_admin()
-	async def settings_msgchannel(self, ctx, action, *, channel:discord.TextChannel=None):
-		channel = ctx.channel if not channel else channel
-		group = 'channels'; config = 'msgchannel'
-		if action not in config_subcommands:
-			raise(commands.UserInputError)
-			return
-		await ctx.invoke(self.bot.get_command('cfg_cmd'), action=action, group=group, config=config, param=channel)
 
 # 		========================
 

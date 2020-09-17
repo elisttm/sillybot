@@ -1,5 +1,6 @@
 import data.constants as tt
 
+s = tt.s
 y = tt.y
 w = tt.w
 x = tt.x
@@ -9,12 +10,12 @@ h = tt.h
 charlimit = w+"too many characters! {}"
 
 class _a(): # general error messages
-	no_permission = x+"you do not have permission to use this command! {}"
-	bot_no_permission = x+"i do not have permission to use that command here!"
+	no_permission = x+"you do not have permission to use this command!"
+	no_permission_perms = x+"{} need the permissions {} to use this command!"
 	on_cooldown = x+"please wait `{}s` before using this command again!"
 	invalid_params = w+"invalid command parameter(s) provided! {}"
 	disabled_in_dm = x+"this command is disabled in dms!"
-	guild_not_enabled = x+"that command is not usable here!"
+	guild_not_enabled = x+"that command is not enabled for this server!"
 
 class _t(): # tags
 	does_not_exist = w+"the tag \"{}\" does not exist!"

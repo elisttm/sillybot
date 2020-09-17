@@ -44,14 +44,16 @@ class funcs():
 				user_num += 1
 		return user_num
 
-	def smart_random(_list, label:str):
+	def smart_random(_list, label:str, max_per:int=None):
+		if max_per is None:
+			max_per = ((round(len(_list)/2))+1)
 		if label not in tt.smart_random_dict:
 			tt.smart_random_dict[label] = []
 		choice = random.choice(_list)
 		while choice in tt.smart_random_dict[label]:
 			choice = random.choice(_list)
 		tt.smart_random_dict[label].append(choice)
-		if len(tt.smart_random_dict[label]) > ((round(len(_list)/2))+1):
+		if len(tt.smart_random_dict[label]) > max_per:
 			tt.smart_random_dict[label].pop(0)
 		return choice
 

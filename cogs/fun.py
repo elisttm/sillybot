@@ -36,7 +36,7 @@ class fun(commands.Cog):
 # 		========================
 
 	@commands.command()
-	async def say(self, ctx, *, message:str):
+	async def say(self, ctx, *, message:commands.clean_content()):
 		await ctx.trigger_typing()
 		try:
 			message = tt.sanitize(message)
@@ -46,8 +46,8 @@ class fun(commands.Cog):
 			await ctx.send(tt.msg_e.format(error))
 
 	@commands.command()
-	@checks.is_server_or_bot_admin()
-	async def echo(self, ctx, channel:discord.TextChannel, *, message:str):
+	@checks.is_guild_admin()
+	async def echo(self, ctx, channel:discord.TextChannel, *, message:commands.clean_content()):
 		await ctx.trigger_typing()
 		try:
 			message = tt.sanitize(message)

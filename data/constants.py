@@ -60,15 +60,18 @@ names_list = 'https://trashbot.elisttm.space/names'
 settings_page = 'https://trashbot.elisttm.space/settings.txt'
 
 # database file paths
-blacklist_db = 'data/db/users/blacklist.json'
-reactions_db = 'data/db/reactions.json'
-reminders_db = 'data/db/reminders.json'
-rhcooc_db = 'data/db/rhcooc.json'
-tags_db = 'data/db/tags/tags.json'
-tags_queue = 'data/db/tags/tags_queue.json'
-guild_data_path = 'data/db/guilds/{}.json'
-guild_nicknames_path = 'data/db/guilds/nicknames/{}.json'
-user_data_path = 'data/db/users/{}.json'
+db_ = 'data/db/'
+blacklist_db = db_+'users/blacklist.json'
+reactions_db = db_+'reactions.json'
+reminders_db = db_+'reminders.json'
+rhcooc_db = db_+'rhcooc.json'
+tags_db = db_+'tags.json'
+
+guild_data_path = db_+'guilds/{}.json'
+guild_nicknames_path = db_+'guilds/nicknames/{}.json'
+guild_stickyroles_path = db_+'guilds/stickyroles/{}.json'
+guild_starboard_path = db_+'guilds/starboard/{}.json'
+user_data_path = db_+'users/{}.json'
 
 time0 = '%m/%d/%y %I:%M:%S %p'	# 01/31/20 12:34:56 PM
 time1 = '%H:%M:%S'						  # 12:34:56
@@ -84,6 +87,13 @@ def _t(): return datetime.datetime.now(timezone('US/Eastern')).strftime(tt.time2
 def get_url(url:str): return urllib.request.urlopen(url).read().decode('utf8')
 
 def sanitize(text: str): return text.replace('@here', '@\u200bhere').replace('@everyone', '@\u200beveryone')
+
+def split_list(_list, and_or='and'):
+	if len(_list) > 2:
+		msg = f"{', '.join(_list[:-1])}, {and_or} {_list[-1]}"
+	else:
+		msg = f" {and_or} ".join(_list)
+	return msg
 
 markdown_characters = ['*','~','_','`','\\']
 whitespace_characters = [' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ','　']
@@ -101,7 +111,7 @@ clr = {
 	'green'	: 0x00ff00,
 	'blue'	: 0x0000ff,
 	'pink'	: 0xff78d3,
-	'yellow': 0xbf993a,
+	'yellow': 0xffac33,
 }
 
 e = {
@@ -113,8 +123,8 @@ e = {
 	'dice': '🎲',
 	'thumbsup': '👍',
 	'thumbsdown': '👎',
-	'up': '🔼',
-	'down': '🔽',
+	'uparrow': '🔼',
+	'downarrow': '🔽',
 	'neutral': '😐',
 }
 
@@ -131,7 +141,5 @@ load_ascii = "\n  ___/-\___    Online | v{}\n |---------|   {}#{} ({})\n  | | | 
 
 msg_e = '⚠️ ⠀{}'
 
-error_note = ''
 error_guild_ids = []
-error_noperm = ''
 smart_random_dict = {}

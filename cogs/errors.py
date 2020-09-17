@@ -12,13 +12,6 @@ import data.constants as tt
 
 # 		========================
 
-no_perm_note_list = {
-	'botowner': '(must be bot owner)',
-	'botadmin': '(must be bot admin)',
-	'serverbotadmin': '(must be server or bot admin)',
-	'botadminoruser': '()',
-}
-
 class errors(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot
@@ -36,16 +29,35 @@ class errors(commands.Cog):
 		if isinstance(error, commands.CommandNotFound):
 			return
 
+		if isinstance(error, commands.NoPrivateMessage):
+			try: 
+				await ctx.author.send(_a.disabled_in_dm)
+			except discord.Forbidden: 
+				pass
+			return
+
+		if isinstance(error, checks.UnmatchedGuild):
+			await ctx.send(_a.guild_not_enabled)
+			return
+	
+		if isinstance(error, checks.NoPermission):
+			await ctx.send(_a.no_permission)
+			return
+	
 		if isinstance(error, commands.BotMissingPermissions):
-			await ctx.send(_a.bot_no_permission)
+			missing = [perm.replace('_', ' ').replace('guild', 'server') for perm in error.missing_perms]
+			msg = f"`{tt.split_list(missing, 'and')}`"
+			await ctx.send(_a.no_permission_perms.format('i', msg))
+			return
+
+		if isinstance(error, commands.MissingPermissions):
+			missing = [perm.replace('_', ' ').replace('guild', 'server') for perm in error.missing_perms]
+			msg = f"`{tt.split_list(missing, 'and')}`"
+			await ctx.send(_a.no_permission_perms.format('you', msg))
 			return
 
 		if isinstance(error, commands.CommandOnCooldown):
 			await ctx.send(_a.on_cooldown.format(math.ceil(error.retry_after)))
-			return
-
-		if isinstance(error, commands.MissingPermissions):
-			await ctx.send(_a.no_permission)
 			return
 
 		if isinstance(error, commands.UserInputError):
@@ -59,29 +71,8 @@ class errors(commands.Cog):
 					if cmd == invoked_command:
 						command_usage = cmdl.ctgs[ctg]['cmds'][cmd]['usage']
 			if command_usage != '':
-				command_usage = f'`({self.determine_prefix(self, ctx.message)}{command_usage})`'
+				command_usage = f'\n{tt.s}{tt.s}`({self.determine_prefix(self, ctx.message)}{command_usage})`'
 			await ctx.send(_a.invalid_params.format(command_usage))
-			return
-
-		if isinstance(error, commands.NoPrivateMessage):
-			try: 
-				await ctx.author.send(_a.disabled_in_dm)
-			except discord.Forbidden: 
-				pass
-			return
-
-		if isinstance(error, checks.NoPermission):
-			no_perm_note = ''
-			if tt.error_noperm in no_perm_note_list:
-				no_perm_note = no_perm_note_list[tt.error_noperm]
-			await ctx.send(_a.no_permission.format(no_perm_note))
-			return
-
-		if isinstance(error, checks.UnmatchedGuild):
-			guilds = []
-			for guild_id in tt.error_guild_ids:
-				guilds.append(self.bot.get_guild(guild_id).name)
-			await ctx.send(_a.guild_not_enabled.format("', '".join(guilds)))
 			return
 
 		if isinstance(error, commands.CheckFailure):

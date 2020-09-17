@@ -1,6 +1,7 @@
 import discord
 import os
 import json
+import asyncio
 from discord.ext import commands, tasks
 from utils import checks
 from utils.funcs import funcs
@@ -10,15 +11,9 @@ import data.constants as tt
 
 toggleable_reactions = ['naemt']
 
-reactions_list = {
-	'y/n': [
-		tt.e['thumbsup'], 
-		tt.e['thumbsdown']
-	],
-	'u/d': [
-		tt.e['up'], 
-		tt.e['down']
-	],
+reactions = {
+	'y/n': [tt.e['thumbsup'], tt.e['thumbsdown']],
+	'u/d': [tt.e['uparrow'], tt.e['downarrow']],
 }
 
 class events(commands.Cog):
@@ -42,12 +37,57 @@ class events(commands.Cog):
 
 	@commands.Cog.listener()
 	async def on_message(self, message):
-		if message.content.lower() in reactions_list:
-			for reaction in reactions_list[message.content.lower()]: 
-				await message.add_reaction(reaction)
+		#if message.content.lower() in reactions:
+		for _reaction in reactions:
+			if _reaction in message.content.lower():
+				for reaction in reactions[_reaction]: 
+					await message.add_reaction(reaction)
 		if self.toggleable_reactions_list['naemt'] == True:
 			if (message.author.id == 338292198866944002) and (message.channel.id == 697587669051637760):
 				await message.add_reaction(tt.e['neutral'])
+
+	def starboard_embed(self, message):
+		e_sb = discord.Embed(description=f"{message.content}", color=tt.clr['yellow'])
+		e_sb.add_field(name="jump to message", value=f"[click here]({message.jump_url})", inline=False)
+		if len(message.attachments) > 0:
+			e_sb.set_image(url=message.attachments[0].url)
+		e_sb.set_author(name=f"{message.author.name}#{message.author.discriminator}", icon_url=message.author.avatar_url)
+		e_sb.set_footer(text=f"{message.id} ⠀| ⠀{tt.curtime()}")
+		return e_sb
+
+	@commands.Cog.listener()
+	async def on_raw_reaction_add(self, payload):
+		if payload.member.bot:
+			pass
+		channel = self.bot.get_channel(payload.channel_id)
+		message = await channel.fetch_message(payload.message_id)
+		if (payload.emoji.is_custom_emoji()) and (payload.emoji.id == 747278013091282945) and (payload.member.id in tt.admins):
+			await message.remove_reaction(payload.emoji, payload.member)
+			for emoji in self.bot.get_guild(747195327530139759).emojis:
+				try:
+					await message.add_reaction(emoji)
+					await asyncio.sleep(0.21)
+				except:
+					return
+			return
+		guild_data_path = tt.guild_data_path.format(str(message.guild.id))
+		if (payload.emoji.is_unicode_emoji()) and (payload.emoji.name == "U+2B50") and (message.reactions[payload.emoji.name].count >= 5):
+			if not os.path.exists(guild_data_path):
+				return
+			guild_data = self.load_db(guild_data_path)
+			if ('channels' not in guild_data) or ('starboard' not in guild_data['channels']):
+				return
+			guild_starboard_path = tt.guild_starboard_path.format(str(message.guild.id))
+			self.check_for_db(guild_starboard_path)
+			starboard_data = self.load_db(guild_starboard_path)
+			if 'a' not in starboard_data:
+				starboard_data['a'] = []
+			if message.id in starboard_data['a']:
+				return
+			starboard_data['a'].append(message.id)
+			self.dump_db(guild_starboard_path, starboard_data)
+			starboard_channel = self.bot.get_channel(guild_data['channels']['starboard'])
+			await starboard_channel.send(embed=self.starboard_embed(message))
 
 	@commands.Cog.listener()
 	async def on_member_join(self, user):

@@ -60,7 +60,7 @@ class utilities(commands.Cog):
 
 	@commands.command()
 	@commands.guild_only()
-	async def user(self, ctx, user: discord.User = None):
+	async def user(self, ctx, user: discord.User=None):
 		await ctx.trigger_typing()
 		user = ctx.author if not user else user
 		blacklist_list = self.load_db(tt.blacklist_db)
@@ -87,7 +87,7 @@ class utilities(commands.Cog):
 
 	@commands.command()
 	@commands.guild_only()
-	async def avatar(self, ctx, user: discord.User = None):
+	async def avatar(self, ctx, user: discord.User=None):
 		await ctx.trigger_typing()
 		user = ctx.author if not user else user
 		try:
@@ -169,7 +169,8 @@ class utilities(commands.Cog):
 
 	@commands.command()
 	@commands.guild_only()
-	@checks.is_server_or_bot_admin()
+	@checks.is_guild_admin()
+	@commands.bot_has_permissions(manage_nicknames=True)
 	async def massnick(self, ctx, *, param:str):
 		await ctx.trigger_typing()
 		try:
@@ -233,7 +234,8 @@ class utilities(commands.Cog):
 
 	@commands.command(aliases=['purge'])
 	@commands.guild_only()
-	@commands.has_permissions(manage_messages = True)
+	@commands.has_permissions(manage_messages=True)
+	@commands.bot_has_permissions(manage_messages=True)
 	async def clear(self, ctx, clear:int):
 		await ctx.trigger_typing()
 		try:
@@ -245,6 +247,11 @@ class utilities(commands.Cog):
 			await ctx.send(tt.y+f"cleared `{clear}` messages", delete_after=2)
 		except Exception as error: 
 			await ctx.send(tt.msg_e.format(error))
+
+	@commands.command()
+	@checks.is_user([376813566591762444])
+	async def hi(self, ctx):
+		await ctx.send("a")
 
 # 		========================
 

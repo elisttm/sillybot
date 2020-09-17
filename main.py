@@ -3,7 +3,7 @@ import os, logging
 import json
 import flask
 import time, datetime, pytz
-from flask import Flask, render_template, request, send_from_directory
+from flask import Flask, render_template, request, send_from_directory, jsonify
 from threading import Thread
 from discord.ext import commands
 from utils import checks
@@ -75,14 +75,6 @@ async def on_message(message):
 		pass
 	await bot.process_commands(message)
 
-@bot.event
-async def on_guild_remove(guild):
-	await send_log(f"removed from guild '{guild}' ({guild.id})")
-
-@bot.event
-async def on_guild_join(guild):
-	await send_log(f"added to guild '{guild}' ({guild.id})")
-
 #			-----  HELP COMMAND  -----
 
 @bot.command()
@@ -100,6 +92,12 @@ app = Flask(
 	template_folder='flaskapp/templates'
 )
 
+t_meta = {
+	"t": "list of tags", "h": "list of all tags in the database",
+	"s_t": "list of tags :: {}", "s_h": "all tags owned by {}",
+	"i_t": "list of tags :: invalid ID", "i_h": "invalid user ID provided in search",
+}
+
 # disables flask logs
 logging.getLogger('werkzeug').setLevel(logging.ERROR)
 logging.getLogger('werkzeug').disabled = True
@@ -110,6 +108,10 @@ os.environ['WERKZEUG_RUN_MAIN'] = 'true'
 def main(): 
 	ctgs = cmdl.ctgs
 	return render_template('helplist.html', ctgs = ctgs, version = tt.v)	
+
+@app.route('/commands/json')
+def commands_json():
+	return jsonify(cmdl.ctgs)
 
 @app.route('/rhcooc')
 def rhcooc(): 
@@ -126,14 +128,19 @@ def tags(search):
 	if not search:
 		search = request.args.get('search')
 	if not search:
-		return render_template('tags.html', search = False, title = f"trashbot tag list", header = "list of all tags in the database", og_name = "list of tags", og_description = "a list of every tag in trashbot's database", tags_list = tags_list)
+		return render_template('tags.html', search = False, title = t_meta['t'], header = t_meta['h'], desc = True, tags_list = tags_list)
 	try:
 		user = bot.get_user(int(search))
 	except:
 		invalid_user = True
 	if (user is None) or (invalid_user == True):
-		return render_template('tags.html', search = True, title = f"trashbot tag list :: invalid ID", header = "invalid user ID provided in search", og_name = "invalid tag owner", og_description = "invalid user provided for tag list search")
-	return render_template('tags.html', search = True, title = f"trashbot tag list :: {user}", header = f"all tags owned by {user} ({user.id})", og_name = f"list of tags owned by {user}", og_description = f"", user = user, user_id = user.id, tags_list = tags_list)
+		return render_template('tags.html', search = True, title = t_meta['i_t'], header = t_meta['i_h'])
+	return render_template('tags.html', search = True, title = t_meta['s_t'].format(user), header = t_meta['s_h'].format(user), user = user, user_id = user.id, tags_list = tags_list)
+
+@app.route('/tags/json')
+def tags_json():
+	tags_list = funcs.load_db(tt.tags_db)
+	return jsonify(tags_list)
 
 @app.route('/settings.txt')
 def static_from_root():
