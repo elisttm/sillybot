@@ -12,8 +12,6 @@ import data.constants as tt
 
 # 		========================
 
-penis_leaderboard = {}
-
 def penis_eqn(user_id:int): 
 	return math.floor((100-int(str(user_id)[-2:]))/int(str(user_id)[:1]))
 
@@ -32,6 +30,8 @@ class fun(commands.Cog):
 		self.log_prefix = "[FUN]"
 		
 		self.rhcooc_list = self.load_db(tt.rhcooc_db)
+
+		self.penis_leaderboard = {}
 
 # 		========================
 
@@ -107,17 +107,17 @@ class fun(commands.Cog):
 	async def penisrank(self, ctx, ranking:str = 'top'):
 		await ctx.trigger_typing()
 		ranking = ranking.lower()
-		penis_leaderboard = {}
+		self.penis_leaderboard = {}
 		if (ranking != 'top') and (ranking != 'bottom'):
 			raise(commands.UserInputError)
 			return
 		for user in ctx.guild.members:
-			penis_leaderboard[f"{user.name}"] = penis_eqn(user.id)
+			self.penis_leaderboard[f"{user.name}"] = penis_eqn(user.id)
 		penis_leaderboard_num = 0
 		sort_reverse = True
 		if ranking == 'bottom':
 			sort_reverse = False
-		sorted_penis_leaderboard = sorted(penis_leaderboard.items(), key=lambda x: x[1], reverse=sort_reverse)[:10]
+		sorted_penis_leaderboard = sorted(self.penis_leaderboard.items(), key=lambda x: x[1], reverse=sort_reverse)[:10]
 		penis_leaderboard_msg = f"**list of this guilds {ranking} ranking penises:**\n"
 		for stupid in sorted_penis_leaderboard:
 			penis_leaderboard_num += 1

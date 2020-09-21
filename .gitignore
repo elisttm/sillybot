@@ -1,13 +1,16 @@
-# unwanted files
+### MISC FILES ###
 TODO
 .env
 data/db/
+# data/**/*.json
 /node_modules/
 
-# temporary files
+### TEMPORARY FILES ###
 **/__pycache__/
+**/*.log
+**/*.bak
 
-# packager files
+### PACKAGER FILES ###
 package-lock.json
 poetry.lock
 pyproject.toml

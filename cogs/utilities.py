@@ -202,14 +202,18 @@ class utilities(commands.Cog):
 				mn_action = {'1':'reset','2':'resetting','3':'reset'}
 			else:
 				nickname = param
-				nicknames_list = {'users': {},'lastnick':'','no_revert':False}
+				nicknames_list = {'users': {},'lastnick':nickname,'no_revert':False}
 				a = f"to '{nickname}' "
 			for member in ctx.guild.members: 
+				if member.bot:
+					continue
 				mn_users += 1
 			await ctx.send(_u.mn_attempting.format(mn_action['1'], mn_users))
 			await self.send_log(self, _u.log_mn_attempting.format(mn_action['2'], mn_users, a, ctx.guild.name), mn_prefix)
 			for member in ctx.guild.members:
 				await ctx.trigger_typing()
+				if member.bot:
+					continue
 				if ctx.guild.id in self.mn_cancelled:
 					await ctx.send(tt.y+"massnick cancelled!")
 					self.mn_cancelled.remove(ctx.guild.id)
@@ -219,10 +223,11 @@ class utilities(commands.Cog):
 						continue
 					nickname = nicknames_list['users'][str(member.id)]
 				try: 
+					oldnick = member.nick
 					await member.edit(nick=nickname)
-					mn_changed += 1
 					if param != 'revert':
-						nicknames_list['users'][str(member.id)] = member.nick
+						nicknames_list['users'][str(member.id)] = oldnick
+					mn_changed += 1
 				except: 
 					continue
 			self.mn_in_progress.remove(ctx.guild.id)
