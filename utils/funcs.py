@@ -35,15 +35,6 @@ class funcs():
 		except:
 			return tt.p
 
-	def user_num(self, bot):
-		user_num = 0
-		for user in self.bot.users:
-			if user.bot is True: 
-				continue 
-			else: 
-				user_num += 1
-		return user_num
-
 	def smart_random(_list, label:str, max_per:int=None):
 		if max_per is None:
 			max_per = ((round(len(_list)/2))+1)

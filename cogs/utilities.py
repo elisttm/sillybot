@@ -14,7 +14,6 @@ import data.constants as tt
 class utilities(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot
-		self.user_num = funcs.user_num
 		self.load_db = funcs.load_db
 		self.dump_db = funcs.dump_db
 		self.check_for_db = funcs.check_for_db
@@ -31,7 +30,12 @@ class utilities(commands.Cog):
 		await ctx.trigger_typing()
 		try:
 			guild_num = len(list(self.bot.guilds))
-			user_num = self.user_num()
+			user_num = 0
+			for user in self.bot.users:
+				if user.bot: 
+					continue 
+				else: 
+					user_num += 1
 			e_about = discord.Embed(title=f"trashbot | v{tt.v}", url=tt.website, description=f"{tt.desc}\n", color=tt.clr['pink'])
 			e_about.add_field(name="stats", value=f"servers: `{guild_num}`, users: `{user_num}`", inline=True)
 			e_about.add_field(name=f"client uptime", value=f"{tt.uptime()}", inline=True)
@@ -91,7 +95,12 @@ class utilities(commands.Cog):
 		await ctx.trigger_typing()
 		user = ctx.author if not user else user
 		try:
-			e_avatar = discord.Embed(color=user.top_role.color)
+			if user in ctx.guild.members:
+				user = ctx.guild.get_member(user.id)
+				color = user.color
+			else:
+				color = tt.clr['pink']
+			e_avatar = discord.Embed(color=color)
 			e_avatar.set_author(name=f"{user}'s avatar", icon_url=tt.ico['info'])
 			e_avatar.set_image(url=user.avatar_url)
 			e_avatar.set_footer(text=f"requested by {ctx.author}", icon_url=ctx.author.avatar_url_as(format='png'))
@@ -184,6 +193,7 @@ class utilities(commands.Cog):
 			if ctx.guild.id in self.mn_in_progress:
 				if param == 'cancel':
 					self.mn_cancelled.append(ctx.guild.id)
+					self.mn_in_progress.remove(ctx.guild.id)
 					await ctx.send(tt.h+"cancelling...", delete_after=1)
 					return
 				await ctx.send(tt.w+"there is already a massnick in progress!")

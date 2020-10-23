@@ -2,7 +2,6 @@ import discord
 import json
 import random
 import math
-import urbandict
 import time, datetime
 import urllib, urllib.request
 from discord.ext import commands
@@ -76,14 +75,6 @@ class fun(commands.Cog):
 			e_urban.set_footer(text=f"created on {datetime.datetime.strptime(urban_dict['written_on'], '%Y-%m-%dT%H:%M:%S.%fZ').strftime(tt.time3)} by {urban_dict['author']} ⠀| ⠀👍 {urban_dict['thumbs_up']}  👎 {urban_dict['thumbs_down']}")
 			await ctx.send(embed=e_urban)
 		except Exception as error:
-			await ctx.send(tt.msg_e.format(error))
-
-	@commands.command()
-	async def urbanshit(self, ctx, *, word:str):
-		await ctx.trigger_typing()
-		try:
-			await ctx.send(f"```fix\n    {word.upper()}\n\n{urbandict.define(word)[0]['def']}\nEXAMPLE: {urbandict.define(word)[0]['example']}```")
-		except Exception as error: 
 			await ctx.send(tt.msg_e.format(error))
 
 	@commands.command() 

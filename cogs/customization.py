@@ -10,7 +10,7 @@ import data.constants as tt
 # 		========================
 
 settings_groups = {
-	'general': ['prefix', 'stickyroles'],
+	'general': ['prefix', 'stickyroles', 'starboardcount'],
 	'roles': ['defaultrole'],
 	'channels': ['msgchannel', 'starboard'],
 	'messages': ['joinmsg', 'leavemsg', 'banmsg'],
@@ -24,6 +24,7 @@ cosmetic_config = {
 	'joinmsg': 'join message',
 	'leavemsg': 'leave message',
 	'banmsg': 'ban message',
+	'starboardcount': 'starboard emoji amount',
 }
 toggleable_configs = [
 	'stickyroles',
@@ -32,7 +33,12 @@ toggleable_configs = [
 config_subcommands = ['set', 'reset', 'enable', 'disable']
 
 def undefined_value(setting):
-	undefined = {'prefix':'default','msgchannel':'default'}
+	undefined = {
+		'prefix': 'default',
+		'msgchannel': 'default',
+		'stickyroles': 'disabled',
+		'starboardcount': '5',
+	}
 	if setting not in undefined:
 		return f'not set'
 	return undefined[setting]
@@ -90,6 +96,7 @@ class customization(commands.Cog):
 
 	@commands.command()
 	@commands.guild_only()
+	@checks.is_guild_admin()
 	async def cfg_cmd(self, ctx, group, config, action, param=None):
 		guild_data_path = tt.guild_data_path.format(str(ctx.guild.id))
 		try:
@@ -97,7 +104,7 @@ class customization(commands.Cog):
 				raise(commands.UserInputError)
 				return
 			if config in toggleable_configs:
-				if (action == 'set') or (action == 'reset'):
+				if (action != None) and ((action == 'set') or (action == 'reset')):
 					raise(commands.UserInputError)
 					return
 				self.check_for_db(guild_data_path)
@@ -105,10 +112,10 @@ class customization(commands.Cog):
 				if group not in guild_data:
 					guild_data[group] = {}
 				if action == 'enable':
-					guild_data[group][config] = True
+					guild_data[group][config] = 'enabled'
 					await ctx.send(tt.y+f"enabled {config}!")
 				if action == 'disable':
-					guild_data[group][config] = False
+					guild_data[group][config] = 'disabled'
 					await ctx.send(tt.y+f"disabled {config}!")
 				self.dump_db(guild_data_path, guild_data)
 				return
@@ -138,17 +145,17 @@ class customization(commands.Cog):
 				await ctx.send(_c.removed.format(cosmetic_config[config]))
 			self.dump_db(guild_data_path, guild_data)
 		except Exception as error:
-			await ctx.send(tt.msg_e.format(error))
+ 			await ctx.send(tt.msg_e.format(error))
 
 	#			-----  CONFIGURATION  -----
 
-	@settings.command(aliases=['prefix','stickyroles'])
+	@settings.command(aliases=['prefix','stickyroles','starboardcount'])
 	@checks.is_guild_admin()
-	async def settings_prefix(self, ctx, action, *, prefix:str=None):
+	async def settings_prefix(self, ctx, action, *, general_setting:str=None):
 		if action not in config_subcommands:
 			raise(commands.UserInputError)
 			return
-		await ctx.invoke(self.bot.get_command('cfg_cmd'), action=action, group='general', config=ctx.invoked_with, param=prefix)
+		await ctx.invoke(self.bot.get_command('cfg_cmd'), action=action, group='general', config=ctx.invoked_with, param=general_setting)
 
 	@settings.command(aliases=['msgchannel','starboard'])
 	@checks.is_guild_admin()
