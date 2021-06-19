@@ -68,14 +68,14 @@ class cmdl():
 					'usage': "urban <word>",
 					'desc': "gets the urban dictionary definition of the given word",
 				},
-				'penis': {
-					'usage': "penis <user>",
-					'desc': "gets a users penis size",
-				},
-				'penisrank': {
-					'usage': "penisrank top/bottom",
-					'desc': "ranks the biggest or smallest penis sizes in the current guild",
-				},
+#				'penis': {
+#					'usage': "penis <user>",
+#					'desc': "gets a users penis size",
+#				},
+#				'penisrank': {
+#					'usage': "penisrank top/bottom",
+#					'desc': "ranks the biggest or smallest penis sizes in the current guild",
+#				},
 			},
 		},
 		'cats': {

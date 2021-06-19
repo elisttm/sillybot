@@ -44,4 +44,3 @@ class _c(): # customization
 
 class _cm(): # cogmanager
 	invalid_cog = w+"please specify a valid cog!"
-

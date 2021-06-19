@@ -9,15 +9,14 @@ import data.constants as tt
 
 # 		========================
 
-cat_url = 'http://cat.elisttm.space:7777'
 cat_dirs = []
 
 class cats(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot
 		
-		self.cat_json = json.loads(tt.get_url(cat_url+'/api/all'))
-		self.cat_dirs = json.loads(tt.get_url(cat_url+'/directories/'))
+		self.cat_json = json.loads(tt.get_url(tt.cat_url+'/api/all'))
+		self.cat_dirs = json.loads(tt.get_url(tt.cat_url+'/directories/'))
 		self.smart_random = funcs.smart_random
 		
 		cat_dirs = self.cat_dirs
@@ -26,7 +25,7 @@ class cats(commands.Cog):
 		if cat_name == '':
 			cat_name = random.choice(self.cat_dirs)
 		label = 'cat' + cat_name
-		return f'{cat_url}/static/cat/{cat_name}/{self.smart_random(self.cat_json[cat_name], label)}'
+		return f'{tt.cat_url}/static/cat/{cat_name}/{self.smart_random(self.cat_json[cat_name], label)}'
 
 # 		========================
 
@@ -44,7 +43,7 @@ class cats(commands.Cog):
 			await ctx.send(tt.msg_e.format(error))
 
 	# i want it to be known this is the stupidest workaround i have ever made and the fact it works baffles me
-	@commands.command(aliases=['floppa','tommy','gloop','mish','spock','marley','lucas','nori','thomas'])
+	@commands.command(aliases=['floppa','tommy','gloop','mish','spock','marley','lucas','nori','thomas', 'max', 'jim', 'gupitaro', 'mona', 'xena'])
 	async def _cat_name(self, ctx):
 		await ctx.invoke(self.bot.get_command('cat'), cat_name=ctx.invoked_with)
 

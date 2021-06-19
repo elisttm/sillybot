@@ -39,7 +39,7 @@ class utilities(commands.Cog):
 			e_about = discord.Embed(title=f"trashbot | v{tt.v}", url=tt.website, description=f"{tt.desc}\n", color=tt.clr['pink'])
 			e_about.add_field(name="stats", value=f"servers: `{guild_num}`, users: `{user_num}`", inline=True)
 			e_about.add_field(name=f"client uptime", value=f"{tt.uptime()}", inline=True)
-			e_about.set_author(name=f"about trashbot", icon_url=tt.ico['info'])
+			#e_about.set_author(name=f"about trashbot", icon_url=tt.ico['info'])
 			e_about.set_footer(text=f"requested by {ctx.author}", icon_url=ctx.author.avatar_url_as(format='png'))
 			e_about.set_thumbnail(url=self.bot.user.avatar_url)
 			await ctx.send(embed=e_about)
@@ -69,7 +69,7 @@ class utilities(commands.Cog):
 		user = ctx.author if not user else user
 		blacklist_list = self.load_db(tt.blacklist_db)
 		try:
-			user_nick=user_tag=perm_tag=trashbot_tag=joined_tag=''
+			user_nick=user_tag=perm_tag=trashbot_tag=role_tag=joined_tag=''
 			if user.bot : user_tag = '[BOT]'
 			if user.id == tt.owner_id : trashbot_tag += '\n`trashbot owner`'
 			if user.id in tt.admins : trashbot_tag += '\n`trashbot admin`'
@@ -82,7 +82,7 @@ class utilities(commands.Cog):
 				joined_tag = f"\n**joined**: __{user.joined_at.strftime(tt.time0)}__ ({'%d days' % (datetime.datetime.now() - user.joined_at).days})"
 				role_tag = f"\n**top role**: {user.top_role} {perm_tag}"
 			e_user = discord.Embed(title=f"{user} {user_nick} {user_tag}", description=f"`{user.id}`{role_tag}{joined_tag}\n**created**: __{user.created_at.strftime(tt.time0)}__ ({'%d days' % (datetime.datetime.now() - user.created_at).days})\n{trashbot_tag}", color=user.color)
-			e_user.set_author(name=f"{user.name} :: user info", icon_url=tt.ico['info'])
+			#e_user.set_author(name=f"user info", icon_url=tt.ico['info'])
 			e_user.set_thumbnail(url=user.avatar_url)
 			e_user.set_footer(text=f"requested by {ctx.author}", icon_url=ctx.author.avatar_url_as(format='png'))
 			await ctx.send(embed=e_user)
@@ -123,8 +123,8 @@ class utilities(commands.Cog):
 					boost_count += f" with {len(guild.premium_subscribers)} boosters"
 				guild_boosts = f"\n**boosts**: {boost_count} (level {guild.premium_tier})"
 			try:
-				e_server = discord.Embed(title=f"{guild.name}", description=f"`{guild.id}`\n**owner**: {guild.owner}\n**members**: {len(guild.members)}{guild_boosts}\n**emojis**: {len(guild.emojis)}/{guild.emoji_limit}\n**roles**: {len(guild.roles)}\n**channels**: {len(guild.text_channels)} text, {len(guild.voice_channels)} voice\n**created**: __{guild.created_at.strftime(tt.time0)}__ ({'%d days' % (datetime.datetime.now() - guild.created_at).days})", color=tt.clr['pink'])
-				e_server.set_author(name=f"{ctx.guild.name} :: server info", icon_url=tt.ico['info'])
+				e_server = discord.Embed(title=f"{guild.name}", description=f"`{guild.id}`\n**owner**: {guild.owner}\n**members**: {len(guild.members)}{guild_boosts}\n**emojis**: {len(guild.emojis)}\n**roles**: {len(guild.roles)}\n**channels**: {len(guild.text_channels)} text, {len(guild.voice_channels)} voice\n**created**: __{guild.created_at.strftime(tt.time0)}__ ({'%d days' % (datetime.datetime.now() - guild.created_at).days})", color=tt.clr['pink'])
+				#e_server.set_author(name="server info", icon_url=tt.ico['info'])
 				e_server.set_thumbnail(url=ctx.guild.icon_url)
 				e_server.set_footer(text=f"requested by {ctx.author}", icon_url=ctx.author.avatar_url_as(format='png'))
 				await ctx.send(embed=e_server)

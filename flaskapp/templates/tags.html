@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block page_title %}{{ title }}{% endblock %}
+{% block page_title %}list of tags{% endblock %}
 {% block og_title %}{{ og_name }}{% endblock %}
 {% block og_desc %}{{ og_description }}{% endblock %}
 
@@ -11,11 +11,6 @@
 <div style="padding:0 15% 0 15%;">
 
 	<br><h1 align="center">{{ header }}</h1>	
-
-		<form align="center" action="/tags">
-			<input type="text" placeholder="filter tags by owner ID" name="search"></input>
-			<input type="submit" value="search"></input>
-		</form><br>
 
 	{% for tag in tags_list: %}
 		{% if search == True: %}

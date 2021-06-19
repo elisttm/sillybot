@@ -13,19 +13,23 @@ import data.constants as tt
 
 # 		========================
 
-async def send_log(log:str):
-	log_msg = f"[{tt._t()}] {log}"
-	print(log_msg)
-	await bot.get_channel(tt.logs).send(f"```{log_msg}```")
+intents = discord.Intents.default()
+intents.members = True
 
 bot = commands.Bot(
 	command_prefix = funcs.determine_prefix,
 	case_insensitive = True,
 	owner_id = tt.owner_id,
+	intents = intents,
 )
 
 bot.remove_command('help')
 ctx = commands.Context
+
+async def send_log(log:str):
+	log_msg = f"[{tt._t()}] {log}"
+	print(log_msg)
+	await bot.get_channel(tt.logs).send(f"```{log_msg}```")
 
 # 		========================
 	
@@ -57,10 +61,10 @@ async def on_connect():
 	async def on_ready(): 
 		startup_ready = f"[{tt._t()}] trashbot is online!"; 
 		print(startup_ready)
-		print(tt.load_ascii.format(tt.v, bot.user.name, bot.user.discriminator, bot.user.id))	
+		print(tt.load_ascii.format(bot.user.name, bot.user.discriminator, bot.user.id))	
 
 		await bot.change_presence(status=discord.Status.online, activity=tt.presence)
-		await bot.get_channel(tt.logs).send(f"```{startup_starting}\n{startup_cm_loading}\n{startup_cm_loaded}\n{startup_connected}\n{startup_ready} (v{tt.v})```")
+		await bot.get_channel(tt.logs).send(f"```{startup_starting}\n{startup_cm_loading}\n{startup_cm_loaded}\n{startup_connected}\n{startup_ready}```")
 
 #			-----  EVENTS  -----
 
@@ -75,15 +79,6 @@ async def on_message(message):
 		pass
 	await bot.process_commands(message)
 
-#			-----  HELP COMMAND  -----
-
-@bot.command()
-async def help(ctx):
-	await ctx.trigger_typing()
-	e_help = discord.Embed(title=f"click here to see a list of commands", url=tt.help_list, color=tt.clr['pink'])
-	e_help.set_author(name="help menu", icon_url=tt.ico['info'])
-	await ctx.send(embed=e_help)
-
 #			-----  FLASK APP  -----
 
 app = Flask(
@@ -91,12 +86,6 @@ app = Flask(
 	static_folder='flaskapp/static', 
 	template_folder='flaskapp/templates'
 )
-
-t_meta = {
-	"t": "list of tags", "h": "list of all tags in the database",
-	"s_t": "list of tags :: {}", "s_h": "all tags owned by {}",
-	"i_t": "list of tags :: invalid ID", "i_h": "invalid user ID provided in search",
-}
 
 # disables flask logs
 logging.getLogger('werkzeug').setLevel(logging.ERROR)
@@ -106,12 +95,7 @@ os.environ['WERKZEUG_RUN_MAIN'] = 'true'
 @app.route('/')
 @app.route('/commands')
 def main(): 
-	ctgs = cmdl.ctgs
-	return render_template('helplist.html', ctgs = ctgs, version = tt.v)	
-
-@app.route('/commands/json')
-def commands_json():
-	return jsonify(cmdl.ctgs)
+	return render_template('helplist.html', ctgs = cmdl.ctgs)	
 
 @app.route('/rhcooc')
 def rhcooc(): 
@@ -119,28 +103,18 @@ def rhcooc():
 		rhcooc_list = json.load(rhcooc_list_json)
 	return render_template('rhcooc.html', rhcooc_list = rhcooc_list)	
 
-@app.route('/tags', defaults={'search': None})
-@app.route('/tags/', defaults={'search': None})
-@app.route('/tags/<search>')
-def tags(search):
-	invalid_user = False
-	tags_list = funcs.load_db(tt.tags_db)
-	if not search:
-		search = request.args.get('search')
-	if not search:
-		return render_template('tags.html', search = False, title = t_meta['t'], header = t_meta['h'], desc = True, tags_list = tags_list)
-	try:
-		user = bot.get_user(int(search))
-	except:
-		invalid_user = True
-	if (user is None) or (invalid_user == True):
-		return render_template('tags.html', search = True, title = t_meta['i_t'], header = t_meta['i_h'])
-	return render_template('tags.html', search = True, title = t_meta['s_t'].format(user), header = t_meta['s_h'].format(user), user = user, user_id = user.id, tags_list = tags_list)
+@app.route('/tags')
+@app.route('/tags/')
+def tags_all():
+	return render_template('tags.html', search = False, header = "list of all tags in the database", desc = True, tags_list = funcs.load_db(tt.tags_db))
+
+@app.route('/tags/<int:search>')
+def tags_search(search):
+	return render_template('tags.html', search = True, header = f"all tags owned by user ID {search}", user_id = search, tags_list = funcs.load_db(tt.tags_db))
 
 @app.route('/tags/json')
 def tags_json():
-	tags_list = funcs.load_db(tt.tags_db)
-	return jsonify(tags_list)
+	return jsonify(funcs.load_db(tt.tags_db))
 
 @app.route('/settings.txt')
 def static_from_root():
@@ -149,7 +123,7 @@ def static_from_root():
 # 		========================
 
 if __name__ == '__main__':
-	def run(): app.run(host="0.0.0.0", port=8080)
+	def run(): app.run(host="0.0.0.0", port=42069)
 	server = Thread(target=run)
 	server.start()
-	bot.run(os.getenv("TOKEN"))
+	bot.run("token")

@@ -13,7 +13,7 @@ import data.constants as tt
 
 # 		========================
 
-ban = {}
+#ban = {}
 
 filetypes = ['.png','.jpg','.webp','.gif']
 r_sb_img = r'http(.*?){}'
@@ -196,15 +196,15 @@ class events(commands.Cog):
 					except:
 						continue
 
-	@commands.Cog.listener()
-	async def on_member_ban(self, guild, user):
-		if user == self.bot.user:
-			return
-		guild_data_path = tt.guild_data_path.format(str(user.guild.id))
-		if not os.path.exists(guild_data_path):
-			return
-		guild_data = self.load_db(guild_data_path)
-		await self.send_event_message(guild_data, user, 'banmsg')		
+	#@commands.Cog.listener()
+	#async def on_member_ban(self, guild, user):
+	#	if user == self.bot.user:
+	#		return
+	#	guild_data_path = tt.guild_data_path.format(str(user.guild.id))
+	#	if not os.path.exists(guild_data_path):
+	#		return
+	#	guild_data = self.load_db(guild_data_path)
+	#	await self.send_event_message(guild_data, user, 'banmsg')		
 
 	@commands.Cog.listener()
 	async def on_member_remove(self, user):

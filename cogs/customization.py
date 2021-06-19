@@ -13,7 +13,7 @@ settings_groups = {
 	'general': ['prefix', 'stickyroles', 'starboardcount'],
 	'roles': ['defaultrole'],
 	'channels': ['msgchannel', 'starboard'],
-	'messages': ['joinmsg', 'leavemsg', 'banmsg'],
+	'messages': ['joinmsg', 'leavemsg'],
 }
 cosmetic_config = {
 	'prefix': 'custom prefix',
@@ -23,7 +23,6 @@ cosmetic_config = {
 	'defaultrole': 'default role',
 	'joinmsg': 'join message',
 	'leavemsg': 'leave message',
-	'banmsg': 'ban message',
 	'starboardcount': 'starboard emoji amount',
 }
 toggleable_configs = [
@@ -174,7 +173,7 @@ class customization(commands.Cog):
 			return
 		await ctx.invoke(self.bot.get_command('cfg_cmd'), action=action, group='roles', config=ctx.invoked_with, param=role)
 
-	@settings.command(aliases=['joinmsg','leavemsg','banmsg'])
+	@settings.command(aliases=['joinmsg','leavemsg'])
 	@checks.is_guild_admin()
 	async def settings_messages(self, ctx, action, *, message:str=None):
 		if action not in config_subcommands:

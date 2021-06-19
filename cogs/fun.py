@@ -11,9 +11,6 @@ import data.constants as tt
 
 # 		========================
 
-def penis_eqn(user_id:int): 
-	return math.floor((100-int(str(user_id)[-2:]))/int(str(user_id)[:1]))
-
 def urban_sanitize(text:str):
 	text = text.replace("\n", " ").replace("\r", " ").replace("[", "").replace("]", "").replace("`", "\`")
 	return (text[:500] + f' ... (+{len(text) - 500})') if len(text) > 500 else text
@@ -76,44 +73,6 @@ class fun(commands.Cog):
 			await ctx.send(embed=e_urban)
 		except Exception as error:
 			await ctx.send(tt.msg_e.format(error))
-
-	@commands.command() 
-	@checks.is_admin()
-	async def blackdude(self, ctx):
-		blackdude_server = self.bot.get_guild(747195327530139759)
-		for emoji in blackdude_server.emojis:
-			await ctx.message.add_reaction(self.bot.get_emoji(emoji.id))
-
-	@commands.command()
-	async def penis(self, ctx, user:discord.User=None):
-		await ctx.trigger_typing()
-		user = ctx.author if not user else user
-		try:
-			await ctx.send(f"**{user.name}'s penis**:\n"+"8"+"="*penis_eqn(user.id)+"D")
-		except Exception as error: 
-			await ctx.send(tt.msg_e.format(error))
-
-	@commands.group()
-	@commands.guild_only()
-	async def penisrank(self, ctx, ranking:str = 'top'):
-		await ctx.trigger_typing()
-		ranking = ranking.lower()
-		self.penis_leaderboard = {}
-		if (ranking != 'top') and (ranking != 'bottom'):
-			raise(commands.UserInputError)
-			return
-		for user in ctx.guild.members:
-			self.penis_leaderboard[f"{user.name}"] = penis_eqn(user.id)
-		penis_leaderboard_num = 0
-		sort_reverse = True
-		if ranking == 'bottom':
-			sort_reverse = False
-		sorted_penis_leaderboard = sorted(self.penis_leaderboard.items(), key=lambda x: x[1], reverse=sort_reverse)[:10]
-		penis_leaderboard_msg = f"**list of this guilds {ranking} ranking penises:**\n"
-		for stupid in sorted_penis_leaderboard:
-			penis_leaderboard_num += 1
-			penis_leaderboard_msg += f"**{penis_leaderboard_num}. {stupid[0]}**: {stupid[1]}\n"
-		await ctx.send(penis_leaderboard_msg)
 
 	@commands.group(name = 'rhcooc')
 	@commands.guild_only()

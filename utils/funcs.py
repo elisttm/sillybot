@@ -65,5 +65,3 @@ class funcs():
 			with open(path, 'w') as outfile: 
 				json.dump(data, outfile)
 			print(f"[{tt._t()}] created file '{path}'")
-
-# 		========================

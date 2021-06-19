@@ -63,5 +63,3 @@ def is_in_guilds_check(message, guild_ids):
 	if message.guild.id in guild_ids:
 		return True
 	raise UnmatchedGuild()
-
-# 		========================

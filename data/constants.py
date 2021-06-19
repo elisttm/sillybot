@@ -9,10 +9,10 @@ import data.constants as tt
 # 		========================
 
 p = 't!'
-v = "1.16.1"
+v = "0"
 
 desc = 'a simple discord bot made by elisttm | t!help for commands'
-presence = discord.Game(f'{tt.p}help | v{tt.v}')
+presence = discord.Game(f'{tt.p}help')
 
 cogs = (
 	'cogmanager',
@@ -28,22 +28,14 @@ cogs = (
 )
 
 owner_id = 216635587837296651
-logs = 718646246482378782
+logs = 686638005083308126
 
 admins = (
-	owner_id,						# eli
-	217663207895072768, # fluffer
-	530937484218204172, # peter
-	376813566591762444, # regaul
-	462354301025779733, # grumm
-	#382648674263498752, # merms
-	319101801012133889, # sharpz
-	609059779805184001, # squidd
-
+	owner_id,
 )
 srv = {
 	"rhc": 695967253900034048,
-	"tmh": 379723217293803526,
+	"tmh": 822582352861593611,
 	"test": 439187286278537226,
 }
 
@@ -53,14 +45,14 @@ github = 'https://github.com/elisttm/trashbot'
 invite = 'https://discordapp.com/oauth2/authorize?client_id=439166087498825728&scope=bot&permissions=8'
 
 # trashbot website urls
-help_list = 'https://trashbot.elisttm.space/commands'
-tags_list = 'https://trashbot.elisttm.space/tags'
-rhcooc_list = 'https://trashbot.elisttm.space/rhcooc'
-names_list = 'https://trashbot.elisttm.space/names'
-settings_page = 'https://trashbot.elisttm.space/settings.txt'
+help_list = 'http://e.elisttm.space:42069/'
+tags_list = 'http://e.elisttm.space:42069/tags'
+rhcooc_list = 'http://e.elisttm.space:42069/rhcooc/'
+settings_page = 'http://e.elisttm.space:42069/settings.txt'
+cat_url = 'http://e.elisttm.space:7777'
 
 # database file paths
-db_ = 'data/db/'
+db_ = 'db/'
 blacklist_db = db_+'users/blacklist.json'
 reactions_db = db_+'reactions.json'
 reminders_db = db_+'reminders.json'
@@ -137,7 +129,7 @@ h = e['hourglass']+s
 
 loaded = {}
 
-load_ascii = "\n  ___/-\___    Online | v{}\n |---------|   {}#{} ({})\n  | | | | |  _                 _     _           _   \n  | | | | | | |_ _ __ __ _ ___| |__ | |__   ___ | |_ \n  | | | | | | __| '__/ _` / __| '_ \| '_ \ / _ \| __|\n  | | | | | | |_| | | (_| \__ \ | | | |_) | (_) | |_ \n  |_______|  \__|_|  \__,_|___/_| |_|_.__/ \___/ \__|\n"
+load_ascii = "\n  ___/-\___    Online\n |---------|   {}#{} ({})\n  | | | | |  _                 _     _           _   \n  | | | | | | |_ _ __ __ _ ___| |__ | |__   ___ | |_ \n  | | | | | | __| '__/ _` / __| '_ \| '_ \ / _ \| __|\n  | | | | | | |_| | | (_| \__ \ | | | |_) | (_) | |_ \n  |_______|  \__|_|  \__,_|___/_| |_|_.__/ \___/ \__|\n"
 
 msg_e = '⚠️ ⠀{}'
 

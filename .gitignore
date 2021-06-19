@@ -1,8 +1,5 @@
 ### MISC FILES ###
 TODO
-.env
-data/db/
-# data/**/*.json
 /node_modules/
 
 ### TEMPORARY FILES ###
