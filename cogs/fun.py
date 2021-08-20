@@ -1,15 +1,8 @@
-import discord
-import json
-import random
-import math
-import time, datetime
-import urllib, urllib.request
+import discord, json, random, datetime, urllib, urllib.request
 from discord.ext import commands
-from utils import checks
-from utils.funcs import funcs
-import data.constants as tt
-
-# 		========================
+from a import checks
+from a.funcs import funcs
+import a.constants as tt
 
 def urban_sanitize(text:str):
 	text = text.replace("\n", " ").replace("\r", " ").replace("[", "").replace("]", "").replace("`", "\`")
@@ -23,11 +16,25 @@ class fun(commands.Cog):
 		self.dump_db = funcs.dump_db
 		self.check_for_db = funcs.check_for_db
 		self.send_log = funcs.send_log
-		self.log_prefix = "[FUN]"
+
+		self.cat_json = None 
+		self.cat_dirs = None
+		if urllib.request.urlopen(tt.cat_url).getcode() == 200:
+			self.cat_json = json.loads(tt.get_url(tt.cat_url+'/api/all'))
+			self.cat_dirs = json.loads(tt.get_url(tt.cat_url+'/directories/'))
 		
 		self.rhcooc_list = self.load_db(tt.rhcooc_db)
-
-		self.penis_leaderboard = {}
+		
+	async def get_cat_url(self, cat_name:str):
+		if urllib.request.urlopen(tt.cat_url).getcode() != 200:
+			return None
+		if self.cat_json == None or self.cat_dirs == None:
+			self.cat_json = json.loads(tt.get_url(tt.cat_url+'/api/all'))
+			self.cat_dirs = json.loads(tt.get_url(tt.cat_url+'/directories/'))
+		if cat_name == '':
+			cat_name = random.choice(self.cat_dirs)
+		label = 'cat' + cat_name
+		return f'{tt.cat_url}/static/cat/{cat_name}/{self.smart_random(self.cat_json[cat_name], label)}'
 
 # 		========================
 
@@ -36,7 +43,7 @@ class fun(commands.Cog):
 		await ctx.trigger_typing()
 		try:
 			message = tt.sanitize(message)
-			await self.send_log(self, f"'{ctx.author}' in '{ctx.guild.name}' said '{message}'", self.log_prefix)
+			await self.send_log(self, f"'{ctx.author}' in '{ctx.guild.name}' said '{message}'")
 			await ctx.send(message)
 		except Exception as error: 
 			await ctx.send(tt.msg_e.format(error))
@@ -48,7 +55,7 @@ class fun(commands.Cog):
 		try:
 			message = tt.sanitize(message)
 			await channel.send(message)
-			await self.send_log(self, f"'{ctx.author}' echoed '{message}' from '{ctx.guild.name}' to '{channel}' ({channel.guild.name})", self.log_prefix)
+			await self.send_log(self, f"'{ctx.author}' echoed '{message}' from '{ctx.guild.name}' to '{channel}' ({channel.guild.name})")
 			await ctx.message.add_reaction(tt.e['check'])
 		except Exception as e: 
 			await ctx.send(tt.msg_e.format(e))
@@ -74,9 +81,31 @@ class fun(commands.Cog):
 		except Exception as error:
 			await ctx.send(tt.msg_e.format(error))
 
-	@commands.group(name = 'rhcooc')
+	@commands.command()
+	async def cat(self, ctx, cat_name:str = ''):
+		await ctx.trigger_typing()
+		cat_name = cat_name.lower()
+		try:
+			if (cat_name == 'list') or ((cat_name not in self.cat_dirs) and (cat_name != '')):
+				await ctx.send(tt.i+f"list of valid cat directories: {', '.join(self.cat_dirs)}")
+				return
+			cat_image = await self.get_cat_url(cat_name)
+			if cat_image is None:
+				await ctx.send(tt.w+'the cat api is currently offline!')
+			await ctx.send(cat_image)
+		except Exception as error: 
+			await ctx.send(tt.msg_e.format(error))
+
+	# i want it to be known this is the stupidest workaround i have ever made and the fact it works baffles me
+	@commands.command(aliases=[
+		'floppa', 'tommy', 'gloop', 'mish', 'spock', 'marley', 'lucas', 'nori', 'thomas', 'max', 'jim', 'gupitaro', 'mona', 'xena'
+		])
+	async def _cat_name(self, ctx):
+		await ctx.invoke(self.bot.get_command('cat'), cat_name=ctx.invoked_with)
+
+	@commands.group(name='rhcooc')
 	@commands.guild_only()
-	@checks.is_in_guilds([tt.srv['rhc'], tt.srv['test']])
+	@checks.is_in_guilds([tt.servers['rhc'], tt.servers['test']])
 	async def rhcooc(self, ctx):
 		await ctx.trigger_typing()
 		if ctx.invoked_subcommand is None:
@@ -85,7 +114,7 @@ class fun(commands.Cog):
 			except Exception as error:
 				await ctx.send(tt.msg_e.format(error))
 
-	@rhcooc.command(name = 'add')
+	@rhcooc.command(name='add')
 	@checks.is_admin()
 	async def rhcooc_add(self, ctx, *, rhcooc_url=None):
 		rhcooc_additions = []
@@ -103,22 +132,22 @@ class fun(commands.Cog):
 				self.rhcooc_list.append(url)
 			self.dump_db(tt.rhcooc_db, self.rhcooc_list)
 			await ctx.send(tt.y+f"added `{', '.join(rhcooc_additions)}` to rhcooc database!")
-			await self.send_log(self, f"'{ctx.author}' added '{', '.join(rhcooc_additions)}' to the rhcooc database", self.log_prefix)
+			await self.send_log(self, f"'{ctx.author}' added '{', '.join(rhcooc_additions)}' to the rhcooc database")
 		except Exception as error:
 			await ctx.send(tt.msg_e.format(error))
 
-	@rhcooc.command(name = 'remove')
+	@rhcooc.command(name='remove')
 	@checks.is_admin()
 	async def rhcooc_remove(self, ctx, rhcooc_url:str):
 		try:
 			self.rhcooc_list.remove(rhcooc_url)
 			self.dump_db(tt.rhcooc_db, self.rhcooc_list)
 			await ctx.send(tt.y+f"removed '{rhcooc_url}' from rhcooc database!")
-			await self.send_log(self, f"'{ctx.author}' removed '{rhcooc_url}' from the rhcooc database", self.log_prefix)
+			await self.send_log(self, f"'{ctx.author}' removed '{rhcooc_url}' from the rhcooc database")
 		except Exception as error:
 			await ctx.send(tt.msg_e.format(error))
 
-	@rhcooc.command(name = 'list')
+	@rhcooc.command(name='list')
 	async def rhcooc_listall(self, ctx):
 		rhcooc_list = self.load_db(tt.rhcooc_db)
 		rhcooc_num = 0

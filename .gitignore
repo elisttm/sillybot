@@ -1,11 +1,9 @@
-### MISC FILES ###
-TODO
-/node_modules/
+notes
+/db/
+.breakpoints
 
 ### TEMPORARY FILES ###
 **/__pycache__/
-**/*.log
-**/*.bak
 
 ### PACKAGER FILES ###
 package-lock.json

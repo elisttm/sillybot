@@ -1,27 +1,15 @@
-import discord
-import os
-import json
-import asyncio
-import re
-import time, datetime, pytz
-from pytz import timezone
+import discord, os, asyncio, re, datetime
 from discord.utils import get
-from discord.ext import commands, tasks
-from utils import checks
-from utils.funcs import funcs
-import data.constants as tt
-
-# 		========================
-
-#ban = {}
+from discord.ext import commands#, tasks
+from a import checks
+from a.funcs import funcs
+import a.configs as conf
+import a.constants as tt
 
 filetypes = ['.png','.jpg','.webp','.gif']
 r_sb_img = r'http(.*?){}'
 r_sb_tenor = r'https://tenor.com/view/(.*?)'
 
-t_reactions = [
-	'naemt',
-]
 s_reactions = {
 	'y/n': [tt.e['thumbsup'], tt.e['thumbsdown']],
 	'u/d': [tt.e['uparrow'], tt.e['downarrow']],
@@ -34,9 +22,6 @@ class events(commands.Cog):
 		self.dump_db = funcs.dump_db
 		self.check_for_db = funcs.check_for_db
 		self.send_log = funcs.send_log
-		self.log_prefix = "[EVENTS]"
-
-		self.toggleable_reactions_list = self.load_db(tt.reactions_db)
 
 	# 		========================
 
@@ -80,15 +65,15 @@ class events(commands.Cog):
 		return
 		
 	async def send_event_message(self, guild_data, user, event):
-		if (('channels' not in guild_data) or ('msgchannel' not in guild_data['channels'])) or (('messages' not in guild_data) or (event not in guild_data['messages'])):
+		if 'msgchannel' not in guild_data or event not in guild_data:
 			return
-		channel = self.bot.get_channel(guild_data['channels']['msgchannel'])
-		message = guild_data['messages'][event]
+		channel = self.bot.get_channel(guild_data['msgchannel'])
+		message = guild_data[event]
 		replacements = {
 			'[user]': f"{user.name}#{user.discriminator}",
 			'[@user]': user.mention,
 			'[user-name]': user.name,
-			'[user#]': str(user.discriminator),
+			'[user-disc]': str(user.discriminator),
 			'[user-id]': str(user.id),
 			'[server]': user.guild.name
 		}
@@ -103,8 +88,6 @@ class events(commands.Cog):
 			if s_reaction in message.content.lower():
 				for reaction in s_reactions[s_reaction]: 
 					await message.add_reaction(reaction)
-		if (self.toggleable_reactions_list['naemt'] == True) and (message.author.id == 338292198866944002) and (message.channel.id == 697587669051637760):
-			await message.add_reaction(tt.e['neutral'])
 
 	@commands.Cog.listener()
 	async def on_raw_reaction_add(self, payload):
@@ -114,8 +97,10 @@ class events(commands.Cog):
 		message = await channel.fetch_message(payload.message_id)
 		if (datetime.datetime.now()-message.created_at).days >= 7:
 			return
+		guild_data_path = tt.guild_data_path.format(str(message.guild.id))
+
+		# blackdude emoji spam lol
 		if (payload.emoji.is_custom_emoji()) and (payload.emoji.id == 747278013091282945) and (payload.member.id in tt.admins):
-			#await message.remove_reaction(payload.emoji, payload.member)
 			for emoji in self.bot.get_guild(747195327530139759).emojis:
 				if emoji == payload.emoji:
 					continue
@@ -124,18 +109,19 @@ class events(commands.Cog):
 					await asyncio.sleep(0.21)
 				except:
 					return
-		guild_data_path = tt.guild_data_path.format(str(message.guild.id))
+
+		# starboard
 		if payload.emoji.is_unicode_emoji() and os.path.exists(guild_data_path) and payload.emoji.name == '⭐':
 			reaction = get(message.reactions, emoji=payload.emoji.name)
 			reaction_count = reaction.count
 			starboardcount = 5
 			guild_data = self.load_db(guild_data_path)
-			if ('general' in guild_data) and ('starboardcount' in guild_data['general']):
-				starboardcount = int(guild_data['general']['starboardcount'])
+			if 'starboardchannel' not in guild_data:
+				return
+			if 'starboardcount' in guild_data:
+				starboardcount = int(guild_data['starboardcount'])
 			if reaction.count >= starboardcount:
-				if ('channels' not in guild_data) or ('starboard' not in guild_data['channels']):
-					return
-				starboard_channel = self.bot.get_channel(guild_data['channels']['starboard'])
+				starboard_channel = self.bot.get_channel(guild_data['starboardchannel'])
 				guild_starboard_path = tt.guild_starboard_path.format(str(message.guild.id))
 				self.check_for_db(guild_starboard_path)
 				starboard_data = self.load_db(guild_starboard_path)
@@ -145,6 +131,10 @@ class events(commands.Cog):
 				starboard_message = await starboard_channel.send(content=self.starboard_header(message, reaction_count), embed=self.starboard_embed(message))
 				starboard_data[str(message.id)] = starboard_message.id
 				self.dump_db(guild_starboard_path, starboard_data)
+
+		# rolemenus
+		
+			# insert code for rolemenu reactions here
 
 	@commands.Cog.listener()
 	async def on_raw_reaction_remove(self, payload):
@@ -163,11 +153,11 @@ class events(commands.Cog):
 			if (not os.path.exists(guild_starboard_path)) or (not os.path.exists(guild_starboard_path)):
 				return
 			guild_data = self.load_db(guild_data_path)
-			if ('channels' not in guild_data) or ('starboard' not in guild_data['channels']):
+			if 'starboardchannel' not in guild_data:
 				return
 			starboard_data = self.load_db(guild_starboard_path)
 			if str(payload.message_id) in starboard_data:
-				starboard_channel = self.bot.get_channel(guild_data['channels']['starboard'])
+				starboard_channel = self.bot.get_channel(guild_data['starboardchannel'])
 				await self.starboard_update(starboard_data, message, starboard_channel, reaction_count)
 				return
 	
@@ -181,9 +171,9 @@ class events(commands.Cog):
 		guild_data = self.load_db(guild_data_path)
 		await self.send_event_message(guild_data, user, 'joinmsg')
 		if user.guild.me.guild_permissions.manage_roles:
-			if ('roles' in guild_data) and ('defaultrole' in guild_data['roles']):
-				await user.add_roles(user.guild.get_role(guild_data['roles']['defaultrole']))
-			if ('general' in guild_data) and ('stickyroles' in guild_data['general']) and (guild_data['general']['stickyroles'] == 'enabled'):
+			if 'defaultrole' in guild_data:
+				await user.add_roles(user.guild.get_role(guild_data['defaultrole']))
+			if 'stickyroles' in guild_data and guild_data['stickyroles'] == True:
 				guild_stickyroles_path = tt.guild_stickyroles_path.format(str(user.guild.id))
 				if not os.path.exists(guild_stickyroles_path):
 					return
@@ -196,16 +186,6 @@ class events(commands.Cog):
 					except:
 						continue
 
-	#@commands.Cog.listener()
-	#async def on_member_ban(self, guild, user):
-	#	if user == self.bot.user:
-	#		return
-	#	guild_data_path = tt.guild_data_path.format(str(user.guild.id))
-	#	if not os.path.exists(guild_data_path):
-	#		return
-	#	guild_data = self.load_db(guild_data_path)
-	#	await self.send_event_message(guild_data, user, 'banmsg')		
-
 	@commands.Cog.listener()
 	async def on_member_remove(self, user):
 		if user == self.bot.user:
@@ -214,7 +194,7 @@ class events(commands.Cog):
 		if not os.path.exists(guild_data_path):
 			return
 		guild_data = self.load_db(guild_data_path)
-		if ('general' in guild_data) and ('stickyroles' in guild_data['general']) and (guild_data['general']['stickyroles'] == 'enabled'):
+		if 'stickyroles' in guild_data and guild_data['stickyroles'] == True:
 			guild_stickyroles_path = tt.guild_stickyroles_path.format(str(user.guild.id))
 			self.check_for_db(guild_stickyroles_path)
 			guild_stickyroles = self.load_db(guild_stickyroles_path)
@@ -226,18 +206,18 @@ class events(commands.Cog):
 
 	# 		========================
 
-	@commands.command()
-	@checks.is_admin()
-	async def togglereaction(self, ctx, name=None):
-		if (name == None) or (name not in t_reactions):
-			await ctx.send(str(self.toggleable_reactions_list))
-			return
-		if self.toggleable_reactions_list[name] == True: 
-			self.toggleable_reactions_list[name] = False 
-		else: 
-			self.toggleable_reactions_list[name] = True 
-		self.dump_db(tt.reactions_db, self.toggleable_reactions_list)
-		await ctx.message.add_reaction(tt.e['check'])
+	#@commands.command()
+	#@checks.is_admin()
+	#async def togglereaction(self, ctx, name=None):
+	#	if (name == None) or (name not in t_reactions):
+	#		await ctx.send(str(self.toggleable_reactions_list))
+	#		return
+	#	if self.toggleable_reactions_list[name] == True: 
+	#		self.toggleable_reactions_list[name] = False 
+	#	else: 
+	#		self.toggleable_reactions_list[name] = True 
+	#	self.dump_db(tt.reactions_db, self.toggleable_reactions_list)
+	#	await ctx.message.add_reaction(tt.e['check'])
 
 	# 		========================
 

@@ -1,9 +1,7 @@
 # trashbot
 
-trashbot is a simple discord.py bot with a multitude of features
+trashbot is a simple discord.py based bot with a variety of features
 
-more indepth information aswell as other important links can be found [here](https://elisttm.space/trashbot) on my website!
+more indepth information aswell as other important links can be found [on my website](https://elisttm.space/trashbot)!
 
 for questions, suggestions, bug reports or other concerns, please contact me!
-
-*also note: all database jsons and their derivatives are excluded from this repo!*
