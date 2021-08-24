@@ -152,7 +152,6 @@ class utilities(commands.Cog):
 		await ctx.trigger_typing()
 		try:
 			mn_users = mn_changed = 0; nickname = to_ = ''; mn_action = ['change','changing','changed']
-			
 			if len(param) > 32:
 				await ctx.send(tt.w+"too many characters! (nicknames have a max of 32)")
 				return
@@ -171,6 +170,8 @@ class utilities(commands.Cog):
 			guild_nicknames_path = tt.guild_nicknames_path.format(str(ctx.guild.id))
 			self.check_for_db(guild_nicknames_path)
 			nicknames_list = self.load_db(guild_nicknames_path)
+			if 'users' not in nicknames_list:
+				nicknames_list['users'] = {}
 			if param == 'revert':
 				if 'no_revert' in nicknames_list and nicknames_list['no_revert'] == True:
 					await ctx.send(tt.x+"unable to revert nicknames! (last massnick was a revert)")
@@ -181,13 +182,10 @@ class utilities(commands.Cog):
 				else:
 					nicknames_list['no_revert'] = True
 				mn_action = ['revert','reverting','reverted']
-			else:
-				nicknames_list['no_revert'] = False
-			if 'users' not in nicknames_list:
-				nicknames_list['users'] = {}
 			elif param == 'reset':
 				nickname = None
 				mn_action = ['reset','resetting','reset']
+				nicknames_list['no_revert'] = False
 			else:
 				nickname = param
 				nicknames_list = {'users':{},'lastnick':nickname,'no_revert':False}
