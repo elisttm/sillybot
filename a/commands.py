@@ -67,40 +67,40 @@ _c_ = {
 			'tag': [
 				'tag <subcommand> OR <tag>', "parent command to all the subcommands; putting a tag in place of a subcommand acts indentically to using the view subcommand", ['t']
 			],
-			'tag view': [
+			'view': [
 				'tag view <tag>', "provides the contents of the given tag"
 			],
-			'tag create': [
+			'create': [
 				'tag create <tag> <content>', "creates a tag with the given content if it doesn't already exist", ['c']
 			],
-			'tag delete': [
+			'delete': [
 				'tag delete <tag>', "deletes a tag that you own", ['d']
 			],
-			'tag edit': [
+			'edit': [
 				'tag edit <tag> <content>', "applies the provided content to a tag you own", ['e']
 			],
-			'tag transfer': [
+			'transfer': [
 				'tag transfer <tag> <user>', "transfers ownership of a tag you own to the given user", ['tr']
 			],
-			'tag owner': [
+			'owner': [
 				'tag owner <tag>', "tells who owns the provided tag"
 			],
-			'tag list': [
+			'list': [
 				'tag list <user>', "sends a list of tags owned by a given user", ['ls']
 			],
-			'tag listall': [
+			'listall': [
 				'tag listall', "sends a list of every public tag"
 			],
-			'tag random': [
+			'random': [
 				'tag random', "randomly chooses a tag from the database and sends its contents"
 			],
-			'tag forceedit': [
+			'forceedit': [
 				'tag forceedit <tag> <content>', "applies the provided content to the given tag regardless of ownership", ['fe'], perm_bot_admin
 			],
-			'tag forceremove': [
+			'forceremove': [
 				'tag forceremove <tag>', "deletes the given tag regardless of ownership", ['fr'], perm_bot_admin
 			],
-			'tag forcetransfer': [
+			'forcetransfer': [
 				'tag forcetransfer <tag> <user>', "transfers the given tag to the given user regardless of ownership", ['ft'], perm_bot_admin
 			],
 		},

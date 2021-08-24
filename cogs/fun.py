@@ -17,24 +17,25 @@ class fun(commands.Cog):
 		self.check_for_db = funcs.check_for_db
 		self.send_log = funcs.send_log
 
+		self.cat_url = 'http://e.elisttm.space:7777/'
 		self.cat_json = None 
 		self.cat_dirs = None
-		if urllib.request.urlopen(tt.cat_url).getcode() == 200:
-			self.cat_json = json.loads(tt.get_url(tt.cat_url+'/api/all'))
-			self.cat_dirs = json.loads(tt.get_url(tt.cat_url+'/directories/'))
+		if urllib.request.urlopen(self.cat_url).getcode() == 200:
+			self.cat_json = json.loads(tt.get_url(self.cat_url+'/api/all'))
+			self.cat_dirs = json.loads(tt.get_url(self.cat_url+'/directories/'))
 		
 		self.rhcooc_list = self.load_db(tt.rhcooc_db)
 		
 	async def get_cat_url(self, cat_name:str):
-		if urllib.request.urlopen(tt.cat_url).getcode() != 200:
+		if urllib.request.urlopen(self.cat_url).getcode() != 200:
 			return None
 		if self.cat_json == None or self.cat_dirs == None:
-			self.cat_json = json.loads(tt.get_url(tt.cat_url+'/api/all'))
-			self.cat_dirs = json.loads(tt.get_url(tt.cat_url+'/directories/'))
+			self.cat_json = json.loads(tt.get_url(self.cat_url+'/api/all'))
+			self.cat_dirs = json.loads(tt.get_url(self.cat_url+'/directories/'))
 		if cat_name == '':
 			cat_name = random.choice(self.cat_dirs)
 		label = 'cat' + cat_name
-		return f'{tt.cat_url}/static/cat/{cat_name}/{self.smart_random(self.cat_json[cat_name], label)}'
+		return f'{self.cat_url}/static/cat/{cat_name}/{self.smart_random(self.cat_json[cat_name], label)}'
 
 # 		========================
 

@@ -30,7 +30,7 @@ class customization(commands.Cog):
 				raise(commands.UserInputError)
 				return 
 			try:
-				e_settings = discord.Embed(title=f"click here to go to the configuration dashboard", url=tt.guild_config.format(str(ctx.guild.id)), description=f"these settings only affect this server\n", color=tt.clr['pink'])
+				e_settings = discord.Embed(title=f"click here for documentation on this command", url=tt.settings_doc, description=f"these settings only affect this server\n", color=tt.clr['pink'])
 				e_settings.set_author(name=f"trashbot settings", icon_url=tt.ico['cog'])
 				guild_data_path = tt.guild_data_path.format(str(ctx.guild.id))
 				guild_data = {}

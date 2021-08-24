@@ -21,34 +21,32 @@ class errors(commands.Cog):
 			return
 
 		if isinstance(error, commands.NoPrivateMessage):
-			try: 
-				await ctx.author.send(tt.m_err.disabled_in_dm)
-			except discord.Forbidden: 
-				pass
+			try: await ctx.author.send(tt.x+"that command only avaialable in servers!")
+			except discord.Forbidden: pass
 			return
 
 		if isinstance(error, checks.GuildCommandDisabled):
-			await ctx.send(tt.m_err.guild_command_disabled)
+			await ctx.send(tt.x+"that command is disabled in this server!")
 			return
 
 		if isinstance(error, checks.NoPermission):
-			await ctx.send(tt.m_err.no_permission)
+			await ctx.send( tt.x+"you do not have permission to use this command!")
 			return
 	
 		if isinstance(error, commands.BotMissingPermissions):
 			missing = [perm.replace('_',' ').replace('guild', 'server') for perm in error.missing_perms]
 			msg = f"`{tt.split_list(missing, 'and')}`"
-			await ctx.send(tt.m_err.no_permission_perms.format('i', msg))
+			await ctx.send(tt.x+f"i do not have the required permissions to use this command! ({msg})")
 			return
 
 		if isinstance(error, commands.MissingPermissions):
 			missing = [perm.replace('_',' ').replace('guild', 'server') for perm in error.missing_perms]
 			msg = f"`{tt.split_list(missing, 'and')}`"
-			await ctx.send(tt.m_err.no_permission_perms.format('you', msg))
+			await ctx.send(tt.x+f"you do not have the required permissions to use this command! ({msg})")
 			return
 
 		if isinstance(error, commands.CommandOnCooldown):
-			await ctx.send(tt.m_err.on_cooldown.format(math.ceil(error.retry_after)))
+			await ctx.send(tt.x+f"please wait `{math.ceil(error.retry_after)}s` before using this command again!")
 			return
 
 		if isinstance(error, commands.UserInputError):
@@ -62,11 +60,11 @@ class errors(commands.Cog):
 					command_usage = cmds._c_[ctg][1][invoked_command][0]
 			if command_usage != '':
 				command_usage = f'\n{tt.s}{tt.s}`({self.determine_prefix(self, ctx.message)}{command_usage})`'
-			await ctx.send(tt.m_err.invalid_params.format(command_usage))
+			await ctx.send(tt.w+f"invalid command parameter(s) provided! {command_usage}")
 			return
 
 		if isinstance(error, commands.CheckFailure):
-			await ctx.send(tt.m_err.no_permission)
+			await ctx.send(tt.x+"you do not have permission to use this command!")
 			return
 
 		print('Ignoring exception in command {}:'.format(ctx.command), file=sys.stderr)

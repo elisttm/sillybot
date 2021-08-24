@@ -21,12 +21,12 @@ github = 'https://github.com/elisttm/trashbot'
 invite = 'https://discordapp.com/oauth2/authorize?client_id=439166087498825728&scope=bot&permissions=8'
 
 # trashbot website urls
-cat_url = 'http://e.elisttm.space:7777/'
-site = 'https://trashbotwebsite.elisttm.repl.co/'
-localhost = 'http://e.elisttm.space:42069/'
+site = 'https://trashbot.elisttm.space/'
+local = 'http://e.elisttm.space:42069/'
 help_list = site+'commands'
 tags_list = site+'tags'
 rhcooc_list = site+'rhcooc'
+settings_doc = site+'settings'
 guild_config = site+''
 
 # database file paths
@@ -68,7 +68,7 @@ loaded = {}; error_guild_ids = []; smart_random_dict = {}
 markdown_characters = ['*','~','_','`','\\']
 whitespace_characters = [' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ','　']
 
-icod = localhost+'static/icons/'
+icod = local+'static/icons/'
 ico = {'info':icod+'info.png', 'cog':icod+'cog.png', 'warn':icod+'warn.png', 'deny':icod+'deny.png', 'good':icod+'check.png', 'empty':icod+'empty.png',}
 clr = {'pink':0xff78d3, 'red':0xff0000, 'blue':0x0000ff, 'green':0x00ff00, 'yellow':0xffac33,}
 e = {
@@ -79,15 +79,5 @@ e = {
 
 load_ascii = "\n  ___/-\___    Online\n |---------|   {}#{} ({})\n  | | | | |  _                 _     _           _   \n  | | | | | | |_ _ __ __ _ ___| |__ | |__   ___ | |_ \n  | | | | | | __| '__/ _` / __| '_ \| '_ \ / _ \| __|\n  | | | | | | |_| | | (_| \__ \ | | | |_) | (_) | |_ \n  |_______|  \__|_|  \__,_|___/_| |_|_.__/ \___/ \__|\n"
 
-# error message stuff
-
 s=" ⠀"; y=e['check']+s; w=e['warn']+s; x=e['x']+s; i=e['info']+s; h=e['hourglass']+s
 msg_e = w+'{}'
-
-class m_err(): # errors
-	no_permission = x+"you do not have permission to use this command!"
-	no_permission_perms = x+"{} need the permissions {} to use this command!"
-	on_cooldown = x+"please wait `{}s` before using this command again!"
-	invalid_params = w+"invalid command parameter(s) provided! {}"
-	disabled_in_dm = x+"that command only avaialable in servers!"
-	guild_command_disabled = x+"that command is disabled in this server!"

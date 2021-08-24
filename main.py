@@ -5,12 +5,6 @@ import a.commands as cmds
 import a.configs as conf
 import a.constants as tt
 
-for file in os.listdir('db/guilds'):
-	if not os.path.isfile(f'db/guilds/{file}'):
-		continue
-	if '.json' in file:
-		os.rename(f'db/guilds/{file}', f'db/guilds/config/{file}')
-
 intents = discord.Intents.default()
 intents.members = True
 intents.typing = False
@@ -29,7 +23,7 @@ ctx = commands.Context
 async def send_log(log:str):
 	log_msg = f"[{tt._t()}] {log}"
 	print(log_msg)
-	await bot.get_channel(tt.channels['logs']).send(f"```{log_msg}```")
+	await bot.get_channel(tt.channels['logs']).send(f"{log_msg}")
 
 # 		========================
 
@@ -59,7 +53,7 @@ async def on_ready():
 	print(tt.load_ascii.format(bot.user.name, bot.user.discriminator, bot.user.id))	
 
 	await bot.change_presence(status=discord.Status.online, activity=tt.presence)
-	await bot.get_channel(tt.channels['logs']).send(f"```{startup_ready}```")
+	await bot.get_channel(tt.channels['logs']).send(f"{startup_ready}")
 
 @bot.check_once
 def blacklist(ctx):
@@ -82,8 +76,14 @@ logging.getLogger('werkzeug').disabled = True
 os.environ['WERKZEUG_RUN_MAIN'] = 'true'
 
 @app.route('/')
-def index(): 
-	return 'meow'
+def index(): return 'meow'
+
+@app.route('/api/botguilds')
+def botguilds():
+	bot_guilds = []
+	for guild in bot.guilds:
+		bot_guilds.append(guild.id)
+	return flask.jsonify(bot_guilds)
 
 @app.route('/api/guilds')
 def db_guildlist(): return flask.jsonify(os.listdir(tt.db_+'/guilds/config'))	
@@ -106,4 +106,4 @@ if __name__ == '__main__':
 	def run(): app.run(host="0.0.0.0", port=42069)
 	server = threading.Thread(target=run)
 	server.start()
-	bot.run(os.environ['TOKEN'])
+	#bot.run(os.environ['TOKEN'])

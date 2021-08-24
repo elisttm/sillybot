@@ -10,7 +10,7 @@ class funcs():
 			prefix += ' '
 		log_msg = f"[{tt._t()}] {prefix}{log}"
 		print(log_msg)
-		await self.bot.get_channel(tt.channels['logs']).send(f"```{log_msg.replace('`', '<')}```")
+		await self.bot.get_channel(tt.channels['logs']).send(f"{log_msg.replace('`', '<')}")
 
 	def determine_prefix(self, message):
 		try:

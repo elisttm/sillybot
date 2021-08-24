@@ -35,7 +35,7 @@ class events(commands.Cog):
 		e_sb = discord.Embed(description=message.content, color=tt.clr['yellow'])
 		e_sb.set_author(name=f"{message.author.name}#{message.author.discriminator}", icon_url=message.author.avatar_url)
 		e_sb.set_footer(text=f"{message.id} ⠀| ⠀{message.created_at.strftime(tt.time0)} UDT")
-		e_sb.add_field(name="jump to message", value=f"[click here]({message.jump_url})")
+		e_sb.add_field(name="\u200b", value=f"[jump to message]({message.jump_url})")
 		if len(message.attachments) > 0:
 			e_sb.set_image(url=message.attachments[0].url)
 		else:
@@ -180,11 +180,16 @@ class events(commands.Cog):
 				guild_stickyroles = self.load_db(guild_stickyroles_path)
 				if str(user.id) not in guild_stickyroles:
 					return
+				addroles = []
+				bot_toprole = user.guild.get_member(self.bot.user.id).top_role.position
 				for role_id in guild_stickyroles[str(user.id)]:
-					try:
-						await user.add_roles(user.guild.get_role(role_id))
-					except:
+					if user.guild.get_role(role_id).position >= bot_toprole:
 						continue
+					addroles.append(user.guild.get_role(role_id))
+				try:
+					await self.bot.add_roles(user, *addroles)
+				except:
+					pass
 
 	@commands.Cog.listener()
 	async def on_member_remove(self, user):
@@ -203,21 +208,6 @@ class events(commands.Cog):
 				guild_stickyroles[str(user.id)].append(role.id)
 			self.dump_db(guild_stickyroles_path, guild_stickyroles)
 		await self.send_event_message(guild_data, user, 'leavemsg')		
-
-	# 		========================
-
-	#@commands.command()
-	#@checks.is_admin()
-	#async def togglereaction(self, ctx, name=None):
-	#	if (name == None) or (name not in t_reactions):
-	#		await ctx.send(str(self.toggleable_reactions_list))
-	#		return
-	#	if self.toggleable_reactions_list[name] == True: 
-	#		self.toggleable_reactions_list[name] = False 
-	#	else: 
-	#		self.toggleable_reactions_list[name] = True 
-	#	self.dump_db(tt.reactions_db, self.toggleable_reactions_list)
-	#	await ctx.message.add_reaction(tt.e['check'])
 
 	# 		========================
 
