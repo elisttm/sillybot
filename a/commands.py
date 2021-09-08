@@ -1,4 +1,4 @@
-# variables used for the help command and error handler
+# variables for the help command + error handler
 
 perm_server_admin = "server admins only"
 perm_bot_admin = "bot admins only"
@@ -54,6 +54,9 @@ _c_ = {
 			],
 			'urban': [
 				'urban <word>', "sends the urban dictionary definition of the given word"
+			],
+			'roll': [
+				'roll', "pretends to roll a 6 sided die and provides the outcome",
 			],
 			'cat': [
 				'cat <cat> OR [list]', "sends a random cat picture; you can use a folder as a subcommand to pick from it and use the 'list' subcommand to list folders"

@@ -1,83 +1,105 @@
-import discord, time, datetime, urllib, urllib.request
-from pytz import timezone
-import a.constants as tt
+import discord, os, time, pymongo, emoji
+
+testing = False
 
 p = 't!'
-desc = 'a simple discord bot by @elisttm'
-#presence = discord.Game('currently testing a ton of changes! please excuse any bugs and errors')
-presence = discord.Activity(type=discord.ActivityType.listening, name=f'{tt.p}help')
+admins = (
+	216635587837296651,
+)
+cogs = (
+	'admin', 
+	'errors', 
+	'events', 
+	'customization', 
+	'utilities',  
+	'tags',
+	'fun',
+)
+cogs = ()
+loaded = []
+servers = {
+	'tmh': 822582352861593611, 
+	'test': 439187286278537226,
+}
+channels = {
+	'logs': 686638005083308126
+}
 
-cogs = ('admin', 'errors', 'events', 'customization', 'utilities', 'fun', 'tags',)
+mongo = pymongo.MongoClient(os.environ['mongo'])
+db = mongo['trashbot']
+yeah = db['yeah']
+config = db['config']
+storage = db['storage']
 
-owner_id = 216635587837296651
-admins = (owner_id,)
+blacklist_list = yeah.find_one({'_id':'misc'},{'_id':0})['blacklist']
 
-servers = {'rhc':695967253900034048, 'tmh':822582352861593611, 'test':439187286278537226,}
-channels = {'logs':686638005083308126}
+error = 'misc/error.txt'
+log = 'misc/log.txt'
 
-# important bot urls
-website = 'https://elisttm.space/trashbot'
+infosite = 'https://elisttm.space/trashbot'
 github = 'https://github.com/elisttm/trashbot'
 invite = 'https://discordapp.com/oauth2/authorize?client_id=439166087498825728&scope=bot&permissions=8'
 
-# trashbot website urls
 site = 'https://trashbot.elisttm.space/'
 local = 'http://e.elisttm.space:42069/'
 help_list = site+'commands'
 tags_list = site+'tags'
-rhcooc_list = site+'rhcooc'
-settings_doc = site+'settings'
-guild_config = site+''
+settings_doc = site+'docs/settings'
+guild_config = site+'/'
 
-# database file paths
-db_ = 'db/'
-blacklist_db = db_+'blacklist.json'
-reminders_db = db_+'reminders.json'
-rhcooc_db = db_+'rhcooc.json'
-tags_db = db_+'tags.json'
+statuses = {
+	'online': discord.Status.online,
+	'idle': discord.Status.idle,
+	'dnd': discord.Status.dnd,
+	'invis': discord.Status.invisible,
+}
 
-guild_data_path = db_+'guilds/config/{}.json'
-guild_nicknames_path = db_+'guilds/nicknames/{}.json'
-guild_stickyroles_path = db_+'guilds/stickyroles/{}.json'
-guild_starboard_path = db_+'guilds/starboard/{}.json'
-
-# time formats n other time stuff
-time0 = '%m/%d/%y %I:%M:%S %p'	# 01/31/20 12:34:56 PM
-time1 = '%H:%M:%S'						  # 12:34:56
-time2 = '%I:%M:%S %p'					  # 12:34:56 PM
-time3 = '%m/%d/%y' 							# 01/31/20
-
+ti = [
+	'%m/%d/%y %I:%M:%S %p',	# 02/10/21 2:30:15 PM
+	'%y%m%d%H%M%S',					# 210210263015
+	'%I:%M:%S %p',					# 2:30:15 PM
+	'%m/%d/%y', 						# 02/10/21
+]
 start_time = time.time()
-def uptime(): return str(datetime.timedelta(seconds=int(round(time.time() - start_time))))
-def curtime(): return datetime.datetime.now(timezone('US/Eastern')).strftime(tt.time0)
-def _t(): return datetime.datetime.now(timezone('US/Eastern')).strftime(tt.time0)
+log_time = ''
 
-# misc functions
-def get_url(url:str): return urllib.request.urlopen(url).read().decode('utf8')
-
-def sanitize(text: str): return text.replace('@here', '@\u200bhere').replace('@everyone', '@\u200beveryone')
-
-def split_list(_list, and_or='and'):
-	if len(_list) > 2: msg = f"{', '.join(_list[:-1])}, {and_or} {_list[-1]}"
-	else: msg = f" {and_or} ".join(_list)
-	return msg
-
-loaded = {}; error_guild_ids = []; smart_random_dict = {}
-
-# message formatting stuff
 markdown_characters = ['*','~','_','`','\\']
 whitespace_characters = [' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ','　']
 
-icod = local+'static/icons/'
-ico = {'info':icod+'info.png', 'cog':icod+'cog.png', 'warn':icod+'warn.png', 'deny':icod+'deny.png', 'good':icod+'check.png', 'empty':icod+'empty.png',}
-clr = {'pink':0xff78d3, 'red':0xff0000, 'blue':0x0000ff, 'green':0x00ff00, 'yellow':0xffac33,}
-e = {
-	'check':'✅', 'x': '❌', 'warn':'⚠️', 'info':'ℹ️',
-	'thumbsup':'👍', 'thumbsdown':'👎', 'uparrow':'🔼', 'downarrow':'🔽',
-	'hourglass':'⌛', 'dice':'🎲', 'neutral':'😐',
+_ic = 'https://elisttm.space/static/images/trashbot/icons/'
+ico = {
+	'info': _ic+'info.png', 
+	'cog': _ic+'cog.png', 
+	'warn': _ic+'warn.png', 
+	'deny': _ic+'deny.png', 
+	'good': _ic+'check.png', 
+	'empty': _ic+'empty.png',
+}
+clr = {
+	'pink': 0xff78d3, 
+	'red': 0xff0000, 
+	'blue': 0x0000ff, 
+	'green': 0x00ff00, 
+	'yellow': 0xffac33,
 }
 
-load_ascii = "\n  ___/-\___    Online\n |---------|   {}#{} ({})\n  | | | | |  _                 _     _           _   \n  | | | | | | |_ _ __ __ _ ___| |__ | |__   ___ | |_ \n  | | | | | | __| '__/ _` / __| '_ \| '_ \ / _ \| __|\n  | | | | | | |_| | | (_| \__ \ | | | |_) | (_) | |_ \n  |_______|  \__|_|  \__,_|___/_| |_|_.__/ \___/ \__|\n"
-
-s=" ⠀"; y=e['check']+s; w=e['warn']+s; x=e['x']+s; i=e['info']+s; h=e['hourglass']+s
-msg_e = w+'{}'
+# http://www.unicode.org/emoji/charts/full-emoji-list.html
+e = {
+	'check': 'check mark button', 
+	'x': 'cross mark', 
+	'warn': 'warning', 
+	'info': 'information',
+	'thumbsup': 'thumbsup',
+	'thumbsdown': 'thumbsdown',
+	'uparrow': 'upwards button',
+	'downarrow': 'downwards button',
+	'hourglass': 'hourglass not done', 
+	'dice': 'game die', 
+}
+for em in e: e[em] = emoji.emojize(f":{e[em].replace(' ','_')}:")
+s=" "
+y=e['check']+s
+w=e['warn']+s
+x=e['x']+s
+i=e['info']+s
+h=e['hourglass']+s

@@ -1,4 +1,31 @@
-# variables used for configuration settings
+import a.commands as cmds
+
+# variables for server configuration settings
+
+disable_commands = ['tags',]
+for category in ['utilities','fun']: 
+	disable_commands.extend(cmds._c_[category])
+
+actions = {
+	'value': ['set', 'reset'],
+	'toggle': ['enable', 'disable'],
+	'list': ['add', 'remove'],
+}
+
+all_actions = []
+all_actions.extend(actions['value'])
+all_actions.extend(actions['toggle'])
+all_actions.extend(actions['list'])
+
+value_types = ['text','number','channel','role']
+
+key_groups = {
+	"basic": [],
+	"commands": [],
+	"roles": [],
+	"messages": [],
+	"starboard": [],
+}
 
 keys = {
 
@@ -19,7 +46,18 @@ keys = {
 		"default": True, 
 		"c": {
 			"name": "global tags",
-			"desc": "sets whether or not global tags can be used",
+			"desc": "toggles if the tag command can be used",
+		},
+	},
+
+	"disable": {
+		"group": "commands",
+		"type": "list",
+		"default": None,
+		"valid": disable_commands,
+		"c": {
+			"name": "disabled commands",
+			"desc": "disables commands added to the list",
 		},
 	},
 	
@@ -29,7 +67,7 @@ keys = {
 		"default": None, 
 		"c": {
 			"name": "message channel",
-			"desc": "sets the channel that welcome/farewell messages get sent to",
+			"desc": "channel where welcome/farewell messages are sent to",
 		},
 	},
 			
@@ -39,7 +77,7 @@ keys = {
 		"default": None, 
 		"c": {
 			"name": "greeting message",
-			"desc": "sets the message that gets sent when a user joins the server",
+			"desc": "the message that gets sent when a user joins the server",
 			"maxlength": "50", "size": "25",
 		},
 	},
@@ -50,7 +88,7 @@ keys = {
 		"default": None, 
 		"c": {
 			"name": "farewell message",
-			"desc": "sets the message that gets sent when a user joins the server",
+			"desc": "the message that gets sent when a user joins the server",
 			"maxlength": "50", "size": "25",
 		},
 	},
@@ -61,7 +99,7 @@ keys = {
 		"default": None, 
 		"c": {
 			"name": "default role",
-			"desc": "sets the role that is assigned to people on join",
+			"desc": "the role to assign to users when they join",
 		},
 	},
 
@@ -75,23 +113,23 @@ keys = {
 		},
 	},
 	
-	"starboardchannel": {
+	"starboard": {
 		"group": "starboard",
 		"type": "channel",
 		"default": None, 
 		"c": {
 			"name": "starboard channel",
-			"desc": "sets the channel used for starboard",
+			"desc": "the channel used for the starboard",
 		},
 	},
 	
 	"starboardcount": {
 		"group": "starboard",
-		"default": 5, 
 		"type": "number", 
+		"default": 5, 
 		"c": {
 			"name": "starboard reaction number",
-			"desc": "sets the number of reactions for the starboard",
+			"desc": "the number of reactions for the starboard",
 			"max": 10,
 		},
 	},
@@ -101,19 +139,6 @@ default_settings = {}
 for key in keys:
 	default_settings[key] = keys[key]['default']
 
-key_groups = {
-	"basic": [],
-	"commands": [],
-	"roles": [],
-	"messages": [],
-	"starboard": [],
-}
-
 for key in keys:
 	keyg = keys[key]['group']
 	key_groups[keyg].append(key)
-
-actions = []
-value_actions = ['set', 'reset']
-toggle_actions = ['enable', 'disable']
-actions.extend(value_actions);actions.extend(toggle_actions)

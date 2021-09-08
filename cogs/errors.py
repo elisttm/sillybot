@@ -1,14 +1,16 @@
-import discord, os, sys, math, traceback
+import discord, math, traceback
 from discord.ext import commands
 from a import checks
-from a.funcs import funcs
+from a.funcs import f
 import a.commands as cmds
 import a.constants as tt
 
 class errors(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot
-		self.determine_prefix = funcs.determine_prefix
+
+	def format_perms(error):
+		return f.split_list([perm.replace('_',' ').replace('guild', 'server') for perm in error.missing_perms],'and','`')
 
 	@commands.Cog.listener()
 	async def on_command_error(self, ctx, error):
@@ -21,12 +23,14 @@ class errors(commands.Cog):
 			return
 
 		if isinstance(error, commands.NoPrivateMessage):
-			try: await ctx.author.send(tt.x+"that command only avaialable in servers!")
-			except discord.Forbidden: pass
+			try: 
+				await ctx.author.send(tt.x+"this command cannot be used in dms!")
+			except discord.Forbidden: 
+				pass
 			return
 
 		if isinstance(error, checks.GuildCommandDisabled):
-			await ctx.send(tt.x+"that command is disabled in this server!")
+			await ctx.send(tt.x+"this command is disabled in this server!")
 			return
 
 		if isinstance(error, checks.NoPermission):
@@ -34,41 +38,45 @@ class errors(commands.Cog):
 			return
 	
 		if isinstance(error, commands.BotMissingPermissions):
-			missing = [perm.replace('_',' ').replace('guild', 'server') for perm in error.missing_perms]
-			msg = f"`{tt.split_list(missing, 'and')}`"
-			await ctx.send(tt.x+f"i do not have the required permissions to use this command! ({msg})")
+			await ctx.send(tt.x+f"i am missing required permissions for this command! ({self.format_perms(error)})")
 			return
 
 		if isinstance(error, commands.MissingPermissions):
-			missing = [perm.replace('_',' ').replace('guild', 'server') for perm in error.missing_perms]
-			msg = f"`{tt.split_list(missing, 'and')}`"
-			await ctx.send(tt.x+f"you do not have the required permissions to use this command! ({msg})")
+			await ctx.send(tt.x+f"you are missing required permissions for this command! ({self.format_perms(error)})")
 			return
 
 		if isinstance(error, commands.CommandOnCooldown):
-			await ctx.send(tt.x+f"please wait `{math.ceil(error.retry_after)}s` before using this command again!")
+			s = math.ceil(error.retry_after); m=h=0
+			_time_ = f"{s}s"
+			if s > 60:
+				m, s = divmod(s, 60)
+				_time_ = f"{m}m {s}s"
+			if m > 60:
+				h, m = divmod(m, 60)
+				_time_ = f"{h}h {m}m {s}s"
+			await ctx.send(tt.e['hourglass']+tt.s+f"please wait `{_time_}` before using this command again!")
 			return
 
 		if isinstance(error, commands.UserInputError):
 			ctx.command.reset_cooldown(ctx)
-			command_usage = ''
-			invoked_command = ctx.command.name
+			usage = ''
+			command = ctx.command.name
 			if ctx.invoked_subcommand is not None:
-				invoked_command = ctx.invoked_subcommand.name
+				command = ctx.invoked_subcommand.name
 			for ctg in cmds._c_:
-				if invoked_command in cmds._c_[ctg][1]:
-					command_usage = cmds._c_[ctg][1][invoked_command][0]
-			if command_usage != '':
-				command_usage = f'\n{tt.s}{tt.s}`({self.determine_prefix(self, ctx.message)}{command_usage})`'
-			await ctx.send(tt.w+f"invalid command parameter(s) provided! {command_usage}")
+				if command in cmds._c_[ctg][1]:
+					usage = cmds._c_[ctg][1][command][0]
+			if usage != '':
+				usage = f'\n{tt.s}{tt.s}`({f.determine_prefix(self, ctx.message)}{usage})`'
+			await ctx.send(tt.w+f"invalid command parameters provided! {usage}")
 			return
 
 		if isinstance(error, commands.CheckFailure):
 			await ctx.send(tt.x+"you do not have permission to use this command!")
 			return
 
-		print('Ignoring exception in command {}:'.format(ctx.command), file=sys.stderr)
-		traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
+		f.log(f"Ignoring exception in command '{ctx.command}':\n"+''.join(traceback.format_exception(type(error), error, error.__traceback__)), False, [tt.error,'w'])
+		await ctx.send(tt.w+"i ran into an error running this command! the full error log is attached, feel free to report it!", file=discord.File(tt.error))
 		
 def setup(bot):
 	bot.add_cog(errors(bot))

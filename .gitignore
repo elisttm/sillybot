@@ -1,12 +1,6 @@
 notes
-/db/
-.breakpoints
-
-### TEMPORARY FILES ###
+/misc/
 **/__pycache__/
-
-### PACKAGER FILES ###
-package-lock.json
+.breakpoints
 poetry.lock
 pyproject.toml
-requirements.txt
