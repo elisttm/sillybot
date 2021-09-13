@@ -98,7 +98,7 @@ class customization(commands.Cog):
 				await ctx.send(tt.y+f"set the {conf.keys[key]['c']['name']} to '{_value[1]}'")
 				return
 			elif action == 'reset' and key in data:
-				f.data_remove(tt.config, ctx.guild.id, key)
+				f.data_update(tt.tags, ctx.guild.id, key, None, 'unset')
 				await ctx.send(tt.y+f"reset the {conf.keys[key]['c']['name']} to default!")
 			else:
 				await ctx.send(tt.x+f"the {conf.keys[key]['c']['name']} is already set to the default value!")

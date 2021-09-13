@@ -48,14 +48,14 @@ class utilities(commands.Cog):
 		user = ctx.author if not user else user; extra_info = ''
 		if user in ctx.guild.members:
 			user = ctx.guild.get_member(user.id)
-			extra_info += f"**joined**: __{user.joined_at.strftime(tt.ti.yeah)}__ ({f.timediff(datetime.datetime.now(), user.joined_at, 2)})\n**top role**: {user.top_role} {'(owner)' if ctx.guild.owner == user else ''}{'(admin)' if user.guild_permissions.administrator and ctx.guild.owner != user else ''}\n\n"
+			extra_info += f"**joined**: __{user.joined_at.strftime(tt.ti.swag)}__ ({f.timediff(datetime.datetime.now(), user.joined_at, 2)})\n**top role**: {user.top_role} {'(owner)' if ctx.guild.owner == user else ''}{'(admin)' if user.guild_permissions.administrator and ctx.guild.owner != user else ''}\n\n"
 		if user.id == tt.admins[0]: 
 			extra_info += '\n`trashbot owner`'
 		if user.id in tt.admins: 
 			extra_info += '\n`trashbot admin`'
 		if user.id in tt.blacklist_list: 
 			extra_info += '\n`trashbot blacklisted`'
-		e_user = discord.Embed(title=f"{user} {'('+{user.nick}+')' if user.nick != None and user in ctx.guild.members else ''} {'[BOT]' if user.bot else ''}", description=f"`{user.id}`\n**created**: __{user.created_at.strftime(tt.ti.yeah)}__ ({f.timediff(datetime.datetime.now(), user.created_at, 2)})\n{extra_info}", color=user.color)
+		e_user = discord.Embed(title=f"{user} {'('+{user.nick}+')' if user.nick != None and user in ctx.guild.members else ''} {'[BOT]' if user.bot else ''}", description=f"`{user.id}`\n**created**: __{user.created_at.strftime(tt.ti.swag)}__ ({f.timediff(datetime.datetime.now(), user.created_at, 2)})\n{extra_info}", color=user.color)
 		e_user.set_thumbnail(url=user.avatar_url)
 		await ctx.send(embed=e_user)
 
@@ -77,7 +77,7 @@ class utilities(commands.Cog):
 		if guild.premium_subscription_count > 0: 
 			extra_stats += f"**boosts**: {guild.premium_subscription_count} {'('+len(guild.premium_subscribers)+' boosters)' if len(guild.premium_subscribers) != guild.premium_subscription_count else ''} (level {guild.premium_tier})\n"
 		channels = (f'{len(guild.text_channels)} text' if len(guild.text_channels) > 0 else '')+(', ' if len(guild.text_channels) > 0 and len(guild.voice_channels) > 0 else '')+(f'{len(guild.voice_channels)} voice' if len(guild.voice_channels) > 0 else '')
-		e_server = discord.Embed(title=f"{guild.name}", description=f"`{guild.id}`\n**owner**: {guild.owner}\n**created**: __{guild.created_at.strftime(tt.ti.yeah)}__ ({f.timediff(datetime.datetime.now(), guild.created_at, 3)})\n**members**: {len(guild.members)}\n**channels**: {channels}\n{extra_stats}", color=(f.avgcolor(await guild.icon_url.read())))
+		e_server = discord.Embed(title=f"{guild.name}", description=f"`{guild.id}`\n**owner**: {guild.owner}\n**created**: __{guild.created_at.strftime(tt.ti.swag)}__ ({f.timediff(datetime.datetime.now(), guild.created_at, 3)})\n**members**: {len(guild.members)}\n**channels**: {channels}\n{extra_stats}", color=(f.avgcolor(await guild.icon_url.read())))
 		e_server.set_thumbnail(url=guild.icon_url)
 		await ctx.send(embed=e_server)
 

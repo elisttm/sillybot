@@ -100,7 +100,7 @@ class tags(commands.Cog):
 		if not await self.tag_check(tag, tag_list, ctx.command.name, ctx.channel, ctx.message.author.id):
 			return
 		del tag_list[tag]
-		f.data_remove(tt.tags, 'tags', tag)
+		f.data_update(tt.tags, 'tags', tag, None, 'unset')
 		await ctx.send(tt.y+f"deleted the tag \"{tag}\"!")
 		f.log(f"{ctx.author} deleted '{tag}'", '[TAGS]')
 
@@ -136,7 +136,7 @@ class tags(commands.Cog):
 		if not await self.tag_check(tag, tag_list, ctx.command.name, ctx.channel, ctx.message.author.id):
 			return
 		del tag_list[tag]
-		f.data_remove(tt.tags, 'tags', tag)
+		f.data_update(tt.tags, 'tags', tag, None, 'unset')
 		await ctx.send(tt.y+f"tag \"{tag}\" was forcefully deleted!")
 		f.log(f"{ctx.author} forcefully deleted '{tag}'", '[TAGS]')
 

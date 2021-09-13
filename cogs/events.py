@@ -27,7 +27,7 @@ class events(commands.Cog):
 	def starboard_embed(self, message):
 		e_sb = discord.Embed(description=message.content, color=tt.color.yellow)
 		e_sb.set_author(name=f"{message.author.name}#{message.author.discriminator}", icon_url=message.author.avatar_url)
-		e_sb.set_footer(text=f"{message.id} | {message.created_at.strftime(tt.ti.yeah)} UDT")
+		e_sb.set_footer(text=f"{message.id} | {message.created_at.strftime(tt.ti.swag)} UDT")
 		e_sb.add_field(name="source", value=f"[jump to message]({message.jump_url})")
 		if len(message.attachments) > 0:
 			for filetype in ['.png','.jpg','.webp','.gif']:
@@ -162,7 +162,7 @@ class events(commands.Cog):
 					if user.guild.get_role(role).position >= bot_toprole:
 						continue
 					addroles.append(user.guild.get_role(role))
-				f.data_remove(tt.storage, user.guild.id, 'stickyroles.'+str(user.id))
+				f.data_update(tt.tags, user.guild.id, 'stickyroles.'+str(user.id), None, 'unset')
 				try:
 					await self.bot.add_roles(user, *addroles)
 				except:

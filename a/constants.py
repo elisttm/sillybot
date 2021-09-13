@@ -50,10 +50,13 @@ whitespace_characters = [' ',' ',' ',' ',' ',' ',' ',' ',' ',' '
 
 class ti:
 	log = '%m/%d/%y %I:%M:%S %p'	# 02/10/21 2:30:15 PM
-	yeah = '%-m/%-d/%y @ %I:%M%P'	# 2/10/21 2:30pm
+	swag = '%-m/%-d/%y @ %I:%M%P'	# 2/10/21 2:30pm
 	data = '%y%m%d%H%M%S'					# 210210263015
 	hms = '%I:%M:%S %p'						# 2:30:15 PM
 	mdy = '%-m/%-d/%y'						# 2/10/21
+
+class tz:
+	est = pytz.timezone('US/Eastern')
 
 class icon:
 	_url_ = 'https://elisttm.space/static/images/trashbot/icons/'

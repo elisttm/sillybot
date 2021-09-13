@@ -1,4 +1,4 @@
-import os, json, random, urllib, urllib.request, datetime, pytz, tempfile
+import os, json, random, urllib, urllib.request, datetime, tempfile
 from dateutil.relativedelta import relativedelta
 from colorthief import ColorThief
 from io import BytesIO
@@ -26,8 +26,8 @@ class f():
 
 	def _t(format=tt.ti.log):
 		if not format:
-			return datetime.datetime.now(pytz.timezone('US/Eastern'))
-		return datetime.datetime.now(pytz.timezone('US/Eastern')).strftime(format)
+			return datetime.datetime.now(tt.tz.est)
+		return datetime.datetime.now(tt.tz.est).strftime(format)
 
 	def smart_random(_list, id:str):
 		if id not in smd:
@@ -132,21 +132,16 @@ class f():
 		return data
 
 	def data_update(db, id, key, value, action='set'):
-		if action == 'set':
+		if action == 'set' or action == 'unset':
 			if type(key) == list and len(key) > 1:
 				ukeyvals = {}
 				for i in range(len(key)):
 					ukeyvals[key[i]] = value[i]
-				udata = {"$set":ukeyvals}
+				udata = {"$"+action:ukeyvals}
 			else:
-				udata = {"$set":{key:value}}
-		if action in ['append','remove'] and type(value) != list:
-			value = [value]
+				udata = {"$"+action:{key:value}}
 		elif action == 'append': 
-			udata = {"$push":{key:{"$each":value}}}
+			udata = {"$push":{key:{"$each":[value] if type(value) != list else value}}}
 		elif action == 'remove': 
-			udata = {"$pull":{key:{"$in":value}}}
+			udata = {"$pull":{key:{"$in":[value] if type(value) != list else value}}}
 		db.update_one({'_id':id}, udata, upsert=True)
-
-	def data_remove(db, id, key):
-		db.update_one({'_id':id}, {"$unset":{key:{}}})

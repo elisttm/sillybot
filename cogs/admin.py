@@ -86,10 +86,10 @@ class admin(commands.Cog):
 				_count += 1; _list += f"  - {self.bot.get_user(id)} ({self.bot.get_user(id).id})\n"
 			await ctx.send(f"```blacklisted users [{_count}]:\n{_list}```")
 			return
-		if str(user.id) in tt.admins:
+		if user.id in tt.admins:
 			await ctx.send(tt.x+"bot admins cannot be blacklisted!")
 			return
-		if str(user.id) not in tt.blacklist_list:
+		if user.id not in tt.blacklist_list:
 			tt.blacklist_list.append(user.id)
 			f.data_update(tt.yeah, 'misc', 'blacklist', [user.id], 'append')
 			msg = [f"{user} has been blacklisted!",f"{ctx.author} blacklisted {user}"]
