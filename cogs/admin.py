@@ -13,9 +13,10 @@ class admin(commands.Cog):
 # 		========================
 	
 	@commands.command()
-	async def log(self, ctx):
-		# get current log file and send contents in file
-		return 
+	async def test(self, ctx, text=None):
+		#print(text)
+		#await ctx.message.add_reaction(tt.e.check)
+		return
 	
 	@commands.command()
 	async def admins(self, ctx):
@@ -25,22 +26,24 @@ class admin(commands.Cog):
 			user = self.bot.get_user(admin)
 			admin_num += 1
 			admin_list += f"{user} ({user.id})\n"; 
-		e_adm = discord.Embed(color=tt.clr['pink'])
+		e_adm = discord.Embed(color=tt.color.pink)
 		e_adm.add_field(name=f"admins [{admin_num}]", value=admin_list)
-		e_adm.set_author(name="list of trashbot's admins", icon_url=tt.ico['info'])
+		e_adm.set_author(name="list of trashbot's admins", icon_url=tt.icon.info)
 		await ctx.send(embed=e_adm)
 
 	@commands.command()
 	@checks.is_admin()
 	async def presence(self, ctx, *, presence:str):
-		_presence = presence.split(', ')
-		if len(_presence) == 1:
-			_activity = discord.Game(_presence[0])
-		if len(_presence) == 3:
-			_status = _presence[0]
-		await self.bot.change_presence(status=tt.statuses[_status], activity=_activity)
-		f.log(f"{ctx.author} set the presence to '{presence}'")
-		await ctx.message.add_reaction(tt.e['check'])
+		a = {'playing':discord.ActivityType.playing, 'listening':discord.ActivityType.listening, 'online':discord.Status.online, 'idle':discord.Status.idle, 'dnd':discord.Status.dnd, 'invis':discord.Status.invisible,}
+		_presence = presence.split(';')
+		x = [tt.p+'help','online', 'playing']
+		y = 0
+		for z in _presence:
+			x[y] = z
+			y += 1
+		await self.bot.change_presence(status=a[x[1]], activity=discord.Activity(type=a[x[2]],name=x[0]))
+		f.log(f"{ctx.author} set presence to {x[1]} {x[2]} '{x[0]}'")
+		await ctx.message.add_reaction(tt.e.check)
 
 	@commands.command()
 	@checks.is_admin()
@@ -49,35 +52,35 @@ class admin(commands.Cog):
 		for guild in self.bot.guilds: 
 			guilds_num += 1
 			guilds_list += f"{guilds_num}. {guild.id} - {guild.name} - {guild.owner}\n"
-		print(f"'{ctx.author}' called for the list of guilds ({guilds_num})\n{guilds_list}")
-		await ctx.message.add_reaction(tt.e['check'])
+		print(f"'list of guilds ({guilds_num})\n{guilds_list}")
+		await ctx.message.add_reaction(tt.e.check)
 
 	@commands.command()
 	@commands.is_owner()
 	async def leave(self, ctx):
 		f.log(f"{ctx.guild.author} removed trashbot from '{ctx.guild.name}'")
-		await ctx.message.add_reaction(tt.e['check'])
+		await ctx.message.add_reaction(tt.e.check)
 		await ctx.guild.leave()
 
 	@commands.command()
 	@commands.is_owner()
 	async def shutdown(self, ctx):
-		f.log(f"shutdown by '{ctx.author}'")
-		await ctx.message.add_reaction(tt.e['check'])
+		f.log(f"shutdown by {ctx.author}")
+		await ctx.message.add_reaction(tt.e.check)
 		await self.bot.logout()
 	
 	@commands.command()
 	@checks.is_admin()
 	async def restart(self, ctx):
-		f.log(f"restarted by '{ctx.author}'")
-		await ctx.message.add_reaction(tt.e['check'])
-		await os.execv(sys.executable, ['python'] + sys.argv)
+		f.log(f"restarted by {ctx.author}")
+		await ctx.message.add_reaction(tt.e.check)
+		await os.execv(sys.executable,['python']+sys.argv)
 
 	@commands.command()
 	@checks.is_admin()
 	async def blacklist(self, ctx, user: discord.User=None):
 		_list = ''; _count = 0
-		tt.blacklist_list = tt.yeah.find_one({'_id':'misc'},{'_id':0})['blacklist']
+		tt.blacklist_list = f.data(tt.yeah, 'misc', 'blacklist')['blacklist']
 		if user is None:
 			for id in tt.blacklist_list:
 				_count += 1; _list += f"  - {self.bot.get_user(id)} ({self.bot.get_user(id).id})\n"
@@ -106,11 +109,11 @@ class admin(commands.Cog):
 				cm_list_loaded += f"{cog}\n"
 			else:
 				cm_list_unloaded += f"{cog}\n"
-		e_cm = discord.Embed(color=tt.clr['pink'])
+		e_cm = discord.Embed(color=tt.color.pink)
 		e_cm.add_field(name=f"loaded cogs", value=cm_list_loaded)
 		if cm_list_unloaded != '':
 			e_cm.add_field(name=f"unloaded cogs", value=cm_list_unloaded)
-		e_cm.set_author(name="cog manager", icon_url=tt.ico['cog'])
+		e_cm.set_author(name="cog manager", icon_url=tt.icon.cog)
 		await ctx.send(embed=e_cm)
 
 	@commands.command()
@@ -120,7 +123,7 @@ class admin(commands.Cog):
 			self.bot.load_extension('cogs.'+cog)
 			tt.loaded.append(cog)
 			cm_msg = f"loaded '{cog}'"
-			await ctx.message.add_reaction(tt.e['check'])
+			await ctx.message.add_reaction(tt.e.check)
 		except commands.ExtensionNotFound:
 			await ctx.send(tt.w+f"'{cog}' is not a valid cog!")
 			return
@@ -139,7 +142,7 @@ class admin(commands.Cog):
 			self.bot.unload_extension('cogs.'+cog)
 			tt.loaded.remove(cog)
 			cm_msg = f"unloaded '{cog}'"
-			await ctx.message.add_reaction(tt.e['check'])
+			await ctx.message.add_reaction(tt.e.check)
 		except commands.ExtensionNotFound:
 			await ctx.send(tt.w+f"'{cog}' is not a valid cog!")
 			return
@@ -159,7 +162,7 @@ class admin(commands.Cog):
 				self.bot.reload_extension('cogs.' + cog)
 				if cog not in tt.loaded: tt.loaded.append(cog)
 				cm_msg = f"reloaded '{cog}'"
-				await ctx.message.add_reaction(tt.e['check'])
+				await ctx.message.add_reaction(tt.e.check)
 			except Exception as error:
 				if cog in tt.loaded: tt.loaded.remove(cog)
 				cm_msg = f"'{cog}' failed to reload [{error}]"

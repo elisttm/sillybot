@@ -1,10 +1,13 @@
-import discord, os, time, pymongo, emoji
+import os, pymongo, datetime, pytz, emoji
 
-testing = False
+testing = True
 
-p = 't!'
+token = os.environ['TOKEN']
+mongo = pymongo.MongoClient(os.environ['mongo'])
+p = 't!!'
+
 admins = (
-	216635587837296651,
+	216635587837296651, # eli
 )
 cogs = (
 	'admin', 
@@ -15,91 +18,80 @@ cogs = (
 	'tags',
 	'fun',
 )
-cogs = ()
 loaded = []
 servers = {
 	'tmh': 822582352861593611, 
 	'test': 439187286278537226,
 }
 channels = {
-	'logs': 686638005083308126
+	'log': 686638005083308126,
 }
 
-mongo = pymongo.MongoClient(os.environ['mongo'])
 db = mongo['trashbot']
-yeah = db['yeah']
 config = db['config']
 storage = db['storage']
+yeah = db['misc']
+tags = db['tags']
 
-blacklist_list = yeah.find_one({'_id':'misc'},{'_id':0})['blacklist']
+blacklist_list = yeah.find_one({'_id':'misc'},{'_id':0,'blacklist':1})['blacklist']
 
-error = 'misc/error.txt'
-log = 'misc/log.txt'
-
-infosite = 'https://elisttm.space/trashbot'
 github = 'https://github.com/elisttm/trashbot'
-invite = 'https://discordapp.com/oauth2/authorize?client_id=439166087498825728&scope=bot&permissions=8'
-
+infopage = 'https://elisttm.space/trashbot'
 site = 'https://trashbot.elisttm.space/'
-local = 'http://e.elisttm.space:42069/'
 help_list = site+'commands'
 tags_list = site+'tags'
 settings_doc = site+'docs/settings'
 guild_config = site+'/'
 
-statuses = {
-	'online': discord.Status.online,
-	'idle': discord.Status.idle,
-	'dnd': discord.Status.dnd,
-	'invis': discord.Status.invisible,
-}
-
-ti = [
-	'%m/%d/%y %I:%M:%S %p',	# 02/10/21 2:30:15 PM
-	'%y%m%d%H%M%S',					# 210210263015
-	'%I:%M:%S %p',					# 2:30:15 PM
-	'%m/%d/%y', 						# 02/10/21
-]
-start_time = time.time()
-log_time = ''
+start_time = datetime.datetime.now(pytz.timezone('US/Eastern'))
 
 markdown_characters = ['*','~','_','`','\\']
 whitespace_characters = [' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ','　']
 
-_ic = 'https://elisttm.space/static/images/trashbot/icons/'
-ico = {
-	'info': _ic+'info.png', 
-	'cog': _ic+'cog.png', 
-	'warn': _ic+'warn.png', 
-	'deny': _ic+'deny.png', 
-	'good': _ic+'check.png', 
-	'empty': _ic+'empty.png',
-}
-clr = {
-	'pink': 0xff78d3, 
-	'red': 0xff0000, 
-	'blue': 0x0000ff, 
-	'green': 0x00ff00, 
-	'yellow': 0xffac33,
-}
+class ti:
+	log = '%m/%d/%y %I:%M:%S %p'	# 02/10/21 2:30:15 PM
+	yeah = '%-m/%-d/%y @ %I:%M%P'	# 2/10/21 2:30pm
+	data = '%y%m%d%H%M%S'					# 210210263015
+	hms = '%I:%M:%S %p'						# 2:30:15 PM
+	mdy = '%-m/%-d/%y'						# 2/10/21
+
+class icon:
+	_url_ = 'https://elisttm.space/static/images/trashbot/icons/'
+	info = _url_+'info.png'
+	cog = _url_+'cog.png'
+	warn = _url_+'warn.png'
+	deny = _url_+'deny.png'
+	good = _url_+'check.png'
+	empty = _url_+'empty.png'
+
+class color:
+	pink = 0xffaec9
+	red = 0xff0000
+	green = 0x00ff00
+	blue = 0x0000ff
+	yellow = 0xffac33
 
 # http://www.unicode.org/emoji/charts/full-emoji-list.html
-e = {
-	'check': 'check mark button', 
-	'x': 'cross mark', 
-	'warn': 'warning', 
-	'info': 'information',
-	'thumbsup': 'thumbsup',
-	'thumbsdown': 'thumbsdown',
-	'uparrow': 'upwards button',
-	'downarrow': 'downwards button',
-	'hourglass': 'hourglass not done', 
-	'dice': 'game die', 
-}
-for em in e: e[em] = emoji.emojize(f":{e[em].replace(' ','_')}:")
-s=" "
-y=e['check']+s
-w=e['warn']+s
-x=e['x']+s
-i=e['info']+s
-h=e['hourglass']+s
+class e:
+	blank = "<:e_:682011306618126381>"
+	check = emoji.emojize(':check_mark_button:')
+	x = emoji.emojize(':cross_mark:')
+	warn = emoji.emojize(':warning:')
+	info = emoji.emojize(':information:')
+	thumbsup = emoji.emojize(':thumbsup:')
+	thumbsdown = emoji.emojize(':thumbsdown:')
+	uparrow = emoji.emojize(':upwards_button:')
+	downarrow = emoji.emojize(':downwards_button:')
+	hourglass = emoji.emojize(':hourglass_not_done:')
+	dice = emoji.emojize(':game_die:')
+	star = emoji.emojize(':star:')
+	star2 = emoji.emojize(':glowing_star:')
+	star3 = emoji.emojize(':dizzy:')
+
+s=e.blank
+y=e.check+e.blank
+w=e.warn+e.blank
+x=e.x+e.blank
+i=e.info+e.blank
+h=e.hourglass+e.blank
+n='\n'

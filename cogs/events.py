@@ -5,8 +5,8 @@ from a.funcs import f
 import a.constants as tt
 
 s_reactions = {
-	'y/n': [tt.e['thumbsup'], tt.e['thumbsdown']],
-	'u/d': [tt.e['uparrow'], tt.e['downarrow']],
+	'y/n': [tt.e.thumbsup, tt.e.thumbsdown],
+	'u/d': [tt.e.uparrow, tt.e.downarrow],
 }
 
 class events(commands.Cog):
@@ -17,30 +17,34 @@ class events(commands.Cog):
 
 	def starboard_header(self, message, star_count):
 		if star_count >= 10: 
-			star = '💫'
+			star = tt.e.star3
 		elif star_count > 5: 
-			star = '🌟'
+			star = tt.e.star2
 		elif star_count <= 5: 
-			star = '⭐'
+			star = tt.e.star
 		return f"{star} **{star_count}** {message.channel.mention}" 
 			
 	def starboard_embed(self, message):
-		e_sb = discord.Embed(description=message.content, color=tt.clr['yellow'])
+		e_sb = discord.Embed(description=message.content, color=tt.color.yellow)
 		e_sb.set_author(name=f"{message.author.name}#{message.author.discriminator}", icon_url=message.author.avatar_url)
-		e_sb.set_footer(text=f"{message.id}{tt.s}|{tt.s}{message.created_at.strftime(tt.ti[0])} UDT")
-		e_sb.add_field(name="\u200b", value=f"[jump to message]({message.jump_url})")
-		if message.attachments > 0:
-			e_sb.set_image(url=message.attachments[0].url)
+		e_sb.set_footer(text=f"{message.id} | {message.created_at.strftime(tt.ti.yeah)} UDT")
+		e_sb.add_field(name="source", value=f"[jump to message]({message.jump_url})")
+		if len(message.attachments) > 0:
+			for filetype in ['.png','.jpg','.webp','.gif']:
+				if message.attachments[0].url.endswith(filetype):
+					e_sb.set_image(url=message.attachments[0].url)
+			attachments_ = ''
+			for attachment in message.attachments:
+				attachments_ += f'[{attachment.filename}]({attachment.url})\n'
+			e_sb.add_field(name="attachments", value=attachments_)
 		else:
 			message_attachements = []
 			for filetype in ['.png','.jpg','.webp','.gif']:
 				for image in re.findall(r'http(.*?){}'.format(filetype), message.content):
 					message_attachements.append("http"+image+filetype)
-			if len(message_attachements) > 0:
-				try:
+				if len(message_attachements) != 0:
 					e_sb.set_image(url=message_attachements[0])
-				except:
-					pass
+					break
 		return e_sb
 		
 	async def starboard_update(self, starboard_data, message, starboard_channel, star_count):
@@ -81,23 +85,12 @@ class events(commands.Cog):
 
 	@commands.Cog.listener()
 	async def on_raw_reaction_add(self, payload):
-		if (payload.member.bot):
+		if payload.member.bot:
 			return
 		channel = self.bot.get_channel(payload.channel_id)
 		message = await channel.fetch_message(payload.message_id)
-		# funny emoji spam
-		if (payload.emoji.is_custom_emoji()) and (payload.emoji.id == 747278013091282945) and (payload.member.id in tt.admins):
-			for emoji in self.bot.get_guild(747195327530139759).emojis:
-				if emoji == payload.emoji:
-					continue
-				try:
-					await message.add_reaction(emoji)
-					await asyncio.sleep(0.21)
-				except:
-					return
-		# starboard
 		config = f.data(tt.config, message.guild.id)
-		if config == None:
+		if not config:
 			return
 		if 'starboard' in config and payload.emoji.is_unicode_emoji() and payload.emoji.name == '⭐':
 			if (datetime.datetime.now()-message.created_at).days >= 7:
@@ -109,11 +102,8 @@ class events(commands.Cog):
 				starboardcount = int(config['starboardcount'])
 			if reaction.count >= starboardcount:
 				starboard_channel = self.bot.get_channel(config['starboard'])
-				if f.data(tt.storage, message.guild.id) is None or 'starboard' not in f.data(tt.storage, message.guild.id):
-					f.data_update(tt.storage, message.guild.id, 'starboard', {})
-				starboard_data = f.data(tt.storage, message.guild.id)['starboard']
-				if not starboard_data:
-					starboard_data = {}
+				storage = f.data(tt.storage, message.guild.id, 'starboard', {'starboard':{}})
+				starboard_data = storage['starboard']
 				if str(message.id) in starboard_data:
 					await self.starboard_update(starboard_data, message, starboard_channel, reaction_count)
 					return
@@ -157,8 +147,8 @@ class events(commands.Cog):
 			return
 		await self.send_event_message(config, user, 'joinmsg')
 		if user.guild.me.guild_permissions.manage_roles:
-			if 'defaultrole' in config:
-				await user.add_roles(user.guild.get_role(config['defaultrole']))
+			if 'autorole' in config:
+				await user.add_roles(user.guild.get_role(config['autorole']))
 			if 'stickyroles' in config and config['stickyroles'] == True:
 				if f.data(tt.storage, user.guild.id) is None or 'stickyroles' not in f.data(tt.storage, user.guild.id):
 					f.data_update(tt.storage, user.guild.id, 'stickyroles', {})

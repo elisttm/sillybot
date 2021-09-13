@@ -1,32 +1,45 @@
 import discord, math, traceback
-from discord.ext import commands
+from discord.ext import tasks, commands
 from a import checks
 from a.funcs import f
 import a.commands as cmds
 import a.constants as tt
 
+def format_perms(error):
+	return f.split_list([perm.replace('_',' ').replace('guild', 'server') for perm in error.missing_perms],'and','`')
+
 class errors(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot
+		self.send_log.start()
 
-	def format_perms(error):
-		return f.split_list([perm.replace('_',' ').replace('guild', 'server') for perm in error.missing_perms],'and','`')
+	def cog_unload(self):
+		self.send_log.cancel()
+
+	@tasks.loop(minutes=1.0)
+	async def send_log(self):
+		await self.bot.wait_until_ready()
+		logdata = tt.yeah.find_one({'_id':'logs'})
+		if len(logdata['log']) > 2:
+			await self.bot.get_channel(tt.channels['log']).send(f"```{tt.n.join(logdata['log'])[:1990]}```")
+			tt.yeah.update_one({'_id':'logs'},{"$set":{'log':[]}})
 
 	@commands.Cog.listener()
 	async def on_command_error(self, ctx, error):
-#		if hasattr(ctx.command, 'on_error'):
-#			return
+	#	if hasattr(ctx.command, 'on_error'):
+	#		return
 
 		error = getattr(error, 'original', error)
 
 		if isinstance(error, commands.CommandNotFound):
 			return
 
-		if isinstance(error, commands.NoPrivateMessage):
-			try: 
-				await ctx.author.send(tt.x+"this command cannot be used in dms!")
-			except discord.Forbidden: 
-				pass
+		if isinstance(error, commands.DisabledCommand):
+			await ctx.send(tt.x+f"this command is currently disabled!")
+			return
+
+		if isinstance(error, commands.NoPrivateMessage): 
+			await ctx.send(tt.x+"this command can only be used in servers!")
 			return
 
 		if isinstance(error, checks.GuildCommandDisabled):
@@ -38,36 +51,25 @@ class errors(commands.Cog):
 			return
 	
 		if isinstance(error, commands.BotMissingPermissions):
-			await ctx.send(tt.x+f"i am missing required permissions for this command! ({self.format_perms(error)})")
+			await ctx.send(tt.x+f"i am missing required permissions for this command! ({format_perms(error)})")
 			return
 
 		if isinstance(error, commands.MissingPermissions):
-			await ctx.send(tt.x+f"you are missing required permissions for this command! ({self.format_perms(error)})")
+			await ctx.send(tt.x+f"you are missing required permissions for this command! ({format_perms(error)})")
 			return
 
 		if isinstance(error, commands.CommandOnCooldown):
-			s = math.ceil(error.retry_after); m=h=0
-			_time_ = f"{s}s"
-			if s > 60:
-				m, s = divmod(s, 60)
-				_time_ = f"{m}m {s}s"
-			if m > 60:
-				h, m = divmod(m, 60)
-				_time_ = f"{h}h {m}m {s}s"
-			await ctx.send(tt.e['hourglass']+tt.s+f"please wait `{_time_}` before using this command again!")
+			await ctx.send(tt.e.hourglass+tt.s+f"please wait `{f.timecount(math.ceil(error.retry_after))}` before using this command again!")
 			return
 
 		if isinstance(error, commands.UserInputError):
 			ctx.command.reset_cooldown(ctx)
 			usage = ''
-			command = ctx.command.name
-			if ctx.invoked_subcommand is not None:
-				command = ctx.invoked_subcommand.name
+			command = ctx.command.parent.name+' '+ctx.command.name if ctx.command.parent else ctx.command.name
 			for ctg in cmds._c_:
 				if command in cmds._c_[ctg][1]:
-					usage = cmds._c_[ctg][1][command][0]
-			if usage != '':
-				usage = f'\n{tt.s}{tt.s}`({f.determine_prefix(self, ctx.message)}{usage})`'
+					usage = f'\n{tt.s}{tt.s}`{ctx.prefix}{cmds._c_[ctg][1][command][0]}`'
+					break
 			await ctx.send(tt.w+f"invalid command parameters provided! {usage}")
 			return
 
@@ -75,8 +77,8 @@ class errors(commands.Cog):
 			await ctx.send(tt.x+"you do not have permission to use this command!")
 			return
 
-		f.log(f"Ignoring exception in command '{ctx.command}':\n"+''.join(traceback.format_exception(type(error), error, error.__traceback__)), False, [tt.error,'w'])
-		await ctx.send(tt.w+"i ran into an error running this command! the full error log is attached, feel free to report it!", file=discord.File(tt.error))
+		f.log(f"Ignoring exception in command '{ctx.command}':\n"+''.join(traceback.format_exception(type(error), error, error.__traceback__)), False, ['misc/error.txt','w'])
+		await ctx.send(tt.w+"i ran into an error running this command! the full error log is attached, feel free to report it!", file=discord.File('misc/error.txt'))
 		
 def setup(bot):
 	bot.add_cog(errors(bot))

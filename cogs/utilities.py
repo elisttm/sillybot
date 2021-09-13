@@ -1,4 +1,4 @@
-import discord, time, datetime
+import discord, time, datetime, re, urllib
 from discord.ext import commands
 from a import checks
 from a.funcs import f
@@ -17,7 +17,8 @@ class utilities(commands.Cog):
 
 	@commands.command()
 	async def invite(self, ctx):
-		await ctx.send(tt.invite)
+		invite = 'https://discordapp.com/oauth2/authorize?client_id=439166087498825728&scope=bot&permissions='
+		await ctx.send(embed=discord.Embed(title=f"invite trashbot", description=f"[invite with admin permissions]({invite+'8'})\n[invite with necessary permissions only]({invite+'1544416321'})", color=tt.color.pink))
 
 	@commands.command()
 	async def error(self, ctx):
@@ -26,10 +27,9 @@ class utilities(commands.Cog):
 	@commands.command()
 	async def about(self, ctx):
 		await ctx.trigger_typing()
-		desc = '\n\n`note: trashbot is currently running under maintenance, so bugs, delays, and downtime are to be expected!`' if tt.testing else ''
-		e_about = discord.Embed(title=f"trashbot", description=f"a simple discord.py bot by @elisttm; more info can be found on {tt.infosite}"+desc, color=tt.clr['pink'])
-		e_about.add_field(name="stats", value=f"i am in `{len(list(self.bot.guilds))}` servers with a total of `{len(self.bot.users)}` users", inline=True)
-		e_about.add_field(name=f"client uptime", value=str(datetime.timedelta(seconds=int(round(time.time()-tt.start_time)))), inline=True)
+		e_about = discord.Embed(title=f"trashbot", description=f"a simple discord.py bot by @elisttm; more info can be found on {tt.infopage}", color=tt.color.pink)
+		e_about.add_field(name="stats", value=f"`{len(list(self.bot.guilds))}` servers, `{len(self.bot.users)}` users", inline=True)
+		e_about.add_field(name=f"uptime", value=str(f.timediff(f._t(False), tt.start_time, a=2)), inline=True)
 		e_about.add_field(name=f"api version", value=discord.__version__, inline=True)
 		e_about.set_thumbnail(url=self.bot.user.avatar_url)
 		await ctx.send(embed=e_about)
@@ -45,19 +45,17 @@ class utilities(commands.Cog):
 	@commands.guild_only()
 	async def user(self, ctx, user: discord.User=None):
 		await ctx.trigger_typing()
-		user = ctx.author if not user else user
-		perm = trashbot_tag = toprole = joined = ''
-		if user.id == tt.admins[0]: trashbot_tag += '\n`trashbot owner`'
-		if user.id in tt.admins: trashbot_tag += '\n`trashbot admin`'
-		if user.id in tt.blacklist_list: trashbot_tag += '\n`trashbot blacklisted`'
+		user = ctx.author if not user else user; extra_info = ''
 		if user in ctx.guild.members:
 			user = ctx.guild.get_member(user.id)
-			if user.guild_permissions.administrator: perm = '(guild admin)'
-			if ctx.guild.owner == user: perm = '(guild owner)'
-			joined = f"\n**joined**: __{user.joined_at.strftime(tt.ti[0])}__ ({'%d days'%(datetime.datetime.now()-user.joined_at).days})"
-			toprole = f"\n**top role**: {user.top_role} {perm}"
-		e_user = discord.Embed(title=f"{user} {'('+{user.nick}+')' if user.nick is not None and user in ctx.guild.members else ''} {'[BOT]' if user.bot else ''}", description=f"`{user.id}`{toprole}{joined}\n**created**: __{user.created_at.strftime(tt.ti[0])}__ ({'%d days'%(datetime.datetime.now()-user.created_at).days})\n{trashbot_tag}", color=user.color)
-		#e_user.set_author(name=f"user info", icon_url=tt.ico['info'])
+			extra_info += f"**joined**: __{user.joined_at.strftime(tt.ti.yeah)}__ ({f.timediff(datetime.datetime.now(), user.joined_at, 2)})\n**top role**: {user.top_role} {'(owner)' if ctx.guild.owner == user else ''}{'(admin)' if user.guild_permissions.administrator and ctx.guild.owner != user else ''}\n\n"
+		if user.id == tt.admins[0]: 
+			extra_info += '\n`trashbot owner`'
+		if user.id in tt.admins: 
+			extra_info += '\n`trashbot admin`'
+		if user.id in tt.blacklist_list: 
+			extra_info += '\n`trashbot blacklisted`'
+		e_user = discord.Embed(title=f"{user} {'('+{user.nick}+')' if user.nick != None and user in ctx.guild.members else ''} {'[BOT]' if user.bot else ''}", description=f"`{user.id}`\n**created**: __{user.created_at.strftime(tt.ti.yeah)}__ ({f.timediff(datetime.datetime.now(), user.created_at, 2)})\n{extra_info}", color=user.color)
 		e_user.set_thumbnail(url=user.avatar_url)
 		await ctx.send(embed=e_user)
 
@@ -72,33 +70,50 @@ class utilities(commands.Cog):
 	@commands.guild_only()
 	async def server(self, ctx):
 		await ctx.trigger_typing()
-		guild = ctx.guild; guild_boosts = ''
-		if guild.premium_subscription_count > 0:
-			guild_boosts = f"\n**boosts**: {guild.premium_subscription_count}{ '('+len(guild.premium_subscribers)+') boosters' if len(guild.premium_subscribers) != guild.premium_subscription_count else ''} (level {guild.premium_tier})"
-		e_server = discord.Embed(title=f"{guild.name}", description=f"`{guild.id}`\n**owner**: {guild.owner}\n**members**: {len(guild.members)}{guild_boosts}\n**emojis**: {len(guild.emojis)}\n**roles**: {len(guild.roles)}\n**channels**: {len(guild.text_channels)} text, {len(guild.voice_channels)} voice\n**created**: __{guild.created_at.strftime(tt.ti[0])}__ ({'%d days' % (datetime.datetime.now() - guild.created_at).days})", color=tt.clr['pink'])
-		e_server.set_thumbnail(url=ctx.guild.icon_url)
+		guild = ctx.guild
+		extra_stats = ''
+		if len(guild.emojis) > 0: 
+			extra_stats += f"**emojis**: {len(guild.emojis)}\n"
+		if guild.premium_subscription_count > 0: 
+			extra_stats += f"**boosts**: {guild.premium_subscription_count} {'('+len(guild.premium_subscribers)+' boosters)' if len(guild.premium_subscribers) != guild.premium_subscription_count else ''} (level {guild.premium_tier})\n"
+		channels = (f'{len(guild.text_channels)} text' if len(guild.text_channels) > 0 else '')+(', ' if len(guild.text_channels) > 0 and len(guild.voice_channels) > 0 else '')+(f'{len(guild.voice_channels)} voice' if len(guild.voice_channels) > 0 else '')
+		e_server = discord.Embed(title=f"{guild.name}", description=f"`{guild.id}`\n**owner**: {guild.owner}\n**created**: __{guild.created_at.strftime(tt.ti.yeah)}__ ({f.timediff(datetime.datetime.now(), guild.created_at, 3)})\n**members**: {len(guild.members)}\n**channels**: {channels}\n{extra_stats}", color=(f.avgcolor(await guild.icon_url.read())))
+		e_server.set_thumbnail(url=guild.icon_url)
 		await ctx.send(embed=e_server)
 
 	@commands.command(aliases=['e','emoji'])
-	async def emote(self, ctx, _emoji:discord.PartialEmoji):
+	async def emote(self, ctx, pemoji):
 		await ctx.trigger_typing()
-		ext = "gif" if _emoji.animated else "png"
-		url = f"https://cdn.discordapp.com/emojis/{_emoji.id}.{ext}?v=1"
-		await ctx.send(url)
+		# https://twemoji.maxcdn.com/2/test/preview.html
+		match = re.match(r'<(a?):([a-zA-Z0-9\_]+):([0-9]+)>$', pemoji)
+		_emoji_ = 'nope'
+		if match:
+			_emoji_ = f"https://cdn.discordapp.com/emojis/{int(match.group(3))}.{'gif' if bool(match.group(1)) else 'png'}?v=1"
+		else:
+			if len(pemoji) > 1:
+				url = '-'.join([f'{ord(e):X}' for e in pemoji])
+			else: 
+				url = f'{ord(pemoji):X}'
+			_emoji_ = f"https://twemoji.maxcdn.com/v/latest/72x72/{url.lower()}.png"
+			try: 
+				urllib.request.urlopen(_emoji_).getcode()
+			except:
+				raise(commands.UserInputError)
+				return
+		await ctx.send(_emoji_)
 
 	@commands.command()
 	@commands.guild_only()
 	@commands.cooldown(1, 300, commands.BucketType.user)
 	async def report(self, ctx, *, report:str):
 		await ctx.trigger_typing()
-		if len(report) > 1000:
-			await ctx.send(tt.w+"your report is too long! (1000 max)")
+		if len(report) > 500:
 			ctx.command.reset_cooldown()
+			await ctx.send(tt.w+"your report is too long! (max 500 characters)")
 			return
-		report = (f.sanitize(text = report)).replace('`', '\`')
-		report_header = f"feedback recieved from '{ctx.author}' in '{ctx.guild.name}'"
-		f.log(f"{report_header}\n{report}", '[REPORT]')
-		await self.bot.get_user(tt.admins[0]).send(f"{report_header}\n> ```{report}```")
+		report = f"report from {ctx.author} in '{ctx.guild.name}'\n\"{report}\""
+		f.log(report, '[REPORT]')
+		await self.bot.get_user(tt.admins[0]).send(report)
 		await ctx.send(tt.y+"your report has been submitted!")
 
 	@commands.command()
@@ -123,9 +138,10 @@ class utilities(commands.Cog):
 				await ctx.send(tt.w+"there is already a massnick in progress!")
 			else:
 				self.mn_in_progress.append(ctx.guild.id) 
-			if f.data(tt.storage, ctx.guild.id) is None or 'nicknames' not in f.data(tt.storage, ctx.guild.id):
+			storage = f.data(tt.storage, ctx.guild.id, 'nicknames', {})
+			if 'nicknames' not in storage:
 				f.data_update(tt.storage, ctx.guild.id, 'nicknames', {})
-			nicknames_list = f.data(tt.storage, ctx.guild.id)['nicknames']
+			nicknames_list = storage['nicknames']
 			if param == 'revert':
 				if 'lastnick' in nicknames_list and nicknames_list['lastnick'] == 'revert':
 					await ctx.send(tt.x+"unable to revert nicknames! (last massnick was a revert)")

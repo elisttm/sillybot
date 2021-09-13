@@ -1,34 +1,7 @@
 import a.commands as cmds
-
-# variables for server configuration settings
-
-disable_commands = ['tags',]
-for category in ['utilities','fun']: 
-	disable_commands.extend(cmds._c_[category])
-
-actions = {
-	'value': ['set', 'reset'],
-	'toggle': ['enable', 'disable'],
-	'list': ['add', 'remove'],
-}
-
-all_actions = []
-all_actions.extend(actions['value'])
-all_actions.extend(actions['toggle'])
-all_actions.extend(actions['list'])
-
-value_types = ['text','number','channel','role']
-
-key_groups = {
-	"basic": [],
-	"commands": [],
-	"roles": [],
-	"messages": [],
-	"starboard": [],
-}
+import a.constants as tt
 
 keys = {
-
 	"prefix": {
 		"group": "basic",
 		"type": "text",
@@ -39,28 +12,17 @@ keys = {
 			"max": "5", "size": "1",
 		},
 	},
-	
-	"globaltags": {
-		"group": "commands",
-		"type": "toggle",
-		"default": True, 
-		"c": {
-			"name": "global tags",
-			"desc": "toggles if the tag command can be used",
-		},
-	},
-
-	"disable": {
+	"disabled": {
 		"group": "commands",
 		"type": "list",
 		"default": None,
-		"valid": disable_commands,
+		"valid": ['tags'],
 		"c": {
 			"name": "disabled commands",
 			"desc": "disables commands added to the list",
+			"separator": " "
 		},
 	},
-	
 	"msgchannel": {
 		"group": "messages",
 		"type": "channel",
@@ -69,8 +31,7 @@ keys = {
 			"name": "message channel",
 			"desc": "channel where welcome/farewell messages are sent to",
 		},
-	},
-			
+	},	
 	"joinmsg": {
 		"group": "messages",
 		"type": "text",
@@ -81,7 +42,6 @@ keys = {
 			"maxlength": "50", "size": "25",
 		},
 	},
-	
 	"leavemsg": {
 		"group": "messages",
 		"type": "text",
@@ -92,7 +52,6 @@ keys = {
 			"maxlength": "50", "size": "25",
 		},
 	},
-	
 	"autorole": {
 		"group": "roles",
 		"type": "role",
@@ -102,17 +61,15 @@ keys = {
 			"desc": "the role to assign to users when they join",
 		},
 	},
-
 	"stickyroles": {
 		"group": "roles",
 		"type": "toggle",
 		"default": False,
 		"c": {
 			"name": "stickyroles",
-			"desc": "toggles saving and assigning roles after leaving/joining",
+			"desc": "toggles saving and assigning roles when users leave/join",
 		},
 	},
-	
 	"starboard": {
 		"group": "starboard",
 		"type": "channel",
@@ -122,7 +79,6 @@ keys = {
 			"desc": "the channel used for the starboard",
 		},
 	},
-	
 	"starboardcount": {
 		"group": "starboard",
 		"type": "number", 
@@ -133,12 +89,40 @@ keys = {
 			"max": 10,
 		},
 	},
+	#"starboardemoji": {
+	#	"group": "starboard",
+	#	"type": "emoji", 
+	#	"default": tt.e.star, 
+	#	"c": {
+	#		"name": "starboard reaction emoji",
+	#		"desc": "the emoji the starboard uses",
+	#	},
+	#},
+}
+
+value_types = ['text','number','channel','role']
+
+actions = {
+	'all': [],
+	'value': ['set', 'reset'],
+	'toggle': ['enable', 'disable'],
+	'list': ['add', 'remove'],
+}
+for x in actions:
+	actions['all'].extend(actions[x])
+
+key_groups = {
+	"basic": [],
+	"commands": [],
+	"roles": [],
+	"messages": [],
+	"starboard": [],
 }
 
 default_settings = {}
 for key in keys:
 	default_settings[key] = keys[key]['default']
+	key_groups[keys[key]['group']].append(key)
 
-for key in keys:
-	keyg = keys[key]['group']
-	key_groups[keyg].append(key)
+for category in ['utilities','fun']: 
+	keys['disabled']['valid'].extend(cmds._c_[category][1])
