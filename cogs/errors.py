@@ -1,4 +1,4 @@
-import discord, math, traceback
+import discord, math, traceback, sys
 from discord.ext import tasks, commands
 from a import checks
 from a.funcs import f
@@ -34,51 +34,44 @@ class errors(commands.Cog):
 		if isinstance(error, commands.CommandNotFound):
 			return
 
-		if isinstance(error, commands.DisabledCommand):
-			await ctx.send(tt.x+f"this command is currently disabled!")
-			return
-
-		if isinstance(error, commands.NoPrivateMessage): 
-			await ctx.send(tt.x+"this command can only be used in servers!")
-			return
-
-		if isinstance(error, checks.GuildCommandDisabled):
-			await ctx.send(tt.x+"this command is disabled in this server!")
-			return
-
-		if isinstance(error, checks.NoPermission):
-			await ctx.send( tt.x+"you do not have permission to use this command!")
-			return
-	
-		if isinstance(error, commands.BotMissingPermissions):
-			await ctx.send(tt.x+f"i am missing required permissions for this command! ({format_perms(error)})")
-			return
-
-		if isinstance(error, commands.MissingPermissions):
-			await ctx.send(tt.x+f"you are missing required permissions for this command! ({format_perms(error)})")
-			return
-
-		if isinstance(error, commands.CommandOnCooldown):
-			await ctx.send(tt.e.hourglass+tt.s+f"please wait `{f.timecount(math.ceil(error.retry_after))}` before using this command again!")
-			return
-
-		if isinstance(error, commands.UserInputError):
+		elif isinstance(error, commands.UserInputError):
 			ctx.command.reset_cooldown(ctx)
 			usage = ''
-			command = ctx.command.parent.name+' '+ctx.command.name if ctx.command.parent else ctx.command.name
+			command = ctx.command.qualified_name
 			for ctg in cmds._c_:
 				if command in cmds._c_[ctg][1]:
-					usage = f'\n{tt.s}{tt.s}`{ctx.prefix}{cmds._c_[ctg][1][command][0]}`'
+					usage = f'\n{tt.s}{tt.s}`{ctx.prefix if str(self.bot.user.id) not in ctx.prefix else tt.p}{cmds._c_[ctg][1][command][0]}`'
 					break
 			await ctx.send(tt.w+f"invalid command parameters provided! {usage}")
-			return
 
-		if isinstance(error, commands.CheckFailure):
-			await ctx.send(tt.x+"you do not have permission to use this command!")
-			return
-
-		f.log(f"Ignoring exception in command '{ctx.command}':\n"+''.join(traceback.format_exception(type(error), error, error.__traceback__)), False, ['misc/error.txt','w'])
-		await ctx.send(tt.w+"i ran into an error running this command! the full error log is attached, feel free to report it!", file=discord.File('misc/error.txt'))
+		elif isinstance(error, commands.DisabledCommand):
+			await ctx.send(tt.x+f"this command is currently disabled for maintenance!")
 		
+		elif isinstance(error, commands.NoPrivateMessage): 
+			await ctx.send(tt.x+"this command can only be used in servers!")
+	
+		elif isinstance(error, commands.BotMissingPermissions):
+			await ctx.send(tt.x+f"i need {format_perms(error)} to use this command!")
+
+		elif isinstance(error, commands.MissingPermissions):
+			await ctx.send(tt.x+f"you need {format_perms(error)} to use this command!")
+
+		elif isinstance(error, commands.CommandOnCooldown):
+			await ctx.send(tt.e.hourglass+tt.s+f"please wait `{f.timecount(math.ceil(error.retry_after))}` before using this command again!")
+
+		elif isinstance(error, checks.GuildCommandDisabled):
+			await ctx.send(tt.x+"this command is disabled in this server!")
+
+		elif isinstance(error, checks.NoPermission):
+			await ctx.send( tt.x+"you do not have permission to use this command!")
+
+		elif isinstance(error, commands.CheckFailure):
+			await ctx.send(tt.x+"you do not have permission to use this command!")
+
+		else:
+			f.log(f"Ignoring exception in command '{ctx.command.qualified_name}':\n"+''.join(traceback.format_exception(type(error), error, error.__traceback__)), False, ['misc/error.txt','w'])
+			await ctx.send(tt.w+f"i ran into an error running this command! the error log is attached, please feel free to report it with t!report!", file=discord.File('misc/error.txt'))
+			open("misc/error.txt", "a").truncate().close()
+			
 def setup(bot):
 	bot.add_cog(errors(bot))

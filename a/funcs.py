@@ -18,12 +18,6 @@ class f():
 		if file != None:
 			print(text, file=open(file[0],file[1]))
 
-	def determine_prefix(self, message):
-		try:
-			return tt.config.find_one({'_id':message.guild.id},{'_id':0,'prefix':1})['prefix']
-		finally:
-			return tt.p
-
 	def _t(format=tt.ti.log):
 		if not format:
 			return datetime.datetime.now(tt.tz.est)
@@ -73,14 +67,6 @@ class f():
 				break
 		return (', ' if a == 1 else ' ').join(text)
 
-	def is_visually_blank(text:str):
-		while text != '':
-			for x in tt.whitespace_characters+tt.markdown_characters: 
-				text = text.replace(x,'')
-			if text != '':
-				return False
-		return True
-
 	def empty(var):
 		for x in [None,'',[],(),{}]:
 			if var == x:
@@ -114,20 +100,15 @@ class f():
 	def check_for_json(path:str):
 		if not os.path.exists(path):
 			os.mknod(path)
-			if path.endswith('.json'):
-				with open(path, 'w') as outfile: 
-					json.dump({}, outfile)
 			print(f"[{f._t()}] created file '{path}'")
 
 	def data(db, id, p=None, d=None):
-		x = {'_id':0}
+		projection = {'_id':0}
 		if p != None:
-			if type(p) != list:
-				p = [p]
-			for p_ in p:
-				x[p_] = 1
-		data = db.find_one({'_id':id},x)
-		if data == None:
+			for _p_ in [p] if type(p) != list else p:
+				projection[_p_] = 1
+		data = db.find_one({'_id':id},projection)
+		if not data:
 			return d
 		return data
 
@@ -140,7 +121,7 @@ class f():
 				udata = {"$"+action:ukeyvals}
 			else:
 				udata = {"$"+action:{key:value}}
-		elif action == 'append': 
+		elif action == 'append':
 			udata = {"$push":{key:{"$each":[value] if type(value) != list else value}}}
 		elif action == 'remove': 
 			udata = {"$pull":{key:{"$in":[value] if type(value) != list else value}}}

@@ -1,4 +1,4 @@
-import discord, asyncio, re, datetime
+import discord, re, datetime, emoji
 from discord.utils import get
 from discord.ext import commands#, tasks
 from a.funcs import f
@@ -6,7 +6,7 @@ import a.constants as tt
 
 s_reactions = {
 	'y/n': [tt.e.thumbsup, tt.e.thumbsdown],
-	'u/d': [tt.e.uparrow, tt.e.downarrow],
+	'u/d': [tt.e.upvote, tt.e.downvote],
 }
 
 class events(commands.Cog):
@@ -15,16 +15,10 @@ class events(commands.Cog):
 
 	# 		========================
 
-	def starboard_header(self, message, star_count):
-		if star_count >= 10: 
-			star = tt.e.star3
-		elif star_count > 5: 
-			star = tt.e.star2
-		elif star_count <= 5: 
-			star = tt.e.star
-		return f"{star} **{star_count}** {message.channel.mention}" 
+	def starboard_header(self, message, star_count): 
+		return
 			
-	def starboard_embed(self, message):
+	def starboard_content(self, message, star_count):
 		e_sb = discord.Embed(description=message.content, color=tt.color.yellow)
 		e_sb.set_author(name=f"{message.author.name}#{message.author.discriminator}", icon_url=message.author.avatar_url)
 		e_sb.set_footer(text=f"{message.id} | {message.created_at.strftime(tt.ti.swag)} UDT")
@@ -45,19 +39,22 @@ class events(commands.Cog):
 				if len(message_attachements) != 0:
 					e_sb.set_image(url=message_attachements[0])
 					break
-		return e_sb
+		if star_count >= 10: 
+			star = tt.e.star3
+		elif star_count > 5: 
+			star = tt.e.star2
+		elif star_count <= 5: 
+			star = tt.e.star
+		return [f"{star} **{star_count}** {message.channel.mention}", e_sb]
 		
 	async def starboard_update(self, starboard_data, message, starboard_channel, star_count):
-		embed = self.starboard_embed(message)
-		header = self.starboard_header(message, star_count)
+		starboard_content = self.starboard_content(message, star_count)
 		try:
 			starboard_message = await starboard_channel.fetch_message(starboard_data[str(message.id)])
+			if starboard_content[0] != starboard_message.content and starboard_content[1] != starboard_message.embeds[0]:
+				await starboard_message.edit(content=starboard_content[0], embed=starboard_content[1])
 		except:
-			return
-		if header == starboard_message.content and embed == starboard_message.embeds[0]:
-			return
-		await starboard_message.edit(content=header, embed=embed)
-		return
+			pass
 		
 	async def send_event_message(self, config, user, event):
 		if 'msgchannel' not in config or event not in config:
@@ -77,11 +74,14 @@ class events(commands.Cog):
 	# 		========================
 	
 	@commands.Cog.listener()
-	async def on_message(self, message):		
+	async def on_message(self, message):
 		for s_reaction in s_reactions:
 			if s_reaction in message.content.lower():
-				for reaction in s_reactions[s_reaction]: 
-					await message.add_reaction(reaction)
+				for reaction in s_reactions[s_reaction]:
+					try:
+						await message.add_reaction(reaction)
+					except:
+						return
 
 	@commands.Cog.listener()
 	async def on_raw_reaction_add(self, payload):
@@ -89,9 +89,7 @@ class events(commands.Cog):
 			return
 		channel = self.bot.get_channel(payload.channel_id)
 		message = await channel.fetch_message(payload.message_id)
-		config = f.data(tt.config, message.guild.id)
-		if not config:
-			return
+		config = f.data(tt.config, message.guild.id, ['starboard','starboardcount'], {})
 		if 'starboard' in config and payload.emoji.is_unicode_emoji() and payload.emoji.name == '⭐':
 			if (datetime.datetime.now()-message.created_at).days >= 7:
 				return
@@ -107,12 +105,10 @@ class events(commands.Cog):
 				if str(message.id) in starboard_data:
 					await self.starboard_update(starboard_data, message, starboard_channel, reaction_count)
 					return
-				starboard_message = await starboard_channel.send(content=self.starboard_header(message, reaction_count), embed=self.starboard_embed(message))
+				starboard_content = self.starboard_content(message, reaction_count)
+				starboard_message = await starboard_channel.send(content=starboard_content[0], embed=starboard_content[1])
 				f.data_update(tt.storage, message.guild.id, 'starboard.'+str(message.id), starboard_message.id)
 
-		# rolemenus
-		
-			# insert code for rolemenu reactions here
 
 	@commands.Cog.listener()
 	async def on_raw_reaction_remove(self, payload):

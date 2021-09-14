@@ -1,5 +1,5 @@
 import discord, time, datetime, re, urllib
-from discord.ext import commands
+from discord.ext import commands, tasks
 from a import checks
 from a.funcs import f
 import a.constants as tt
@@ -8,6 +8,7 @@ class utilities(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot
 		self.mn_in_progress = []
+		self.mn_storage = {}
 
 # 		========================
 
@@ -85,22 +86,32 @@ class utilities(commands.Cog):
 	async def emote(self, ctx, pemoji):
 		await ctx.trigger_typing()
 		# https://twemoji.maxcdn.com/2/test/preview.html
-		match = re.match(r'<(a?):([a-zA-Z0-9\_]+):([0-9]+)>$', pemoji)
-		_emoji_ = 'nope'
-		if match:
-			_emoji_ = f"https://cdn.discordapp.com/emojis/{int(match.group(3))}.{'gif' if bool(match.group(1)) else 'png'}?v=1"
-		else:
-			if len(pemoji) > 1:
-				url = '-'.join([f'{ord(e):X}' for e in pemoji])
-			else: 
-				url = f'{ord(pemoji):X}'
-			_emoji_ = f"https://twemoji.maxcdn.com/v/latest/72x72/{url.lower()}.png"
+		try:
+			emoji = await commands.PartialEmojiConverter().convert(ctx, pemoji)
+			print(emoji)
+			emoji_url = emoji.url
+		except:
+			url = '-'.join([f'{ord(e):X}' for e in pemoji]) if len(pemoji) > 1 else f'{ord(pemoji):X}'
+			emoji_url = f"https://twemoji.maxcdn.com/v/latest/72x72/{url.lower()}.png"
 			try: 
-				urllib.request.urlopen(_emoji_).getcode()
+				urllib.request.urlopen(emoji_url).getcode()
 			except:
 				raise(commands.UserInputError)
 				return
-		await ctx.send(_emoji_)
+		await ctx.send(emoji_url)
+
+	@commands.command(aliases=['purge'])
+	@commands.guild_only()
+	@commands.has_permissions(manage_messages=True)
+	@commands.bot_has_permissions(manage_messages=True)
+	async def clear(self, ctx, clear:int):
+		await ctx.trigger_typing()
+		if clear == 0 or clear > 100: 
+			await ctx.send(tt.w+"invalid number of messages! (must be between 1-100)")
+			return
+		await ctx.message.delete()
+		await ctx.channel.purge(limit=clear)
+		await ctx.send(tt.y+f"purged `{clear}` messages!", delete_after=3)
 
 	@commands.command()
 	@commands.guild_only()
@@ -123,86 +134,62 @@ class utilities(commands.Cog):
 	async def massnick(self, ctx, *, param:str):
 		await ctx.trigger_typing()
 		try:
-			mn_users = mn_changed = 0; nickname = ''; mn_action = ['change','changing','changed']
 			if len(param) > 32:
-				await ctx.send(tt.w+"too many characters! (nicknames have a max of 32)")
+				await ctx.send(tt.w+"maximum of 32 characters for nicknames!")
 				return
-			if param == 'cancel':
-				if ctx.guild.id not in self.mn_in_progress:
-					await ctx.send(tt.x+"there is no massnick in progress!")
-					return
-				else:
+			print(1)
+			if ctx.guild.id in self.mn_in_progress:
+				if param == 'cancel':
 					self.mn_in_progress.remove(ctx.guild.id)
 					return
-			elif ctx.guild.id in self.mn_in_progress:
 				await ctx.send(tt.w+"there is already a massnick in progress!")
-			else:
-				self.mn_in_progress.append(ctx.guild.id) 
-			storage = f.data(tt.storage, ctx.guild.id, 'nicknames', {})
-			if 'nicknames' not in storage:
-				f.data_update(tt.storage, ctx.guild.id, 'nicknames', {})
-			nicknames_list = storage['nicknames']
+				return
+			elif param == 'cancel':
+				await ctx.send(tt.x+"there is no massnick in progress!")
+				return
+			self.mn_in_progress.append(ctx.guild.id)
+			print(2) 
+			nicknames_list = f.data(tt.storage, ctx.guild.id, 'nicknames', {'nicknames':{}})['nicknames']
+			print(nicknames_list)
 			if param == 'revert':
-				if 'lastnick' in nicknames_list and nicknames_list['lastnick'] == 'revert':
-					await ctx.send(tt.x+"unable to revert nicknames! (last massnick was a revert)")
+				if 'users' not in nicknames_list or len(nicknames_list['users']) == 0:
+					await ctx.send(tt.x+"there is no nickname history stored!")
 					return
-				elif 'users' not in nicknames_list or len(nicknames_list['users']) == 0:
-					await ctx.send(tt.x+"unable to revert nicknames! (nickname storage is empty)")
-					return
-				mn_action = ['revert','reverting','reverted']
+				nickname = 'revert'
 			elif param == 'reset':
 				nickname = None
-				mn_action = ['reset','resetting','reset']
 			else:
 				nickname = param
-			if param != 'cancel':
-				f.data_update(tt.storage, ctx.guild.id, 'nicknames.lastnick', param)
-			for member in ctx.guild.members: 
-				if member.bot: continue
-				mn_users += 1
-			await ctx.send(tt.h+f"attempting to {mn_action[0]} `{mn_users}` nicknames, please wait...")
-			f.log(f"{mn_action[1]} {mn_users} nicknames in {ctx.guild.name}", '[MASSNICK]')
-			for member in ctx.guild.members:
-				await ctx.trigger_typing()
-				if ctx.guild.id not in self.mn_in_progress:
-					await ctx.send(tt.y+"massnick cancelled!")
-					return
-				if member.bot or member.top_role >= ctx.guild.get_member(self.bot.user.id).top_role or member.nick == nickname:
-					continue
-				if param == 'revert':
-					if str(member.id) not in nicknames_list['users']:
-						nickname = None
-					elif member.nick != nicknames_list['lastnick']:
-						continue
-					else:
+				param = 'change'
+			print(nickname)
+			mn_users = [member for member in ctx.guild.members if not member.bot and member.top_role < ctx.guild.me.top_role and member.nick != nickname]
+			await ctx.send(tt.h+f"attempting to {param} {len(mn_users)} of {ctx.guild.member_count} nicknames, please wait...")
+			f.log(f"modifying {len(mn_users)} nicknames in {ctx.guild.name}", '[MASSNICK]')
+			mn_changed = 0
+			self.mn_storage[ctx.guild.id] = {}
+			async with ctx.channel.typing():
+				for member in mn_users:
+					if ctx.guild.id not in self.mn_in_progress:
+						await ctx.send(tt.y+"massnick cancelled!")
+						break
+					if param == 'revert':
+						if member.nick != nicknames_list['lastnick'] or str(member.id) not in nicknames_list['users']:
+							continue
 						nickname = nicknames_list['users'][str(member.id)]
-				try:
-					oldnick = member.nick
-					await member.edit(nick=nickname)
-					if param != 'revert':
-						f.data_update(tt.storage, ctx.guild.id, 'nicknames.users.'+str(member.id), oldnick)
-					mn_changed += 1
-				except:
-					continue
+					else:
+						self.mn_storage[ctx.guild.id][str(member.id)] = member.nick
+					try:
+						await member.edit(nick=nickname)
+						mn_changed += 1
+					except:
+						continue
+			f.data_update(tt.storage, ctx.guild.id, 'nicknames', {'users':self.mn_storage[ctx.guild.id],'lastnick':nickname})
 			self.mn_in_progress.remove(ctx.guild.id)
-			await ctx.send(tt.y+f"`{mn_changed}/{mn_users}` nicknames successfully {mn_action[2]}!")
-			f.log(f"finished {mn_action[1]} {mn_changed}/{mn_users} nicknames in {ctx.guild.name}", '[MASSNICK]')
+			await ctx.send(tt.y+f"`{mn_changed}/{len(mn_users)}` nicknames successfully {param if not param == 'change' else 'changed'}!")
+			f.log(f"modified {mn_changed}/{len(mn_users)} nicknames in {ctx.guild.name}", '[MASSNICK]')
 		except: 
 			if ctx.guild.id in self.mn_in_progress:
 				self.mn_in_progress.remove(ctx.guild.id)
-
-	@commands.command(aliases=['purge'])
-	@commands.guild_only()
-	@commands.has_permissions(manage_messages=True)
-	@commands.bot_has_permissions(manage_messages=True)
-	async def clear(self, ctx, clear:int):
-		await ctx.trigger_typing()
-		if (clear == 0) or (clear > 100): 
-			await ctx.send(tt.w+"invalid number of messages! (must be between 1 - 100)")
-			return
-		await ctx.message.delete()
-		await ctx.channel.purge(limit=(clear))
-		await ctx.send(tt.y+f"cleared `{clear}` messages!", delete_after=2)
 
 # 		========================
 

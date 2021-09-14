@@ -31,6 +31,7 @@ db = mongo['trashbot']
 config = db['config']
 storage = db['storage']
 yeah = db['misc']
+misc = db['misc']
 tags = db['tags']
 
 blacklist_list = yeah.find_one({'_id':'misc'},{'_id':0,'blacklist':1})['blacklist']
@@ -75,16 +76,17 @@ class color:
 	yellow = 0xffac33
 
 # http://www.unicode.org/emoji/charts/full-emoji-list.html
+# change upvote and downvote to custom emojis later
 class e:
 	blank = "<:e_:682011306618126381>"
 	check = emoji.emojize(':check_mark_button:')
 	x = emoji.emojize(':cross_mark:')
 	warn = emoji.emojize(':warning:')
 	info = emoji.emojize(':information:')
-	thumbsup = emoji.emojize(':thumbsup:')
-	thumbsdown = emoji.emojize(':thumbsdown:')
-	uparrow = emoji.emojize(':upwards_button:')
-	downarrow = emoji.emojize(':downwards_button:')
+	thumbsup = emoji.emojize(':thumbs_up:')
+	thumbsdown = emoji.emojize(':thumbs_down:')
+	upvote = emoji.emojize(':upwards_button:')
+	downvote = emoji.emojize(':downwards_button:')
 	hourglass = emoji.emojize(':hourglass_not_done:')
 	dice = emoji.emojize(':game_die:')
 	star = emoji.emojize(':star:')

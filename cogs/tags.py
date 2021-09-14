@@ -14,7 +14,7 @@ class tags(commands.Cog):
 		return tag.lower().replace('.','')
 
 	async def tag_check(self, tag_name, tag_list, cmd, channel, author):
-		if tag_name in ['create','delete','edit','transfer','owner','random','list','listall','forceedit','forceremove','forcetransfer','c','fe','fr','ft']:
+		if tag_name in ['create','delete','edit','transfer','owner','random','list','forceedit','forceremove','forcetransfer','c','fe','fr','ft']:
 			await channel.send(tt.x+"this tag is reserved!")
 			return False
 		if cmd not in ['create','c'] and tag_name not in tag_list:
@@ -30,18 +30,12 @@ class tags(commands.Cog):
 
 	async def manage_content(self, tag_name, tag_content, attachments, channel):
 		if attachments:
-			tag_content += ' '+attachments[0].url
-		elif f.is_visually_blank(tag_name) or f.is_visually_blank(tag_content):
-			raise(commands.UserInputError)
-			return False
+			tag_content += (' ' if tag_content != '' else '') + attachments[0].url
 		if not re.match("^[a-z0-9_-]*$", tag_name):
-			await channel.send(tt.x+"tag names cannot have special characters other than '-' and '_'!")
+			await channel.send(tt.x+"tag names cannot have special characters except - and _!")
 			return False
-		if len(tag_name) > 100:
-			await channel.send(tt.x+"too many characters! (tag names can be a maximum of 100 characters)")
-			return False
-		if len(tag_content) > 1000:
-			await channel.send(tt.x+"too many characters! (tag contents can be a maximum of 1000 characters)")
+		if len(tag_name) > 20 or len(tag_content) > 1000:
+			await channel.send(tt.x+f"too many characters! (maximum 20 for tag names and 1000 for tag contents)")
 			return False
 		return tag_content.replace('@here','@\u200bhere').replace('@everyone','@\u200beveryone')
 
@@ -49,26 +43,26 @@ class tags(commands.Cog):
 
 	@commands.group(name='tag', aliases=['t'])
 	@commands.guild_only()
-	@commands.cooldown(1, 1, commands.BucketType.user)
+	@commands.cooldown(3, 1, commands.BucketType.user)
 	async def tag(self, ctx):
 		if ctx.invoked_subcommand is None:
 			if ctx.subcommand_passed is None:
 				raise(commands.UserInputError)
-			await ctx.invoke(self.bot.get_command('tag view'), tag_name=await commands.clean_content(use_nicknames=False).convert(ctx, ctx.subcommand_passed))
+			await ctx.invoke(self.bot.get_command('tag view'), tag_name=ctx.subcommand_passed)
 
 	@tag.before_invoke
 	async def tag_before_invoke(self, ctx):
 		await ctx.trigger_typing()
 
 	@tag.command(name='view')
-	async def tag_view(self, ctx, tag_name:commands.clean_content(use_nicknames=False)):
+	async def tag_view(self, ctx, tag_name:str):
 		tag = self.tname(tag_name)
 		if not await self.tag_check(tag, tag_list, ctx.command.name, ctx.channel, ctx.message.author.id):
 			return
 		await ctx.send(tag_list[tag]['content'])
 
 	@tag.command(name='create', aliases=['c'])
-	async def tag_create(self, ctx, tag_name:commands.clean_content(use_nicknames=False), *, tag_content:str=''):
+	async def tag_create(self, ctx, tag_name:str, *, tag_content:str):
 		tag = self.tname(tag_name)
 		if not await self.tag_check(tag, tag_list, ctx.command.name, ctx.channel, ctx.message.author.id):
 			return
@@ -81,7 +75,7 @@ class tags(commands.Cog):
 		f.log(f"{ctx.author} created '{tag}' ({content})", '[TAGS]')
 				
 	@tag.command(name='edit')
-	async def tag_edit(self, ctx, tag_name:commands.clean_content(use_nicknames=False), *, tag_content:str=''):
+	async def tag_edit(self, ctx, tag_name:str, *, tag_content:str):
 		tag = self.tname(tag_name)
 		if not await self.tag_check(tag, tag_list, ctx.command.name, ctx.channel, ctx.message.author.id):
 			return
@@ -95,7 +89,7 @@ class tags(commands.Cog):
 		f.log(f"{ctx.author} updated '{tag}' ({content})", '[TAGS]')
 
 	@tag.command(name='delete', aliases=['d'])
-	async def tag_remove(self, ctx, tag_name:commands.clean_content(use_nicknames=False)):
+	async def tag_remove(self, ctx, tag_name:str):
 		tag = self.tname(tag_name)
 		if not await self.tag_check(tag, tag_list, ctx.command.name, ctx.channel, ctx.message.author.id):
 			return
@@ -105,7 +99,7 @@ class tags(commands.Cog):
 		f.log(f"{ctx.author} deleted '{tag}'", '[TAGS]')
 
 	@tag.command(name='transfer')
-	async def tag_transfer(self, ctx, tag_name:commands.clean_content(use_nicknames=False), user:discord.Member):
+	async def tag_transfer(self, ctx, tag_name:str, user:discord.Member):
 		tag = self.tname(tag_name)
 		if not await self.tag_check(tag, tag_list, ctx.command.name, ctx.channel, ctx.message.author.id):
 			return
@@ -116,7 +110,7 @@ class tags(commands.Cog):
 
 	@tag.command(name='forceedit', aliases=['fe'])
 	@checks.is_admin()
-	async def tag_force_edit(self, ctx, tag_name:commands.clean_content(use_nicknames=False), *, tag_content:str=None):
+	async def tag_force_edit(self, ctx, tag_name:str, *, tag_content:str):
 		tag = self.tname(tag_name)
 		if not await self.tag_check(tag, tag_list, ctx.command.name, ctx.channel, ctx.message.author.id):
 			return
@@ -131,7 +125,7 @@ class tags(commands.Cog):
 
 	@tag.command(name='forceremove', aliases=['fr'])
 	@checks.is_admin()
-	async def tag_force_remove(self, ctx, tag_name:commands.clean_content(use_nicknames=False)):
+	async def tag_force_remove(self, ctx, tag_name:str):
 		tag = self.tname(tag_name)
 		if not await self.tag_check(tag, tag_list, ctx.command.name, ctx.channel, ctx.message.author.id):
 			return
@@ -142,7 +136,7 @@ class tags(commands.Cog):
 
 	@tag.command(name='forcetransfer', aliases=['ft'])
 	@checks.is_admin()
-	async def tag_force_transfer(self, ctx, tag_name:commands.clean_content(use_nicknames=False), user:discord.Member):
+	async def tag_force_transfer(self, ctx, tag_name:str, user:discord.Member):
 		tag = self.tname(tag_name)
 		if not await self.tag_check(tag, tag_list, ctx.command.name, ctx.channel, ctx.message.author.id):
 			return
@@ -153,7 +147,7 @@ class tags(commands.Cog):
 		f.log(f"{ctx.author} forcefully transferred {tag}' ({before} -> {user})", '[TAGS]')
 
 	@tag.command(name='owner')
-	async def tag_owner(self, ctx, tag_name:commands.clean_content(use_nicknames=False)):
+	async def tag_owner(self, ctx, tag_name:str):
 		tag = self.tname(tag_name)
 		if not await self.tag_check(tag, tag_list, ctx.command.name, ctx.channel, ctx.message.author.id):
 			return

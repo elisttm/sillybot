@@ -7,15 +7,12 @@ import a.constants as tt
 class admin(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot
-		self.load_db = f.load_json
-		self.dump_db = f.dump_json
 		
 # 		========================
 	
 	@commands.command()
-	async def test(self, ctx, text=None):
-		#print(text)
-		#await ctx.message.add_reaction(tt.e.check)
+	async def test(self, ctx, *, text=None):
+		print(text)
 		return
 	
 	@commands.command()
@@ -99,6 +96,17 @@ class admin(commands.Cog):
 			msg = [f"{user} has been removed from the blacklist!",f"{ctx.author} unblacklisted {user}"]
 		f.log(msg[1])
 		await ctx.send(tt.y+msg[0])
+
+	@commands.command()
+	@checks.is_admin()
+	async def toggle(self, ctx, *, command):
+		command = self.bot.get_command(command)
+		if not command or ctx.command == command:
+			await ctx.send(tt.x+f"invalid command!")
+			return
+		command.enabled = not command.enabled
+		f.data_update(tt.misc, 'misc', 'disabled', [command.qualified_name], 'append' if not command.enabled else 'remove')
+		await ctx.message.add_reaction(tt.e.check)
 
 	@commands.command(aliases=['coglist'])
 	async def cogs(self, ctx):
