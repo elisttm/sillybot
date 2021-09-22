@@ -1,51 +1,48 @@
 import discord
 from discord.ext import commands
-from a.funcs import f
 import a.constants as tt
 
-class NoPermission(commands.CommandError): pass	
 class GuildCommandDisabled(commands.CommandError): pass
 
-def is_owner(): return commands.check(lambda ctx: is_bot_owner_check(ctx.message))
-def is_admin(): return commands.check(lambda ctx: is_bot_admin_check(ctx.message))
-def is_guild_admin(): return commands.check(lambda ctx: is_guild_admin_check(ctx.message))
-def is_guild(guild_ids): return commands.check(lambda ctx: is_guild_check(ctx.message, guild_ids))
-def is_user(user_ids): return commands.check(lambda ctx: is_user_check(ctx.message, user_ids))
+def is_bot_owner(): return commands.check(lambda ctx: bot_owner_check(ctx))
+def is_bot_admin(): return commands.check(lambda ctx: bot_admin_check(ctx))
+def is_guild_admin(): return commands.check(lambda ctx: guild_admin_check(ctx))
+def is_guild(guild_ids): return commands.check(lambda ctx: guild_check(ctx, guild_ids))
+def is_user(user_ids): return commands.check(lambda ctx: user_check(ctx, user_ids))
 
-def bot_owner(message):
-	if message.author.id == tt.admins[0]:
+def bot_owner(ctx):
+	return ctx.author.id == tt.admins[0]
+
+def bot_admin(ctx):
+	return ctx.author.id in tt.admins
+		
+def dm_channel(ctx):
+	return isinstance(ctx.channel, discord.channel.DMChannel)
+
+def guild_owner(ctx):
+	return ctx.guild.owner == ctx.author
+
+def bot_owner_check(ctx):
+	if bot_owner(ctx):
 		return True
+	raise(commands.CheckFailure)
 
-def bot_admin(message):
-	if message.author.id in tt.admins:
+def bot_admin_check(ctx):
+	if bot_admin(ctx):
 		return True
+	raise(commands.CheckFailure)
 
-def dm_channel(message):
-	if isinstance(message.channel, discord.channel.DMChannel):
+def guild_admin_check(ctx):
+	if any([ctx.author.guild_permissions.administrator, guild_owner(ctx), bot_admin(ctx), not dm_channel(ctx)]):
 		return True
+	raise(commands.CheckFailure)
 
-def is_bot_owner_check(message):
-	if bot_owner(message):
+def user_check(ctx, user_ids):
+	if ctx.author.id in user_ids or bot_owner(ctx):
 		return True
-	raise NoPermission()
+	raise(commands.CheckFailure)
 
-def is_bot_admin_check(message):
-	if bot_admin(message):
-		return True
-	raise NoPermission()
-
-def is_guild_admin_check(message):
-	member = message.guild.get_member(message.author.id)
-	if dm_channel(message) or bot_admin(message) or message.guild.owner == message.author or any([member.guild_permissions.administrator, member.guild_permissions.manage_guild]):
-		return True
-	raise NoPermission()
-
-def is_user_check(message, user_ids):
-	if bot_owner(message) or message.author.id in user_ids:
-		return True
-	raise NoPermission()
-
-def is_guild_check(message, guild_ids):
-	if dm_channel(message) or bot_owner(message) or message.guild.id in guild_ids:
+def guild_check(ctx, guild_ids):
+	if ctx.guild.id in guild_ids or ctx.guild.id == tt.servers.test:
 		return True
 	raise GuildCommandDisabled()

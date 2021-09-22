@@ -1,0 +1,27 @@
+current to do list:
+- add ftp stuff & upload function to cat command so people who arent me can add to it
+- find a library for adding interactions (slash commands, buttons, etc) and integrate it
+
+9/15/2021 - 9/22/2021
+- made massnick more user friendly; renamed subcommands & added more checks
+- reworked some admin commands like presence, toggle, and admin/cog list
+- combined command list and config vars into 1 file
+- combined the settings list and setting management functions into one command
+- added permission checks in settings for roles/channels
+- changed the about command to use application info instead of preset text
+- massively cleaned up and optimized some really bad code in events
+- added a system for command statistics
+- added AllowedMentions to replace what i was doing before
+- revamped how tags are stored, instead of being in 1 document theyre all stored individually and dates are now stored as unix timestamps (also just made a lot of stuff faster)
+- made some indivual functions for database management since i was kind of overdoing how far i could go with using as few as possible lol
+- (i didnt finish everything i wanted to but im making a commit here just for the sake of it)
+
+9/13/2021 - 9/14/2021
+- massnick works correctly again and is now way faster
+- added toggle command so i can globally disable commands for maintenance 
+- reworded/reformatted some error messages and starting logs
+- (tags) redid a few checks and removed some overall redundancy
+- made emoji command better
+- changed how custom prefixes are fetched
+
+i probably should have started writing one of these earlier but whatever

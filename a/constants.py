@@ -1,11 +1,8 @@
-import os, pymongo, datetime, pytz, emoji
+import discord, pymongo, pytz, emoji, os
 
 testing = True
 
-token = os.environ['TOKEN']
-mongo = pymongo.MongoClient(os.environ['mongo'])
-p = 't!!'
-
+p = "t!!"
 admins = (
 	216635587837296651, # eli
 )
@@ -19,35 +16,29 @@ cogs = (
 	'fun',
 )
 loaded = []
-servers = {
-	'tmh': 822582352861593611, 
-	'test': 439187286278537226,
-}
-channels = {
-	'log': 686638005083308126,
-}
 
+mongo = pymongo.MongoClient(os.environ["mongo"])
 db = mongo['trashbot']
 config = db['config']
 storage = db['storage']
-yeah = db['misc']
 misc = db['misc']
 tags = db['tags']
 
-blacklist_list = yeah.find_one({'_id':'misc'},{'_id':0,'blacklist':1})['blacklist']
+blacklist_list = []
+start_time = ''
 
 github = 'https://github.com/elisttm/trashbot'
 infopage = 'https://elisttm.space/trashbot'
 site = 'https://trashbot.elisttm.space/'
 help_list = site+'commands'
-tags_list = site+'tags'
 settings_doc = site+'docs/settings'
 guild_config = site+'/'
 
-start_time = datetime.datetime.now(pytz.timezone('US/Eastern'))
-
-markdown_characters = ['*','~','_','`','\\']
-whitespace_characters = [' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ','　']
+class servers:
+	test = 439187286278537226
+	
+class channels:
+	log = 686638005083308126
 
 class ti:
 	log = '%m/%d/%y %I:%M:%S %p'	# 02/10/21 2:30:15 PM
@@ -58,6 +49,11 @@ class ti:
 
 class tz:
 	est = pytz.timezone('US/Eastern')
+
+class presence:
+	activity = {'playing':discord.ActivityType.playing, 'listening':discord.ActivityType.listening}
+	status = {'online':discord.Status.online, 'idle':discord.Status.idle, 'dnd':discord.Status.dnd, 'invisible':discord.Status.invisible,}
+	default = [p+'help', status['online'], activity['listening']] if not testing else ['maintinence mode; expect bugs delays and frequent downtime!', status['dnd'], activity['playing']]
 
 class icon:
 	_url_ = 'https://elisttm.space/static/images/trashbot/icons/'
@@ -76,17 +72,16 @@ class color:
 	yellow = 0xffac33
 
 # http://www.unicode.org/emoji/charts/full-emoji-list.html
-# change upvote and downvote to custom emojis later
 class e:
 	blank = "<:e_:682011306618126381>"
+	upvote = 886041781047803934
+	downvote = 88604178103939898
 	check = emoji.emojize(':check_mark_button:')
 	x = emoji.emojize(':cross_mark:')
 	warn = emoji.emojize(':warning:')
 	info = emoji.emojize(':information:')
 	thumbsup = emoji.emojize(':thumbs_up:')
 	thumbsdown = emoji.emojize(':thumbs_down:')
-	upvote = emoji.emojize(':upwards_button:')
-	downvote = emoji.emojize(':downwards_button:')
 	hourglass = emoji.emojize(':hourglass_not_done:')
 	dice = emoji.emojize(':game_die:')
 	star = emoji.emojize(':star:')

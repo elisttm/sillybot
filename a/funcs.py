@@ -1,7 +1,5 @@
-import os, json, random, urllib, urllib.request, datetime, tempfile
+import os, io, json, random, urllib, urllib.request, datetime, tempfile, colorthief
 from dateutil.relativedelta import relativedelta
-from colorthief import ColorThief
-from io import BytesIO
 import a.constants as tt
 
 smd = {}
@@ -14,14 +12,16 @@ class f():
 		if prefix != False:
 			text = f"[{f._t()}]{'' if type(prefix) != str else ' '+prefix} {text}"
 		print(text)
-		tt.yeah.update_one({'_id':'logs'}, {"$push":{'log':{"$each":[text]}}}, upsert=False)
+		tt.misc.update_one({'_id':'logs'}, {"$push":{'log':{"$each":[text]}}})
 		if file != None:
 			print(text, file=open(file[0],file[1]))
 
-	def _t(format=tt.ti.log):
-		if not format:
-			return datetime.datetime.now(tt.tz.est)
-		return datetime.datetime.now(tt.tz.est).strftime(format)
+	def _t(format=tt.ti.log, tz=tt.tz.est):
+		if format == False:
+			return round(datetime.datetime.utcnow().timestamp())
+		elif format == None:
+			return datetime.datetime.now(tz)
+		return datetime.datetime.now(tz).strftime(format)
 
 	def smart_random(_list, id:str):
 		if id not in smd:
@@ -41,9 +41,6 @@ class f():
 			return f"{', '.join(_list[:-1])}, {and_or} {_list[-1]}" 
 		return f" {and_or} ".join(_list)
 
-	def sanitize(text:str): 
-		return text.replace('@here','@\u200bhere').replace('@everyone','@\u200beveryone')
-
 	def ctruncate(text:str, max:int):
 		return (text[:max] + f' ... (+{len(text)-max})') if len(text) > max else text
 
@@ -59,19 +56,14 @@ class f():
 		return x
 
 	def timediff(_1_, _2_, max=6, a=1):
-		diff = relativedelta(_1_, _2_); text = []
+		diff = relativedelta(_1_, _2_) 
+		text = []
 		for x in [[diff.years,' year','yr'],[diff.months,' month','mo'],[diff.days,' day','d'],[diff.hours,' hour','h'],[diff.minutes,' minute','m'],[diff.seconds,' second','s']]:
 			if x[0] > 0:
 				text.append(f"{x[0]}{x[a]}{'s' if x[0] > 1 and a == 1 else ''}")
 			if len(text) >= max:
 				break
 		return (', ' if a == 1 else ' ').join(text)
-
-	def empty(var):
-		for x in [None,'',[],(),{}]:
-			if var == x:
-				return True
-		return False
 
 	def urltempfile(url):
 		tfile = tempfile.NamedTemporaryFile()
@@ -82,7 +74,7 @@ class f():
 		try: 
 			if type(image) == 'str' and image.startswith('http'):
 				image = urllib.request.urlopen(image).read()
-			return int(hex(int('%02x%02x%02x' % ColorThief(BytesIO(image)).get_color(quality=10), 16)), 0)
+			return int(hex(int('%02x%02x%02x' % colorthief.ColorThief(io.BytesIO(image)).get_color(quality=10),16)),0)
 		except:
 			return tt.color.pink
 
@@ -90,6 +82,8 @@ class f():
 		return urllib.request.urlopen(url).read().decode('utf8')
 
 	def load_json(path:str):
+		if os.path.exists(path):
+			return {}
 		with open(path) as data_json: 
 			return json.load(data_json)
 
@@ -97,23 +91,9 @@ class f():
 		with open(path, 'w') as outfile: 
 			json.dump(data, outfile)
 
-	def check_for_json(path:str):
-		if not os.path.exists(path):
-			os.mknod(path)
-			print(f"[{f._t()}] created file '{path}'")
-
-	def data(db, id, p=None, d=None):
-		projection = {'_id':0}
-		if p != None:
-			for _p_ in [p] if type(p) != list else p:
-				projection[_p_] = 1
-		data = db.find_one({'_id':id},projection)
-		if not data:
-			return d
-		return data
-
 	def data_update(db, id, key, value, action='set'):
-		if action == 'set' or action == 'unset':
+		actlist = {'append':['$push','$each'],'remove':['$pull','$in']}
+		if action in ['set','unset','inc']:
 			if type(key) == list and len(key) > 1:
 				ukeyvals = {}
 				for i in range(len(key)):
@@ -121,8 +101,31 @@ class f():
 				udata = {"$"+action:ukeyvals}
 			else:
 				udata = {"$"+action:{key:value}}
-		elif action == 'append':
-			udata = {"$push":{key:{"$each":[value] if type(value) != list else value}}}
-		elif action == 'remove': 
-			udata = {"$pull":{key:{"$in":[value] if type(value) != list else value}}}
+		elif action in actlist:
+			udata = {actlist[action][0]:{key:{actlist[action][1]:[value] if type(value) != list else value}}}
 		db.update_one({'_id':id}, udata, upsert=True)
+
+
+	def data(db, id, p=None, d=None):
+		projection = {'_id':0}
+		if p != None:
+			for _p_ in [p] if type(p) != list else p:
+				projection[_p_] = 1
+		data = db.find_one({'_id':id},projection)
+		if not data: 
+			return d
+		return data
+
+	def d_set(db, id, keyvals):
+		db.update_one({'_id':id}, keyvals, upsert=True)
+	#f.d_set(tt.config, ctx.guild.id, {"$set":{key:value[0]}})
+
+	def d_unset(db, id, key):
+		db.update_one({'_id':id}, {"$unset":{x:0 for x in key}} if type(key) == list else {"$unset":{key:0}}, upsert=False)
+
+	def d_list(db, id, action, key, value):
+		x = ['$push','$each'] if action == 'push' else ['$pull','$in']
+		db.update_one({'_id':id}, {x[0]:{key:{x[1]:[value] if type(value) != list else value}}}, upsert=True)
+
+	def d_del(db, id):
+		db.delete_one({'_id':id})

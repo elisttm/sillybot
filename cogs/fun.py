@@ -5,7 +5,7 @@ from a.funcs import f
 import a.constants as tt
 
 def urban_sanitize(text:str):
-	return f.ctruncate(text.replace("\n", " ").replace("\r", " ").replace("[", "").replace("]", "").replace("`", "\`"), 500)
+	return f.ctruncate(text.replace("\r", "").replace("\n\n", "\n").replace("\n\n", "\n").replace("[", "").replace("]", "").replace("`", "\`"), 1500)
 
 class fun(commands.Cog):
 	def __init__(self, bot):
@@ -28,20 +28,16 @@ class fun(commands.Cog):
 			cat_name = random.choice(self.cat_data[1])
 		return f"{self.cat_url}/static/cat/{cat_name}/{f.smart_random(self.cat_data[0][cat_name], 'cat'+cat_name)}"
 
-# 		========================
-
 	@commands.command()
-	async def say(self, ctx, *, message:commands.clean_content()):
-		message = f.sanitize(message)
+	async def say(self, ctx, *, message:str):
 		f.log(f"{ctx.author} in '{ctx.guild.name}' used say '{message}'")
 		await ctx.send(message)
 		
 	@commands.command()
 	@checks.is_guild_admin()
-	async def echo(self, ctx, channel:discord.TextChannel, *, message:commands.clean_content()):
-		message = f.sanitize(message)
-		await channel.send(message)
+	async def echo(self, ctx, channel:discord.TextChannel, *, message:str):
 		f.log(f"{ctx.author} in '{ctx.guild.name}' to #{channel} {'('+channel.guild.name+')' if channel.guild.name != ctx.guild.name else ''} echoed '{message}'")
+		await channel.send(message)
 		await ctx.message.add_reaction(tt.e.check)
 
 	@commands.command()
@@ -52,32 +48,27 @@ class fun(commands.Cog):
 			await ctx.send(tt.w+"the provided word does not have any definitions!")
 			return
 		urban_dict = dict(random.choice(urban_list['list']))
-		e_urban = discord.Embed(title=f"**{urban_sanitize(urban_dict['word']).upper()}**", color=tt.color.pink)
-		e_urban.add_field(name=f"__**definition**__", value=f"{urban_sanitize(urban_dict['definition'])}\n", inline = False)
-		e_urban.add_field(name=f"__**example**__", value=f"{urban_sanitize(urban_dict['example'])}", inline = False)
-		e_urban.set_footer(text=f"created {datetime.datetime.strptime(urban_dict['written_on'], '%Y-%m-%dT%H:%M:%S.%fZ').strftime('%m/%d/%y')} by {urban_dict['author']}\n{tt.e.thumbsup} {urban_dict['thumbs_up']}  {tt.e.thumbsdown} {urban_dict['thumbs_down']}")
+		e_urban = discord.Embed(title=f"**{urban_sanitize(urban_dict['word']).upper()}**", url=urban_dict['permalink'], description=f"**definition**\n{urban_sanitize(urban_dict['definition'])}\n**example**\n{urban_sanitize(urban_dict['example'])}", color=tt.color.pink)
+		e_urban.set_footer(text=f"{datetime.datetime.strptime(urban_dict['written_on'], '%Y-%m-%dT%H:%M:%S.%fZ').strftime('%-m/%-d/%y')} {urban_dict['author']} | {tt.e.thumbsup}{urban_dict['thumbs_up']} {tt.e.thumbsdown}{urban_dict['thumbs_down']}")
 		await ctx.send(embed=e_urban)
 
 	@commands.command()
 	async def cat(self, ctx, cat_name=None):
 		await ctx.trigger_typing()
-		cat_name = cat_name.lower()
 		if not self.cat_data and not self.get_cat_data:
 			await ctx.send(tt.w+'the cat api is currently offline!')
 			return
-		if cat_name not in self.cat_data[1] and cat_name != None:
+		if cat_name != None and cat_name.lower() not in self.cat_data[1]:
 			await ctx.send(tt.i+f"list of valid cat directories: {', '.join(self.cat_data[1])}")
 			return
-		await ctx.send(await self.get_cat_url(cat_name))
+		await ctx.send(await self.get_cat_url(cat_name.lower()))
 
 	# i want it to be known this is the stupidest workaround i have ever made and the fact it works baffles me
-	@commands.command(aliases=[
-		'floppa','tommy','gloop','mish','spock','marley','lucas','nori','thomas','max','jim','gupitaro','mona','xena'
-		])
-	async def _cat_name(self, ctx):
-		await ctx.invoke(self.bot.get_command('cat'), cat_name=ctx.invoked_with)
-
-# 		========================
+	#@commands.command(aliases=[
+	#	'floppa','tommy','gloop','mish','spock','marley','lucas','nori','thomas','max','jim','gupitaro','mona','xena'
+	#	])
+	#async def _cat_name(self, ctx):
+	#	await ctx.invoke(self.bot.get_command('cat'), cat_name=ctx.invoked_with)
 
 def setup(bot):
 	bot.add_cog(fun(bot))
