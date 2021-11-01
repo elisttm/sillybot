@@ -1,28 +1,16 @@
 import discord, math, traceback
-from discord.ext import tasks, commands
+from discord.ext import commands
 from a import checks
 from a.funcs import f
 from a.stuff import cmds
 import a.constants as tt
 
 def format_perms(error):
-	return f.split_list([perm.replace('_',' ').replace('guild', 'server') for perm in error.missing_perms],'and','`')
+	return f.split_list([perm.replace('_',' ').replace('guild','server') for perm in error.missing_permissions],'and','`')
 
 class errors(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot
-		self.send_log.start()
-
-	def cog_unload(self):
-		self.send_log.cancel()
-
-	@tasks.loop(minutes=1.0)
-	async def send_log(self):
-		await self.bot.wait_until_ready()
-		logdata = f.data(tt.misc, 'logs', 'log')
-		if len(logdata['log']) > 0:
-			await self.bot.get_channel(tt.channels.log).send(f"```{tt.n.join(logdata['log'])[:1990]}```")
-			f.data_update(tt.misc, 'logs', 'log', [])
 
 	@commands.Cog.listener()
 	async def on_command_error(self, ctx, error):
@@ -50,7 +38,7 @@ class errors(commands.Cog):
 			await ctx.send(tt.x+f"you need {format_perms(error)} to use this command!")
 
 		elif isinstance(error, commands.CommandOnCooldown):
-			await ctx.send(tt.e.hourglass+tt.s+f"please wait `{f.timecount(math.ceil(error.retry_after))}` before using this command again!")
+			await ctx.send(tt.h+f"please wait `{f.seconds(math.ceil(error.retry_after))}` before using this command again!")
 
 		elif isinstance(error, checks.GuildCommandDisabled):
 			await ctx.send(tt.x+"this command is disabled in this server!")
@@ -59,8 +47,8 @@ class errors(commands.Cog):
 			await ctx.send(tt.x+"you do not have permission to use this command!")
 
 		else:
-			f.log(f"Ignoring exception in command '{ctx.command.qualified_name}':\n"+''.join(traceback.format_exception(type(error), error, error.__traceback__)), False, ['misc/error.txt','w'])
-			await ctx.send(tt.w+f"i ran into an error running this command! the error log is attached, please feel free to report it with t!report!", file=discord.File('misc/error.txt'))
+			f.log(f"Ignoring exception in command '{ctx.command.qualified_name}':\n"+''.join(traceback.format_exception(type(error), error, error.__traceback__)), False, ['temp/error.txt','w'], tt.ansi.red+tt.ansi.bold)
+			await ctx.send(tt.w+f"i ran into an error running this command! the error log is attached, please report it with 't!report'!\n**note: trashbot is currently in a testing stage for discord.py 2.0; if you experience any errors, i highly encourage you report them!**", file=discord.File('temp/error.txt'))
 			
 def setup(bot):
 	bot.add_cog(errors(bot))

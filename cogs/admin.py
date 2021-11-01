@@ -7,28 +7,13 @@ import a.constants as tt
 class admin(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot
-	
-	@commands.command()
-	async def admins(self, ctx):
-		await ctx.trigger_typing() 
-		e_adm = discord.Embed(color=tt.color.pink)
-		e_adm.add_field(name=f"trashbot admins", value='\n'.join([self.bot.get_user(admin) for admin in tt.admins]))
-		e_adm.set_author(name="list of trashbot's admins", icon_url=tt.icon.info)
-		await ctx.send(embed=e_adm)
 
 	@commands.command()
 	@checks.is_bot_admin()
-	async def presence(self, ctx, *, presence:str):
-		_presence = presence.split(';')
-		x = tt.presence.default
-		for y, z in enumerate(_presence):
-			x[y] = z
-		if x[1] not in tt.presence.status or x[2] not in tt.presence.activity:
-			await ctx.send(tt.x+f"invalid format! (text;{'/'.join(tt.presence.status)};{'/'.join(tt.presence.activity)})")
-			return
-		await self.bot.change_presence(status=tt.presence.status[x[1]], activity=discord.Activity(type=tt.presence.activity[x[2]],name=x[0]))
-		f.log(f"{ctx.author} set presence to {x[1]}, {x[2]} '{x[0]}'")
+	async def restart(self, ctx):
+		f.log(f"restarted by {ctx.author}")
 		await ctx.message.add_reaction(tt.e.check)
+		await os.execv(sys.executable,['python']+sys.argv)
 
 	@commands.command()
 	@commands.is_owner()
@@ -38,51 +23,55 @@ class admin(commands.Cog):
 		await ctx.guild.leave()
 
 	@commands.command()
-	@commands.is_owner()
-	async def shutdown(self, ctx):
-		f.log(f"shutdown by {ctx.author}")
-		await ctx.message.add_reaction(tt.e.check)
-		await self.bot.logout()
-	
+	async def admins(self, ctx):
+		await ctx.trigger_typing() 
+		e_adm = discord.Embed(color=tt.dcolor)
+		e_adm.add_field(name=f"trashbot admins", value='\n'.join([str(self.bot.get_user(admin)) for admin in tt.admins]))
+		e_adm.set_author(name="list of trashbot's admins", icon_url=tt.icon.info)
+		await ctx.send(embed=e_adm)
+
 	@commands.command()
 	@checks.is_bot_admin()
-	async def restart(self, ctx):
-		f.log(f"restarted by {ctx.author}")
+	async def presence(self, ctx, *, presence:str):
+		x = tt.presence.default
+		for y, z in enumerate(presence.split(';')):
+			x[y] = z
+		if x[1] not in tt.presence.status or x[2] not in tt.presence.activity:
+			await ctx.send(tt.x+f"invalid format! (text;{'/'.join(tt.presence.status)};{'/'.join(tt.presence.activity)})")
+			return
+		await self.bot.change_presence(status=tt.presence.status[x[1]], activity=discord.Activity(type=tt.presence.activity[x[2]],name=x[0]))
+		f.log(f"{ctx.author} set presence to {x[1]}, {x[2]} '{x[0]}'")
 		await ctx.message.add_reaction(tt.e.check)
-		await os.execv(sys.executable,['python']+sys.argv)
 
 	@commands.command()
 	@checks.is_bot_admin()
 	async def guilds(self, ctx):
-		guilds_list = ''
-		for num, guild in enumerate(self.bot.guilds): 
-			guilds_list += f"{num+1}. [{guild.id}] {guild.name}\n"
-		print(guilds_list)
+		for num, guild in enumerate(self.bot.guilds, 1): 
+			print(f"{num}. [{guild.id}] {guild.name}")
 		await ctx.message.add_reaction(tt.e.check)
 
 	@commands.command()
 	@checks.is_bot_admin()
-	async def blacklist(self, ctx, user: discord.User=None):
-		tt.blacklist = f.data(tt.misc, 'misc', 'blacklist')['blacklist']
-		if user is None:
+	async def blacklist(self, ctx, user:discord.User=None):
+		if user == None:
 			_list = ''
 			for id in tt.blacklist:
-				_list += f"  - {self.bot.get_user(id)} ({self.bot.get_user(id).id})\n"
+				_user = self.bot.get_user(id)
+				_list += f"  - {_user} ({_user.id})\n"
 			await ctx.send(f"```blacklisted users:\n{_list}```")
-			return
-		if user.id in tt.admins:
+		elif user.id in tt.admins:
 			await ctx.send(tt.x+"bot admins cannot be blacklisted!")
 			return
-		if user.id not in tt.blacklist:
+		elif user.id not in tt.blacklist:
 			tt.blacklist.append(user.id)
-			f.data_update(tt.misc, 'misc', 'blacklist', [user.id], 'append')
-			msg = [f"{user} has been blacklisted!",f"{ctx.author} blacklisted {user}"]
+			f._list(tt.misc, 'misc', 'blacklist', [user.id], 'add')
+			msg = f"blacklisted {user}"
 		else:
 			tt.blacklist.remove(user.id)
-			f.data_update(tt.misc, 'misc', 'blacklist', [user.id], 'remove')
-			msg = [f"{user} has been removed from the blacklist!",f"{ctx.author} unblacklisted {user}"]
-		f.log(msg[1])
-		await ctx.send(tt.y+msg[0])
+			f._list(tt.misc, 'misc', 'blacklist', [user.id], 'remove')
+			msg = f"unblacklisted {user}"
+		f.log(f"{ctx.author} {msg}")
+		await ctx.send(tt.y+msg+'!')
 
 	@commands.command(aliases=['tg'])
 	@checks.is_bot_admin()
@@ -102,6 +91,8 @@ class admin(commands.Cog):
 				await ctx.message.add_reaction(tt.e.check)
 				tt.loaded.remove(x)
 				f.log('unloaded '+x)
+			except Exception as error:
+				raise(error)
 			return
 		else:
 			command = self.bot.get_command(x)
@@ -109,7 +100,7 @@ class admin(commands.Cog):
 				await ctx.send(tt.x+f"invalid command or cog provided!")
 				return
 			command.enabled = not command.enabled
-			f.data_update(tt.misc, 'misc', 'disabled', [command.qualified_name], 'append' if not command.enabled else 'remove')
+			f._list(tt.misc, 'misc', 'disabled', [command.qualified_name], 'add' if not command.enabled else 'remove')
 			await ctx.message.add_reaction(tt.e.check)
 
 	@commands.command()

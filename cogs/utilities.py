@@ -1,4 +1,4 @@
-import discord, time, datetime, urllib
+import discord, time, datetime, emoji, dateutil.relativedelta
 from discord.ext import commands
 from a import checks
 from a.funcs import f
@@ -12,12 +12,12 @@ class utilities(commands.Cog):
 
 	@commands.command()
 	async def help(self, ctx):
-		await ctx.send(tt.help_list)
+		await ctx.send(tt.site+'commands')
 
 	@commands.command()
 	async def invite(self, ctx):
 		invite = f'https://discordapp.com/oauth2/authorize?client_id={ctx.bot.user.id}&scope=bot&permissions='
-		await ctx.send(embed=discord.Embed(title=f"invite trashbot", description=f"[invite with admin permissions]({invite+'8'})\n[invite with necessary permissions only]({invite+'1544416321'})", color=tt.color.pink))
+		await ctx.send(embed=discord.Embed(title=f"invite trashbot", description=f"[invite with admin permissions]({invite+'8'})\n[invite with necessary permissions only]({invite+'1544416321'})", color=tt.dcolor))
 
 	@commands.command()
 	async def error(self, ctx):
@@ -27,44 +27,44 @@ class utilities(commands.Cog):
 	async def about(self, ctx):
 		await ctx.trigger_typing()
 		appinfo = await self.bot.application_info()
-		e_about = discord.Embed(title=appinfo.name, description=appinfo.description, color=tt.color.pink)
-		e_about.add_field(name="stats", value=f"`{len(list(self.bot.guilds))}` servers, `{len(self.bot.users)}` users", inline=True)
-		e_about.add_field(name=f"uptime", value=str(f.timediff(f._t(False), tt.start_time, a=2)), inline=True)
-		e_about.add_field(name=f"api version", value=discord.__version__, inline=True)
-		e_about.set_thumbnail(url=self.bot.user.avatar_url)
+		diff = dateutil.relativedelta.relativedelta(datetime.datetime.now(), tt.start_time) 
+		e_about = discord.Embed(title=appinfo.name, description=appinfo.description, color=tt.dcolor)
+		e_about.add_field(name="stats", value=f"`{len(list(self.bot.guilds))}` servers, `{len(self.bot.users)}` users", inline=False)
+		e_about.add_field(name=f"uptime", value=(', ').join([f"{x}" for x in [f'{diff.years}yr',f'{diff.months}mo',f'{diff.days}d',f'{diff.hours}hr',f'{diff.minutes}m',f'{diff.seconds}s'] if x[0] != '0']), inline=False)
+		e_about.add_field(name=f"wrapper version", value=discord.__version__, inline=False)
+		e_about.set_thumbnail(url=self.bot.user.avatar.url)
 		await ctx.send(embed=e_about)
 
 	@commands.command()
 	async def ping(self, ctx):
-		ptime = time.time()
-		message = await ctx.send("⌛ ⠀pinging...")
-		ping = round((time.time() - ptime) * 1000)
-		await message.edit(content=f'🏓 ⠀pong! `{ping}ms`')
+		etime = time.time()
+		msg = await ctx.send(f"{tt.h}pinging...")
+		etime = round((time.time()-etime)*1000)
+		await msg.edit(content=f'{tt.e.pingpong}{tt.s}pong! `{etime}ms / {round((self.bot.latency)*1000)}ms`')
 
 	@commands.command()
 	@commands.guild_only()
-	async def user(self, ctx, user: discord.User=None):
+	async def user(self, ctx, user:discord.User=None):
 		await ctx.trigger_typing()
-		user = ctx.author if not user else user; extra_info = ''
+		user = ctx.author if not user else user
+		extra_info = ''
 		if user in ctx.guild.members:
 			user = ctx.guild.get_member(user.id)
-			extra_info += f"**joined**: __{user.joined_at.strftime(tt.ti.swag)}__ ({f.timediff(datetime.datetime.now(), user.joined_at, 2)})\n**top role**: {user.top_role} {'(owner)' if ctx.guild.owner == user else ''}{'(admin)' if user.guild_permissions.administrator and ctx.guild.owner != user else ''}\n\n"
+			extra_info += f"**joined**: __<t:{int(user.joined_at.timestamp())}:D>__ (<t:{int(user.joined_at.timestamp())}:R>)\n**top role**: {user.top_role} {'(owner)' if ctx.guild.owner == user else ''}{'(admin)' if user.guild_permissions.administrator and ctx.guild.owner != user else ''}\n\n"
 		if user.id == tt.admins[0]: 
 			extra_info += '\n`trashbot owner`'
 		if user.id in tt.admins: 
 			extra_info += '\n`trashbot admin`'
 		if user.id in tt.blacklist: 
 			extra_info += '\n`trashbot blacklisted`'
-		e_user = discord.Embed(title=f"{user} {'('+{user.nick}+')' if user.nick != None and user in ctx.guild.members else ''} {'[BOT]' if user.bot else ''}", description=f"`{user.id}`\n**created**: __{user.created_at.strftime(tt.ti.swag)}__ ({f.timediff(datetime.datetime.now(), user.created_at, 2)})\n{extra_info}", color=user.color)
-		e_user.set_thumbnail(url=user.avatar_url)
+		e_user = discord.Embed(title=f"{user} {'('+{user.nick}+')' if user.nick != None and user in ctx.guild.members else ''} {'[BOT]' if user.bot else ''}", description=f"`{user.id}`\n**created**: __<t:{int(user.created_at.timestamp())}:D>__ (<t:{int(user.created_at.timestamp())}:R>)\n{extra_info}", color=user.color)
+		e_user.set_thumbnail(url=user.avatar.url)
 		await ctx.send(embed=e_user)
 
 	@commands.command()
-	@commands.guild_only()
-	async def avatar(self, ctx, user: discord.User=None):
-		await ctx.trigger_typing()
+	async def avatar(self, ctx, user:discord.User=None):
 		user = ctx.author if not user else user
-		await ctx.send(user.avatar_url_as(None, 'png', 2048))
+		await ctx.send(user.avatar.replace(static_format='png', size=1024).url)
 
 	@commands.command()
 	@commands.guild_only()
@@ -77,37 +77,38 @@ class utilities(commands.Cog):
 		if guild.premium_subscription_count > 0: 
 			extra_stats += f"**boosts**: {guild.premium_subscription_count} {'('+str(len(guild.premium_subscribers))+' boosters)' if len(guild.premium_subscribers) != guild.premium_subscription_count else ''} (level {guild.premium_tier})\n"
 		channels = (f'{len(guild.text_channels)} text' if len(guild.text_channels) > 0 else '')+(', ' if len(guild.text_channels) > 0 and len(guild.voice_channels) > 0 else '')+(f'{len(guild.voice_channels)} voice' if len(guild.voice_channels) > 0 else '')
-		e_server = discord.Embed(title=f"{guild.name}", description=f"`{guild.id}`\n**owner**: {guild.owner}\n**created**: __{guild.created_at.strftime(tt.ti.swag)}__ ({f.timediff(datetime.datetime.now(), guild.created_at, 3)})\n**members**: {len(guild.members)}\n**channels**: {channels}\n{extra_stats}", color=(f.avgcolor(await guild.icon_url.read())))
-		e_server.set_thumbnail(url=guild.icon_url)
+		e_server = discord.Embed(title=f"{guild.name}", description=f"`{guild.id}`\n**owner**: {guild.owner}\n**created**: __<t:{int(guild.created_at.timestamp())}:D>__ (<t:{int(guild.created_at.timestamp())}:R>)\n**members**: {len(guild.members)}\n**channels**: {channels}\n{extra_stats}", color=(f.avgcolor(await guild.icon.read())))
+		e_server.set_thumbnail(url=guild.icon.url)
 		await ctx.send(embed=e_server)
 
 	@commands.command(aliases=['e','emoji'])
 	async def emote(self, ctx, pemoji):
 		await ctx.trigger_typing()
-		try:
-			emoji = await commands.PartialEmojiConverter().convert(ctx, pemoji)
-			emoji_url = emoji.url
-		except:
-			emoji_url = f"https://twemoji.maxcdn.com/v/latest/72x72/{'-'.join([f'{ord(e):X}' for e in pemoji]) if len(pemoji) > 1 else f'{ord(pemoji):X}'.lower()}.png"
-			try: 
-				urllib.request.urlopen(emoji_url).getcode()
+		if pemoji in emoji.UNICODE_EMOJI['en']:
+			await ctx.send(f"https://twemoji.maxcdn.com/v/latest/72x72/{'-'.join([f'{ord(e):x}' for e in pemoji])}.png")
+		else:
+			try:
+				await ctx.send((await commands.PartialEmojiConverter().convert(ctx, pemoji)).url)
 			except:
-				raise(commands.UserInputError)
-				return
-		await ctx.send(emoji_url)
+				await ctx.send(tt.w+"i could not retrieve an upscale of the provided emoji!")
 
 	@commands.command(aliases=['purge'])
 	@commands.guild_only()
 	@commands.has_permissions(manage_messages=True)
 	@commands.bot_has_permissions(manage_messages=True)
-	async def clear(self, ctx, clear:int):
+	async def clear(self, ctx, limit:int, user:discord.User=None):
 		await ctx.trigger_typing()
-		if clear == 0 or clear > 100: 
+		if limit == 0 or limit > 100: 
 			await ctx.send(tt.w+"invalid amount! (must be between 1-100)")
 			return
 		await ctx.message.delete()
-		await ctx.channel.purge(limit=clear)
-		await ctx.send(tt.y+f"purged `{clear}` messages!", delete_after=3)
+		self.c = 0
+		def ucheck(msg):
+			if user == None or msg.author == user:
+				self.c += 1
+				return True
+		await ctx.channel.purge(limit=limit, check=ucheck)
+		await ctx.send(tt.y+f"purged `{self.c}` messages{' by '+str(user) if user != None else ''}!", delete_after=3)
 
 	@commands.command()
 	@commands.guild_only()
@@ -118,7 +119,7 @@ class utilities(commands.Cog):
 			ctx.command.reset_cooldown()
 			await ctx.send(tt.w+"your report is too long! (max 1000 characters)")
 			return
-		report = f"report from {ctx.author} in '{ctx.guild.name}'\n\"{report}\""
+		report = f"report from {ctx.author} in '{ctx.guild.name}'\n\"{report}\" {' '.join([a.url for a in ctx.message.attachments])}"
 		f.log(report, '[REPORT]')
 		await self.bot.get_user(tt.admins[0]).send(report)
 		await ctx.send(tt.y+"your report has been submitted!")
@@ -143,13 +144,12 @@ class utilities(commands.Cog):
 			elif param == 'cancel':
 				await ctx.send(tt.x+"no massnick in progress!")
 				return
-			self.mn_in_progress.append(ctx.guild.id)
 			nicknames_list = f.data(tt.storage, ctx.guild.id, 'nicknames', {'nicknames':{}})['nicknames']
 			if param == 'undo':
 				if 'users' not in nicknames_list or len(nicknames_list['users']) == 0:
-					await ctx.send(tt.x+"no nickname history found!")
+					await ctx.send(tt.x+"no nickname history found for this server!")
 					return
-				nickname = 'undo'
+				nickname = param
 			elif param == 'clear':
 				nickname = None
 			else:
@@ -157,8 +157,9 @@ class utilities(commands.Cog):
 				param = 'change'
 			mn_users = [member for member in ctx.guild.members if not member.bot and member.top_role < ctx.guild.me.top_role and member.nick != nickname]
 			if len(mn_users) == 0:
-				await ctx.send(tt.w+"the role hierarchy is preventing me from nicknaming anyone!")
+				await ctx.send(tt.w+"role hierarchy is preventing me from nicknaming anyone!")
 				return
+			self.mn_in_progress.append(ctx.guild.id)
 			await ctx.send(tt.h+f"attempting to {param} {len(mn_users)} of {ctx.guild.member_count} nicknames, please wait...")
 			f.log(f"{stupid[param][0]} {len(mn_users)} nicknames in {ctx.guild.name}", '[MASSNICK]')
 			mn_changed = 0
@@ -169,7 +170,7 @@ class utilities(commands.Cog):
 						await ctx.send(tt.y+"massnick cancelled!")
 						break
 					if param != 'undo':
-						self.mn_storage[ctx.guild.id][str(member.id)] = member.nick
+						self.mn_storage[ctx.guild.id].update({str(member.id):member.nick})
 					elif member.nick == nicknames_list['lastnick'] and str(member.id) in nicknames_list['users']:
 						nickname = nicknames_list['users'][str(member.id)]						
 					try:
@@ -177,13 +178,14 @@ class utilities(commands.Cog):
 						mn_changed += 1
 					except:
 						continue
-			f.data_update(tt.storage, ctx.guild.id, ['nicknames.users','nicknames.lastick'], [self.mn_storage[ctx.guild.id],nickname if param!='undo' else 'undo'])
+			f._set(tt.storage, ctx.guild.id, {"$set":{"nicknames.users":self.mn_storage[ctx.guild.id],"nicknames.lastnick":nickname if param != 'undo' else 'undo'}})
 			self.mn_in_progress.remove(ctx.guild.id)
 			await ctx.send(tt.y+f"`{mn_changed}/{len(mn_users)}` nicknames successfully {stupid[param][1]}!")
 			f.log(f"{stupid[param][1]} {mn_changed}/{len(mn_users)} nicknames in {ctx.guild.name}", '[MASSNICK]')
-		except: 
+		except Exception as error: 
 			if ctx.guild.id in self.mn_in_progress:
 				self.mn_in_progress.remove(ctx.guild.id)
+			raise(error)
 
 def setup(bot):
 	bot.add_cog(utilities(bot))

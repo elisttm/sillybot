@@ -7,7 +7,7 @@ class GuildCommandDisabled(commands.CommandError): pass
 def is_bot_owner(): return commands.check(lambda ctx: bot_owner_check(ctx))
 def is_bot_admin(): return commands.check(lambda ctx: bot_admin_check(ctx))
 def is_guild_admin(): return commands.check(lambda ctx: guild_admin_check(ctx))
-def is_guild(guild_ids): return commands.check(lambda ctx: guild_check(ctx, guild_ids))
+def in_guild(guild_ids): return commands.check(lambda ctx: guild_check(ctx, guild_ids))
 def is_user(user_ids): return commands.check(lambda ctx: user_check(ctx, user_ids))
 
 def bot_owner(ctx):
@@ -33,7 +33,7 @@ def bot_admin_check(ctx):
 	raise(commands.CheckFailure)
 
 def guild_admin_check(ctx):
-	if any([ctx.author.guild_permissions.administrator, guild_owner(ctx), bot_admin(ctx), not dm_channel(ctx)]):
+	if ctx.author.guild_permissions.administrator or guild_owner(ctx) or bot_owner(ctx) or dm_channel(ctx):
 		return True
 	raise(commands.CheckFailure)
 

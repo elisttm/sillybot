@@ -1,9 +1,9 @@
 class cmds:
 	legend = {
-		"<param>": "variable parameter",
-		"subcmd": "subcommand parameter",
-		"[params]": "group of parameters",
-		"^param(s)": "optional parameter(s) that can be empty",
+		"command <param>": "variable parameter",
+		"command param": "subcommand parameter",
+		"command <param1>/<param2>": "multiple subcommands/parameters",
+		"#param(s)": "optional parameter(s) that can be empty",
 	}
 	_c_ = {
 		'general': ["basic commands for general functions", {
@@ -13,12 +13,12 @@ class cmds:
 		'utilities': ["helpful utility commands", {
 			'ping': ['ping', "tests and sends trashbots latency"],
 			'server': ['server', "gives information about the current server"],
-			'user': ['user <user>', "gives information about a user"],
-			'avatar': ['avatar <user>', "sends the avatar of a user"],
+			'user': ['user <#user>', "gives information about a user"],
+			'avatar': ['avatar <#user>', "sends the avatar of a user"],
 			'emote': ['emote <emoji>', "sends the full image of an emoji", ['e', 'emoji']],
-			'clear': ['clear <number>', "purges a specified number of messages in the current channel"],
+			'clear': ['clear <number> <#user>', "purges a specified number of messages in the current channel"],
 			'massnick': ['massnick <nickname>/clear/undo/cancel', "modifies the nicknames of everyone in the server. 'clear' removes all nicknames, 'undo' and 'cancel' are self explanatory", None, "server admins only"],
-			'report': ['report <text>', "sends a report to me (eli); please only use for errors and bugs!"],
+			'report': ['report <content>', "sends a report to me (eli), please only use for errors and bugs! (note: attachments (i.e. images and files) can be sent with reports)"],
 		}],
 		'fun': ["miscellaneous silly commands", {
 			'say': ['say <message>', "has trashbot repeat a message"],
@@ -33,12 +33,12 @@ class cmds:
 			'tag delete': ['tag delete <tag>', "deletes a tag that you own", ['d']],
 			'tag edit': ['tag edit <tag> <content>', "applies the provided contents to a tag you own", ['e']],
 			'tag transfer': ['tag transfer <tag> <user>', "transfers ownership of a tag you own to someone else"],
-			'tag owner': ['tag owner <tag>', "sends the name of the owner of a tag"],
-			'tag list': ['tag list <user>', "sends the list of tags owned by a user"],
+			'tag info': ['tag info <tag>', "provides the owner and creation timestamp of the provided tag"],
+			'tag list': ['tag list <#user>', "sends the list of tags owned by a user"],
 			'tag random': ['tag random', "sends the contents of a randomly selected tag"],
 		}],
 		'customization': ["per server customization for trashbot", {
-			'settings': ['settings <setting> <action> <params>', "used to manage the server config, leaving params blank returns the current servers config; [a:/docs/settings:link to documentation]", ['s'], "server admins only"],
+			'settings': ['settings <setting> <action> <value(s)>', "command for server config managing, leaving params blank displays the current servers config; documentation can be found [a:/docs/settings:here]", ['s'], "server admins only"],
 		}],
 	}
 
@@ -47,69 +47,87 @@ class conf:
 		"prefix": {
 			"group": "basic", 
 			"type": "text",
+			"name": "prefix",
+			"description": "the command prefix",
 			"default": "t!",
-			"info": ["prefix", "the command prefix"],
-			"c": {"max":"5", "size":"1"},
+			"c": {"max":5, "size":1},
+		},
+		"disabledcmds": {
+			"group": "basic",
+			"type": "list",
+			"name": "disabled commands",
+			"description": "a list of commands that are disabled for members",
+			"valid": ['tag','say','echo','urban','massnick','clear'],
 		},
 		"msgchannel": {
 			"group": "messages", 
 			"type": "channel",
-			"info": ["message channel", "channel that welcome/farewell messages are put in"],
+			"name": "message channel", 
+			"namealt": "channel",
+			"description": "channel where welcome and farewell messages get sent to",
 		},	
 		"joinmsg": {
 			"group": "messages", 
 			"type": "text",
-			"info": ["greeting message", "message sent when a member joins"],
-			"c": {"max":"1000", "size":"25"},
+			"name": "greeting message", 
+			"namealt": "greeting",
+			"description": "message that is sent when a member joins",
+			"c": {"type":"large", "max":1000},
 		},
 		"leavemsg": {
 			"group": "messages", 
 			"type": "text",
-			"info": ["farewell message", "message sent when a member leaves"],
-			"c": {"max":"1000", "size":"25"},
+			"name": "farewell message", 
+			"namealt": "farewell",
+			"description": "message that is sent when a member leaves",
+			"c": {"type":"large", "max":1000},
 		},
 		"autorole": {
 			"group": "roles", 
 			"type": "role",
-			"info": ["default role", "role assigned to members when they join"]
+			"name": "default role", 
+			"namealt": "default",
+			"description": "role assigned to members when they join",
 		},
 		"stickyroles": {
 			"group": "roles",
 			"type": "toggle",
+			"name": "stickyroles",
+			"description": "toggles saving and reassigning roles when members leave and rejoin",
 			"default": False,
-			"info": ["stickyroles", "toggles saving and reassigning roles when members leave and rejoin"],
+			"perms": ['manage_roles'],
 		},
 		"starboard": {
 			"group": "starboard",
 			"type": "channel",
-			"info": ["starboard channel", "the channel used for the starboard"],
+			"name": "starboard channel",
+			"namealt": "channel",
+			"description": "the channel where starboard messages are sent to",
 		},
 		"starboardcount": {
 			"group": "starboard",
 			"type": "number", 
+			"name": "starboard threshold",
+			"namealt": "threshold",
+			"description": "number of reactions needed to add a message to the starboard",
 			"default": 5, 
-			"info": ["starboard threshold", "number of reactions needed to add a message to the starboard"],
 			"c": {"min":1, "max":10}
 		},
-		#"starboardemoji": {
-		#	"group": "starboard",
-		#	"type": "emoji", 
-		#	"default": emoji.emojize(':star:'),
-		# "info": ["starboard reaction emoji", "the emoji used for starboard reactions"] 
-		#},
-		"disabled": {
-			"group": "commands",
-			"type": "list",
-			"valid": ['tag'],
-			"info": ["disabled commands", "list of commands that are disabled for members"],
+		"starboardemoji": {
+			"group": "starboard",
+			"type": "emoji", 
+			"name": "starboard emoji",
+			"namealt": "emoji",
+			"description": "the emoji used on starboard messages",
+			"default": '⭐',
+			"c": {"max":18, "size":12},
 		},
 	}
 
-	key_groups = {"basic":[], "commands":[], "roles":[], "messages":[], "starboard":[],}
-	for key in keys:
+	key_groups = {"basic":[],"messages":[],"roles":[],"starboard":[],}
+	for key in keys: 
 		key_groups[keys[key]['group']].append(key)
-
-	value_types = ['text','number','channel','role']
+	value_types = ['text','number','channel','role','emoji']
 	actions = {
 		'all': [],
 		'value': ['set', 'reset'],
@@ -118,7 +136,3 @@ class conf:
 	}
 	for x in actions: 
 		actions['all'].extend(actions[x])
-
-	for category in ['utilities','fun']:
-		for command in list(cmds._c_[category][1]):
-			keys['disabled']['valid'].append(command)

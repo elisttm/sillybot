@@ -1,6 +1,8 @@
+config.py
 notes
-/misc/
+/temp/
 **/__pycache__/
 .breakpoints
+.replit
 poetry.lock
 pyproject.toml
