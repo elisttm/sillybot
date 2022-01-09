@@ -8,10 +8,10 @@ class cmds:
 	_c_ = {
 		'general': ["basic commands for general functions", {
 			'help': ['help', "sends the link to this page"],
-			'about': ['about', "gives internal info about trashbot"],
+			'about': ['about', "gives internal info about the bot"],
 		}],
 		'utilities': ["helpful utility commands", {
-			'ping': ['ping', "tests and sends trashbots latency"],
+			'ping': ['ping', "tests and sends the bots latency"],
 			'server': ['server', "gives information about the current server"],
 			'user': ['user <#user>', "gives information about a user"],
 			'avatar': ['avatar <#user>', "sends the avatar of a user"],
@@ -21,12 +21,12 @@ class cmds:
 			'report': ['report <content>', "sends a report to me (eli), please only use for errors and bugs! (note: attachments (i.e. images and files) can be sent with reports)"],
 		}],
 		'fun': ["miscellaneous silly commands", {
-			'say': ['say <message>', "has trashbot repeat a message"],
-			'echo': ['echo <channel> <message>', "has trashbot echo a message to another channel", None, "server admins only"],
+			'say': ['say <message>', "has the bot repeat a message"],
+			'echo': ['echo <channel> <message>', "has the bot echo a message to another channel", None, "server admins only"],
 			'urban': ['urban <word>', "provides the urban dictionary entry of a word"],
 			'cat': ['cat <cat>/list', "sends a random cat picture from my collection"]
 		}],
-		'tags': ["commands related to trashbots tag system", {
+		'tags': ["commands related to eli bots tag system", {
 			'tag': ['tag <subcommand>/<tag>', "main command for all tag functions; a tag name in place of a subcommand mimics 'tag view'", ['t']],
 			'tag view': ['tag view <tag>', "sends the contents of a tag"],
 			'tag create': ['tag create <tag> <content>', "creates a tag with the provided contents", ['c']],
@@ -37,7 +37,7 @@ class cmds:
 			'tag list': ['tag list <#user>', "sends the list of tags owned by a user"],
 			'tag random': ['tag random', "sends the contents of a randomly selected tag"],
 		}],
-		'customization': ["per server customization for trashbot", {
+		'customization': ["per server customization for eli bot", {
 			'settings': ['settings <setting> <action> <value(s)>', "command for server config managing, leaving params blank displays the current servers config; documentation can be found [a:/docs/settings:here]", ['s'], "server admins only"],
 		}],
 	}

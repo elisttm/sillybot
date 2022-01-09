@@ -1,5 +1,5 @@
-import discord, emoji
-from discord.ext import commands
+import nextcord, emoji
+from nextcord.ext import commands
 from a import checks
 from a.funcs import f
 from a.stuff import conf
@@ -9,10 +9,6 @@ class customization(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot
 
-	def all_perms(self, channel, member, required):
-		perms = dict(channel.permissions_for(member))
-		return True if (all([perms[x] for x in required]) or perms['administrator']) else False
-
 	@commands.group(name='settings', aliases=['s'])
 	@commands.guild_only()
 	@checks.is_guild_admin()
@@ -20,8 +16,8 @@ class customization(commands.Cog):
 	async def settings(self, ctx, key=None, action=None, *, value=None):
 		await ctx.trigger_typing()
 		if not key:
-			e_settings = discord.Embed(title=f"", description=f"this is a list of trashbots configuration for this specific server\n[command documentation]({tt.settings_doc})\n[customize via dashboard]({tt.site}config/{ctx.guild.id})", color=tt.dcolor)
-			e_settings.set_author(name=f"trashbot settings", icon_url=tt.icon.info)
+			e_settings = nextcord.Embed(title=f"", description=f"this is a list of eli bots configuration for this specific server\n[command documentation]({tt.settings_doc})\n[customize via dashboard]({tt.site}config/{ctx.guild.id})", color=tt.dcolor)
+			e_settings.set_author(name=f"eli bot settings", icon_url=tt.icon.info)
 			perm_errors = []
 			data = tt.config.find_one({'_id':ctx.guild.id},{'_id':0})
 			if not data:
@@ -48,17 +44,10 @@ class customization(commands.Cog):
 						elif conf.keys[key]['type'] == 'role':
 							role = ctx.guild.get_role(data[key])
 							data[key] = f'{role.mention}'
-							if role >= ctx.guild.me.top_role or not self.all_perms(ctx.channel, ctx.guild.me, ['manage_roles']):
-								perm_errors.append(key)
 						elif conf.keys[key]['type'] == 'channel':
 							channel = self.bot.get_channel(data[key])
-							data[key] = f'{channel.mention}'
-							if not self.all_perms(channel, ctx.guild.me, ['send_messages','read_messages']):
-								perm_errors.append(key)
-						if 'perms' in conf.keys[key] and not self.all_perms(channel, ctx.guild.me, conf.keys[key]['perms']):
-							perm_errors.append(key)
-					except:
-						data[key] = '<unable to get value>'
+					except Exception:
+ 						data[key] = '<unable to get value>'
 					text += f'\n**`{key}:`** {data[key]}'
 				e_settings.add_field(name=group,value=text,inline=False)
 			if len(perm_errors) > 0:

@@ -1,5 +1,5 @@
-import discord, math, traceback
-from discord.ext import commands
+import nextcord, math, traceback
+from nextcord.ext import commands
 from a import checks
 from a.funcs import f
 from a.stuff import cmds
@@ -23,7 +23,7 @@ class errors(commands.Cog):
 			ctx.command.reset_cooldown(ctx)
 			command = ctx.command.qualified_name
 			cog = ctx.command.cog.qualified_name
-			await ctx.send(tt.w+f"invalid command parameters provided!"+(f'\n{tt.s}{tt.s}`{ctx.prefix if str(self.bot.user.id) not in ctx.prefix else "@trashbot "}{cmds._c_[cog][1][command][0]}`' if cog in cmds._c_ and command in cmds._c_[cog][1] else ''))
+			await ctx.send(tt.w+f"invalid command parameters provided!"+(f'\n{tt.s}{tt.s}`{ctx.prefix if str(self.bot.user.id) not in ctx.prefix else "@eli bot "}{cmds._c_[cog][1][command][0]}`' if cog in cmds._c_ and command in cmds._c_[cog][1] else ''))
 
 		elif isinstance(error, commands.DisabledCommand):
 			await ctx.send(tt.x+f"this command is currently disabled for maintenance!")
@@ -48,7 +48,7 @@ class errors(commands.Cog):
 
 		else:
 			f.log(f"Ignoring exception in command '{ctx.command.qualified_name}':\n"+''.join(traceback.format_exception(type(error), error, error.__traceback__)), False, ['temp/error.txt','w'], tt.ansi.red+tt.ansi.bold)
-			await ctx.send(tt.w+f"i ran into an error running this command! the error log is attached, please report it with 't!report'!\n**note: trashbot is currently in a testing stage for discord.py 2.0; if you experience any errors, i highly encourage you report them!**", file=discord.File('temp/error.txt'))
+			await ctx.send(tt.w+f"i ran into an error running this command! the error log is attached, please report it with 't!report'!\n**note: eli bot is currently in a testing stage for nextcord.py 2.0; if you experience any errors, i highly encourage you report them!**", file=nextcord.File('temp/error.txt'))
 			
 def setup(bot):
 	bot.add_cog(errors(bot))

@@ -1,8 +1,8 @@
 # the code for this module sucks right now ill fix it later
 
-import discord, asyncio, youtube_dl
+import nextcord, asyncio, youtube_dl
 from functools import partial
-from discord.ext import commands
+from nextcord.ext import commands
 from a.funcs import f
 import a.constants as tt
 
@@ -22,7 +22,7 @@ ytdl = youtube_dl.YoutubeDL({
 	'source_address': '0.0.0.0'
 })
 
-class YTDLSource(discord.PCMVolumeTransformer):
+class YTDLSource(nextcord.PCMVolumeTransformer):
 	def __init__(self, source, *, data, volume=0.25):
 		super().__init__(source, volume)
 		self.data = data
@@ -36,7 +36,7 @@ class YTDLSource(discord.PCMVolumeTransformer):
 		print(data)
 		if 'entries' in data:
 			data = data['entries'][0]
-		return cls(discord.FFmpegPCMAudio(data['url'], **{'options': '-vn'}), data=data)
+		return cls(nextcord.FFmpegPCMAudio(data['url'], **{'options': '-vn'}), data=data)
 
 class voice(commands.Cog):
 	def __init__(self, bot):
@@ -54,7 +54,7 @@ class voice(commands.Cog):
 
 	#@commands.command()
 	#async def local(self, ctx, *, query):
-	#	source = discord.PCMVolumeTransformer(discord.FFmpegPCMAudio(query))
+	#	source = nextcord.PCMVolumeTransformer(nextcord.FFmpegPCMAudio(query))
 	#	ctx.voice_client.play(source, after=lambda e: print(f'Player error: {e}') if e else None)
 	#	await ctx.send(f'Now playing: {query}')
 

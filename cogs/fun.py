@@ -1,5 +1,5 @@
-import discord, json, random, urllib, urllib.request, datetime
-from discord.ext import commands
+import nextcord, json, random, urllib, urllib.request, datetime
+from nextcord.ext import commands
 from a import checks
 from a.funcs import f
 import a.constants as tt
@@ -19,7 +19,7 @@ class fun(commands.Cog):
 		
 	@commands.command()
 	@checks.is_guild_admin()
-	async def echo(self, ctx, channel:discord.TextChannel, *, message:str):
+	async def echo(self, ctx, channel:nextcord.TextChannel, *, message:str):
 		
 		f.log(f"{ctx.author} in '{ctx.guild.name}' to #{channel} {'('+channel.guild.name+')' if channel.guild.name != ctx.guild.name else ''} echoed '{message}'")
 		await channel.send(message)
@@ -33,7 +33,7 @@ class fun(commands.Cog):
 			await ctx.send(tt.w+"the provided word does not have any definitions!")
 			return
 		urban_dict = dict(random.choice(urban_list['list']))
-		e_urban = discord.Embed(title=f"**{urban_sanitize(urban_dict['word']).upper()}**", url=urban_dict['permalink'], description=f"**definition**\n{urban_sanitize(urban_dict['definition'])}\n**example**\n{urban_sanitize(urban_dict['example'])}", color=tt.dcolor, timestamp=datetime.datetime.strptime(urban_dict['written_on'], '%Y-%m-%dT%H:%M:%S.%fZ'))
+		e_urban = nextcord.Embed(title=f"**{urban_sanitize(urban_dict['word']).upper()}**", url=urban_dict['permalink'], description=f"**definition**\n{urban_sanitize(urban_dict['definition'])}\n**example**\n{urban_sanitize(urban_dict['example'])}", color=tt.dcolor, timestamp=datetime.datetime.strptime(urban_dict['written_on'], '%Y-%m-%dT%H:%M:%S.%fZ'))
 		e_urban.set_footer(text=f"by {urban_dict['author']} | {tt.e.thumbsup}{urban_dict['thumbs_up']} {tt.e.thumbsdown}{urban_dict['thumbs_down']}")
 		await ctx.send(embed=e_urban)
 

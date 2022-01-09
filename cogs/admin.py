@@ -1,5 +1,5 @@
-import discord, os, sys
-from discord.ext import commands
+import nextcord, os, sys
+from nextcord.ext import commands
 from a import checks
 from a.funcs import f
 import a.constants as tt
@@ -18,16 +18,16 @@ class admin(commands.Cog):
 	@commands.command()
 	@commands.is_owner()
 	async def leave(self, ctx):
-		f.log(f"{ctx.guild.author} removed trashbot from '{ctx.guild.name}'")
+		f.log(f"{ctx.guild.author} removed from '{ctx.guild.name}'")
 		await ctx.message.add_reaction(tt.e.check)
 		await ctx.guild.leave()
 
 	@commands.command()
 	async def admins(self, ctx):
 		await ctx.trigger_typing() 
-		e_adm = discord.Embed(color=tt.dcolor)
-		e_adm.add_field(name=f"trashbot admins", value='\n'.join([str(self.bot.get_user(admin)) for admin in tt.admins]))
-		e_adm.set_author(name="list of trashbot's admins", icon_url=tt.icon.info)
+		e_adm = nextcord.Embed(color=tt.dcolor)
+		e_adm.add_field(name=f"bot admins", value='\n'.join([str(self.bot.get_user(admin)) for admin in tt.admins]))
+		e_adm.set_author(name="list of bot admins", icon_url=tt.icon.info)
 		await ctx.send(embed=e_adm)
 
 	@commands.command()
@@ -39,7 +39,7 @@ class admin(commands.Cog):
 		if x[1] not in tt.presence.status or x[2] not in tt.presence.activity:
 			await ctx.send(tt.x+f"invalid format! (text;{'/'.join(tt.presence.status)};{'/'.join(tt.presence.activity)})")
 			return
-		await self.bot.change_presence(status=tt.presence.status[x[1]], activity=discord.Activity(type=tt.presence.activity[x[2]],name=x[0]))
+		await self.bot.change_presence(status=tt.presence.status[x[1]], activity=nextcord.Activity(type=tt.presence.activity[x[2]],name=x[0]))
 		f.log(f"{ctx.author} set presence to {x[1]}, {x[2]} '{x[0]}'")
 		await ctx.message.add_reaction(tt.e.check)
 
@@ -52,7 +52,7 @@ class admin(commands.Cog):
 
 	@commands.command()
 	@checks.is_bot_admin()
-	async def blacklist(self, ctx, user:discord.User=None):
+	async def blacklist(self, ctx, user:nextcord.User=None):
 		if user == None:
 			_list = ''
 			for id in tt.blacklist:

@@ -1,4 +1,4 @@
-from discord.ext import commands, tasks
+from nextcord.ext import commands, tasks
 from a.funcs import f
 import a.constants as tt
 

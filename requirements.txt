@@ -1,4 +1,4 @@
-discord.py
+py-cord
 pymongo
 emoji
 pytz

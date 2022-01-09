@@ -1,5 +1,5 @@
-import discord, re, datetime
-from discord.ext import commands
+import nextcord, re, datetime
+from nextcord.ext import commands
 from a import checks
 from a.funcs import f
 import a.constants as tt
@@ -7,16 +7,16 @@ import a.constants as tt
 re_tag = re.compile("^[a-z0-9_-]*$")
 reserved = ['tag','view','create','c','edit','e','delete','d','transfer','forceedit','forcetransfer','forceremove','info','random']
 
+def tname(tag):
+	return str(tag).lower().replace('.','')
+
 class tags(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot
 		self.db = tt.db['tags']
 
-	def tname(self, tag):
-		return tag.lower().replace('.','')
-
-	async def tag_check(self, tag_name, tagdata, ctx):
-		if tag_name in reserved:
+	async def tag_check(self, tag, tagdata, ctx):
+		if tag in reserved:
 			await ctx.channel.send(tt.x+"the provided tag is reserved!")
 			return False
 		if ctx.command.name != 'create' and tagdata == None:
@@ -27,13 +27,13 @@ class tags(commands.Cog):
 			return False
 		return True
 
-	async def manage_content(self, tag_name, tag_content, ctx):
+	async def manage_content(self, tag, tag_content, ctx):
 		if ctx.message.attachments:
 			tag_content += '' if not tag_content else ' '+ctx.message.attachments[0].url
-		if not re_tag.match(tag_name):
-			await ctx.channel.send(tt.x+"tag names cannot contain special characters except - and _!")
+		if not re_tag.match(tag):
+			await ctx.channel.send(tt.x+"tag names cannot contain special characters except hyphens and underscores!")
 			return False
-		if len(tag_name) > 20 or len(tag_content) > 1000:
+		if len(tag) > 20 or len(tag_content) > 1000:
 			await ctx.channel.send(tt.x+f"too many characters! (maximum 20 for tag names and 1000 for tag contents)")
 			return False
 		return tag_content
@@ -45,23 +45,21 @@ class tags(commands.Cog):
 		if ctx.invoked_subcommand is None:
 			if ctx.subcommand_passed is None:
 				raise(commands.UserInputError)
-			await ctx.invoke(self.bot.get_command('tag view'), tag_name=ctx.subcommand_passed)
+			await ctx.invoke(self.bot.get_command('tag view'), tag=tname(ctx.subcommand_passed))
 
 	@tag.before_invoke
 	async def tag_before_invoke(self, ctx):
 		await ctx.trigger_typing()
 
 	@tag.command(name='view')
-	async def tag_view(self, ctx, tag_name:str):
-		tag = self.tname(tag_name)
+	async def tag_view(self, ctx, tag:tname):
 		tagdata = self.db.find_one({'_id':tag},{'content':1})
 		if not await self.tag_check(tag, tagdata, ctx):
 			return
 		await ctx.send(tagdata['content'])
 
 	@tag.command(name='create', aliases=['c'])
-	async def tag_create(self, ctx, tag_name:str, *, tag_content:str):
-		tag = self.tname(tag_name)
+	async def tag_create(self, ctx, tag:tname, *, tag_content:str):
 		tagdata = self.db.find_one({'_id':tag},{'_id':1})
 		if tagdata != None:
 			await ctx.channel.send(tt.x+f"the provided tag already exists!")
@@ -76,8 +74,7 @@ class tags(commands.Cog):
 		f.log(f"{ctx.author} created '{tag}' ({content})", '[TAGS]')
 				
 	@tag.command(name='edit', aliases=['e'])
-	async def tag_edit(self, ctx, tag_name:str, *, tag_content:str):
-		tag = self.tname(tag_name)
+	async def tag_edit(self, ctx, tag:tname, *, tag_content:str):
 		tagdata = self.db.find_one({'_id':tag},{'owner':1,'content':1})
 		if not await self.tag_check(tag, tagdata, ctx):
 			return
@@ -89,8 +86,7 @@ class tags(commands.Cog):
 		f.log(f"{ctx.author} updated '{tag}' ({content})", '[TAGS]')
 
 	@tag.command(name='delete', aliases=['d'])
-	async def tag_remove(self, ctx, tag_name:str):
-		tag = self.tname(tag_name)
+	async def tag_remove(self, ctx, tag:tname):
 		tagdata = self.db.find_one({'_id':tag},{'owner':1})
 		if not await self.tag_check(tag, tagdata, ctx):
 			return
@@ -99,8 +95,7 @@ class tags(commands.Cog):
 		f.log(f"{ctx.author} deleted '{tag}'", '[TAGS]')
 
 	@tag.command(name='transfer')
-	async def tag_transfer(self, ctx, tag_name:str, user:discord.Member):
-		tag = self.tname(tag_name)
+	async def tag_transfer(self, ctx, tag:tname, user:nextcord.Member):
 		tagdata = self.db.find_one({'_id':tag},{'owner':1})
 		if not await self.tag_check(tag, tagdata, ctx):
 			return
@@ -110,8 +105,7 @@ class tags(commands.Cog):
 
 	@tag.command(name='forceedit')
 	@checks.is_bot_admin()
-	async def tag_force_edit(self, ctx, tag_name:str, *, tag_content:str):
-		tag = self.tname(tag_name)
+	async def tag_force_edit(self, ctx, tag:tname, *, tag_content:str):
 		tagdata = self.db.find_one({'_id':tag},{'content':1,'owner':1})
 		if not await self.tag_check(tag, tagdata, ctx):
 			return
@@ -124,8 +118,7 @@ class tags(commands.Cog):
 
 	@tag.command(name='forceremove')
 	@checks.is_bot_admin()
-	async def tag_force_remove(self, ctx, tag_name:str):
-		tag = self.tname(tag_name)
+	async def tag_force_remove(self, ctx, tag:tname):
 		tagdata = self.db.find_one({'_id':tag},{'owner':1})
 		if not await self.tag_check(tag, tagdata, ctx):
 			return
@@ -135,8 +128,7 @@ class tags(commands.Cog):
 
 	@tag.command(name='forcetransfer')
 	@checks.is_bot_admin()
-	async def tag_force_transfer(self, ctx, tag_name:str, user:discord.Member):
-		tag = self.tname(tag_name)
+	async def tag_force_transfer(self, ctx, tag:tname, user:nextcord.Member):
 		tagdata = self.db.find_one({'_id':tag},{'owner':1})
 		if not await self.tag_check(tag, tagdata, ctx):
 			return
@@ -146,8 +138,7 @@ class tags(commands.Cog):
 		f.log(f"{ctx.author} forcefully transferred {tag}' ({before} -> {user})", '[TAGS]')
 
 	@tag.command(name='info')
-	async def tag_info(self, ctx, tag_name:str):
-		tag = self.tname(tag_name)
+	async def tag_info(self, ctx, tag:tname):
 		tagdata = self.db.find_one({'_id':tag},{'date':1,'owner':1})
 		if not await self.tag_check(tag, tagdata, ctx):
 			return
@@ -159,7 +150,7 @@ class tags(commands.Cog):
 		await ctx.send(f"**`tag: {random_tag['_id']}`**\n{random_tag['content']}")
 
 	@tag.command(name='list')
-	async def tag_list(self, ctx, user:discord.Member=None):
+	async def tag_list(self, ctx, user:nextcord.Member=None):
 		user = ctx.author if not user else user
 		user_tags = list(self.db.find({'owner':user.id},{'_id':1}))
 		if not user_tags:

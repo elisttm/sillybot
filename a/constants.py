@@ -1,5 +1,5 @@
 import config as c
-import discord, pymongo, pytz, emoji, datetime
+import nextcord, pymongo, pytz, emoji, datetime
 
 testing = c.testing
 
@@ -15,7 +15,7 @@ cogs = (
 	'utilities',  
 	'tags',
 	'fun',
-	'voice',
+#	'voice',
 )
 loaded = []
 
@@ -25,12 +25,12 @@ storage = db['storage']
 misc = db['misc']
 
 blacklist = misc.find_one({'_id':'misc'},{'blacklist':1}).get('blacklist', [])
-start_time = datetime.datetime.now()
+start_time = datetime.datetime.utcnow()
 #pytz.timezone('US/Eastern')
 
-github = 'https://github.com/elisttm/trashbot'
-infopage = 'https://elisttm.space/trashbot'
-site = 'https://trashbot.elisttm.space/'
+github = 'https://github.com/elisttm/elibot'
+infopage = 'https://elisttm.space/bot'
+site = 'https://bot.elisttm.space/'
 settings_doc = site+'docs/settings'
 
 class servers:
@@ -40,12 +40,12 @@ class channels:
 	log = 686638005083308126
 
 class presence:
-	activity = {'playing':discord.ActivityType.playing, 'listening':discord.ActivityType.listening}
-	status = {'online':discord.Status.online, 'idle':discord.Status.idle, 'dnd':discord.Status.dnd, 'invisible':discord.Status.invisible,}
+	activity = {'playing':nextcord.ActivityType.playing, 'listening':nextcord.ActivityType.listening}
+	status = {'online':nextcord.Status.online, 'idle':nextcord.Status.idle, 'dnd':nextcord.Status.dnd, 'invisible':nextcord.Status.invisible,}
 	default = [c.prefix+'help', status['online'], activity['listening']] if not testing else ['maintinence mode; expect bugs delays and frequent downtime!', status['dnd'], activity['playing']]
 
 class icon:
-	_url_ = 'https://elisttm.space/static/images/trashbot/icons/'
+	_url_ = 'https://elisttm.space/static/images/elibot/icons/'
 	info = _url_+'info.png'
 	cog = _url_+'cog.png'
 	warn = _url_+'warn.png'

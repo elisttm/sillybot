@@ -1,7 +1,6 @@
-
-import discord, re
-from discord.utils import get
-from discord.ext import commands
+import nextcord, re
+from nextcord.utils import get
+from nextcord.ext import commands
 from a.funcs import f
 import a.constants as tt
 
@@ -17,7 +16,7 @@ class starboard(commands.Cog):
 
 	async def starboard_content(self, message, count):
 		_attachments_ = ''.join([f"[{a.filename}]({a.url})\n" for a in message.attachments])
-		e_sb = discord.Embed(description=f"{message.content}\n{_attachments_}\n[jump to message]({message.jump_url})", color=0xffac33, timestamp=message.created_at)
+		e_sb = nextcord.Embed(description=f"{message.content}\n{_attachments_}\n[jump to message]({message.jump_url})", color=0xffac33, timestamp=message.created_at)
 		e_sb.set_author(name=f"{message.author.name}#{message.author.discriminator}", icon_url=message.author.avatar.url)
 		e_sb.set_footer(text=f"{message.id}")
 		if len(message.attachments) != 0 and '.'+message.attachments[0].url.rsplit('.',1)[1] in tt.filetypes.img:
@@ -30,7 +29,7 @@ class starboard(commands.Cog):
 
 	@commands.Cog.listener()
 	async def on_raw_reaction_add(self, payload):
-		if payload.member.bot or (discord.utils.utcnow()-discord.Object(payload.message_id).created_at).days >= 7:
+		if payload.member.bot or (nextcord.utils.utcnow()-nextcord.Object(payload.message_id).created_at).days >= 7:
 			return
 		message = await self.bot.get_channel(payload.channel_id).fetch_message(payload.message_id)
 		config = tt.config.find_one({'_id':message.guild.id},{'starboard':1,'starboardcount':1,'starboardemoji':1})
@@ -54,7 +53,7 @@ class starboard(commands.Cog):
 
 	@commands.Cog.listener()
 	async def on_raw_reaction_remove(self, payload):
-		if (discord.utils.utcnow()-discord.Object(payload.message_id).created_at).days >= 7:
+		if (nextcord.utils.utcnow()-nextcord.Object(payload.message_id).created_at).days >= 7:
 			return
 		message = await self.bot.get_channel(payload.channel_id).fetch_message(payload.message_id)
 		config = tt.config.find_one({'_id':message.guild.id},{'starboard':1,'starboardcount':1,'starboardemoji':1})

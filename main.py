@@ -1,5 +1,5 @@
-import discord, traceback, config, datetime, pytz
-from discord.ext import commands
+import nextcord, traceback, config
+from nextcord.ext import commands
 from a import checks
 from a.funcs import f
 from a.stuff import conf
@@ -9,14 +9,14 @@ async def get_prefix(bot, message):
 	data = tt.config.find_one({'_id':message.guild.id},{'prefix':1}) if message.guild != None else None
 	return commands.when_mentioned_or(config.prefix if not data else data.get('prefix', config.prefix))(bot, message)
 
-intents = discord.Intents.default()
+intents = nextcord.Intents.default()
 intents.members = True
 
 bot = commands.Bot(
 	command_prefix = get_prefix,
 	case_insensitive = True,
 	intents = intents,
-	allowed_mentions = discord.AllowedMentions(everyone=False,roles=False),
+	allowed_mentions = nextcord.AllowedMentions(everyone=False,roles=False),
 )
 ctx = commands.Context
 bot.remove_command('help')
@@ -43,7 +43,7 @@ async def on_connect():
 async def on_ready():
 	f.log('ready!')
 
-	await bot.change_presence(status=tt.presence.default[1], activity=discord.Activity(type=tt.presence.default[2],name=tt.presence.default[0]))
+	await bot.change_presence(status=tt.presence.default[1], activity=nextcord.Activity(type=tt.presence.default[2],name=tt.presence.default[0]))
 	tt.e.upvote = bot.get_emoji(tt.e.upvote)
 	tt.e.downvote = bot.get_emoji(tt.e.downvote)
 	if not tt.testing:

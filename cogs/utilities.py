@@ -1,5 +1,5 @@
-import discord, time, datetime, emoji, dateutil.relativedelta
-from discord.ext import commands
+import nextcord, time, datetime, emoji, dateutil.relativedelta
+from nextcord.ext import commands
 from a import checks
 from a.funcs import f
 import a.constants as tt
@@ -17,7 +17,7 @@ class utilities(commands.Cog):
 	@commands.command()
 	async def invite(self, ctx):
 		invite = f'https://discordapp.com/oauth2/authorize?client_id={ctx.bot.user.id}&scope=bot&permissions='
-		await ctx.send(embed=discord.Embed(title=f"invite trashbot", description=f"[invite with admin permissions]({invite+'8'})\n[invite with necessary permissions only]({invite+'1544416321'})", color=tt.dcolor))
+		await ctx.send(embed=nextcord.Embed(title=f"invite eli bot", description=f"[invite with admin permissions]({invite+'8'})\n[invite with minimal permissions]({invite+'1544416321'})", color=tt.dcolor))
 
 	@commands.command()
 	async def error(self, ctx):
@@ -27,11 +27,11 @@ class utilities(commands.Cog):
 	async def about(self, ctx):
 		await ctx.trigger_typing()
 		appinfo = await self.bot.application_info()
-		diff = dateutil.relativedelta.relativedelta(datetime.datetime.now(), tt.start_time) 
-		e_about = discord.Embed(title=appinfo.name, description=appinfo.description, color=tt.dcolor)
+		diff = dateutil.relativedelta.relativedelta(datetime.datetime.utcnow(), tt.start_time) 
+		e_about = nextcord.Embed(title=appinfo.name, description=appinfo.description, color=tt.dcolor)
 		e_about.add_field(name="stats", value=f"`{len(list(self.bot.guilds))}` servers, `{len(self.bot.users)}` users", inline=False)
 		e_about.add_field(name=f"uptime", value=(', ').join([f"{x}" for x in [f'{diff.years}yr',f'{diff.months}mo',f'{diff.days}d',f'{diff.hours}hr',f'{diff.minutes}m',f'{diff.seconds}s'] if x[0] != '0']), inline=False)
-		e_about.add_field(name=f"wrapper version", value=discord.__version__, inline=False)
+		e_about.add_field(name=f"wrapper version", value=nextcord.__version__, inline=False)
 		e_about.set_thumbnail(url=self.bot.user.avatar.url)
 		await ctx.send(embed=e_about)
 
@@ -44,27 +44,27 @@ class utilities(commands.Cog):
 
 	@commands.command()
 	@commands.guild_only()
-	async def user(self, ctx, user:discord.User=None):
+	async def user(self, ctx, user:nextcord.User=None):
 		await ctx.trigger_typing()
 		user = ctx.author if not user else user
 		extra_info = ''
 		if user in ctx.guild.members:
 			user = ctx.guild.get_member(user.id)
-			extra_info += f"**joined**: __<t:{int(user.joined_at.timestamp())}:D>__ (<t:{int(user.joined_at.timestamp())}:R>)\n**top role**: {user.top_role} {'(owner)' if ctx.guild.owner == user else ''}{'(admin)' if user.guild_permissions.administrator and ctx.guild.owner != user else ''}\n\n"
+			extra_info += f"**joined**: __<t:{int(user.joined_at.timestamp())}:D>__ (<t:{int(user.joined_at.timestamp())}:R>)\n**top role**: {user.top_role} {'(owner)' if ctx.guild.owner == user else ''}{'(admin)' if user.guild_permissions.administrator and ctx.guild.owner != user else ''}\n"
 		if user.id == tt.admins[0]: 
-			extra_info += '\n`trashbot owner`'
+			extra_info += '\n`bot owner`'
 		if user.id in tt.admins: 
-			extra_info += '\n`trashbot admin`'
+			extra_info += '\n`bot admin`'
 		if user.id in tt.blacklist: 
-			extra_info += '\n`trashbot blacklisted`'
-		e_user = discord.Embed(title=f"{user} {'('+{user.nick}+')' if user.nick != None and user in ctx.guild.members else ''} {'[BOT]' if user.bot else ''}", description=f"`{user.id}`\n**created**: __<t:{int(user.created_at.timestamp())}:D>__ (<t:{int(user.created_at.timestamp())}:R>)\n{extra_info}", color=user.color)
-		e_user.set_thumbnail(url=user.avatar.url)
+			extra_info += '\n`blacklisted`'
+		e_user = nextcord.Embed(title=f"{user}"+(f" ({user.nick})" if user.nick != None and user in ctx.guild.members else '')+(' [BOT]' if user.bot else ''), description=f"`{user.id}`\n**created**: __<t:{int(user.created_at.timestamp())}:D>__ (<t:{int(user.created_at.timestamp())}:R>)\n{extra_info}", color=user.color)
+		e_user.set_thumbnail(url=user.display_avatar.url)
 		await ctx.send(embed=e_user)
 
 	@commands.command()
-	async def avatar(self, ctx, user:discord.User=None):
+	async def avatar(self, ctx, user:nextcord.User=None):
 		user = ctx.author if not user else user
-		await ctx.send(user.avatar.replace(static_format='png', size=1024).url)
+		await ctx.send(user.display_avatar.replace(static_format='png', size=1024).url)
 
 	@commands.command()
 	@commands.guild_only()
@@ -77,7 +77,7 @@ class utilities(commands.Cog):
 		if guild.premium_subscription_count > 0: 
 			extra_stats += f"**boosts**: {guild.premium_subscription_count} {'('+str(len(guild.premium_subscribers))+' boosters)' if len(guild.premium_subscribers) != guild.premium_subscription_count else ''} (level {guild.premium_tier})\n"
 		channels = (f'{len(guild.text_channels)} text' if len(guild.text_channels) > 0 else '')+(', ' if len(guild.text_channels) > 0 and len(guild.voice_channels) > 0 else '')+(f'{len(guild.voice_channels)} voice' if len(guild.voice_channels) > 0 else '')
-		e_server = discord.Embed(title=f"{guild.name}", description=f"`{guild.id}`\n**owner**: {guild.owner}\n**created**: __<t:{int(guild.created_at.timestamp())}:D>__ (<t:{int(guild.created_at.timestamp())}:R>)\n**members**: {len(guild.members)}\n**channels**: {channels}\n{extra_stats}", color=(f.avgcolor(await guild.icon.read())))
+		e_server = nextcord.Embed(title=f"{guild.name}", description=f"`{guild.id}`\n**owner**: {guild.owner}\n**created**: __<t:{int(guild.created_at.timestamp())}:D>__ (<t:{int(guild.created_at.timestamp())}:R>)\n**members**: {len(guild.members)}\n**channels**: {channels}\n{extra_stats}", color=(f.avgcolor(await guild.icon.read())))
 		e_server.set_thumbnail(url=guild.icon.url)
 		await ctx.send(embed=e_server)
 
@@ -96,7 +96,7 @@ class utilities(commands.Cog):
 	@commands.guild_only()
 	@commands.has_permissions(manage_messages=True)
 	@commands.bot_has_permissions(manage_messages=True)
-	async def clear(self, ctx, limit:int, user:discord.User=None):
+	async def clear(self, ctx, limit:int, user:nextcord.User=None):
 		await ctx.trigger_typing()
 		if limit == 0 or limit > 100: 
 			await ctx.send(tt.w+"invalid amount! (must be between 1-100)")

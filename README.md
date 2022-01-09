@@ -1,5 +1,5 @@
-# trashbot 
+# eli bot 
 
-trashbot is a simple but useful discord bot written in python using the discord.py api wrapper
+formerly trashbot, eli bot is a simple but useful discord bot written in python using the discord.py api wrapper
 
-more info and important links are on [my website](https://elisttm.space/trashbot)
+[more info and important links can be found here](https://elisttm.space/bot)
