@@ -1,5 +1,5 @@
-import nextcord, traceback, config
-from nextcord.ext import commands
+import discord, traceback, asyncio, config
+from discord.ext import commands
 from a import checks
 from a.funcs import f
 from a.stuff import conf
@@ -9,31 +9,35 @@ async def get_prefix(bot, message):
 	data = tt.config.find_one({'_id':message.guild.id},{'prefix':1}) if message.guild != None else None
 	return commands.when_mentioned_or(config.prefix if not data else data.get('prefix', config.prefix))(bot, message)
 
-intents = nextcord.Intents.default()
-intents.members = True
+class bot(commands.Bot):
+	async def setup_hook(self) -> None:
+		for cog in tt.cogs:
+			try: 
+				await bot.load_extension('cogs.'+cog)
+				tt.loaded.append(cog)
+				print(f"    \033[92m[+] loaded '{cog}'\033[0m")
+			except Exception as error:
+				print(f"    \033[91m[x] failed to load '{cog}' \033[1m\n{''.join(traceback.format_exception(type(error), error, error.__traceback__))}\033[0m")
+		if not tt.testing:
+			for command in tt.misc.find_one({'_id':'misc'},{'disabled':1}).get('disabled', []):
+				command = bot.get_command(command)
+				command.enabled = False
+				print(f"    \033[92m[-] disabled {command.qualified_name}\033[0m")
 
-bot = commands.Bot(
+intents = discord.Intents.default()
+intents.members = True
+intents.message_content = True
+
+bot = bot(
 	command_prefix = get_prefix,
 	case_insensitive = True,
 	intents = intents,
-	allowed_mentions = nextcord.AllowedMentions(everyone=False,roles=False),
+	allowed_mentions = discord.AllowedMentions(everyone=False,roles=False),
 )
 ctx = commands.Context
 bot.remove_command('help')
 
 print(f"[{f._t()}] starting ...")
-for cog in tt.cogs:
-	try: 
-		bot.load_extension('cogs.'+cog)
-		tt.loaded.append(cog)
-		print(f"    \033[92m[+] loaded '{cog}'\033[0m")
-	except Exception as error:
-		print(f"    \033[91m[x] failed to load '{cog}' \033[1m\n{''.join(traceback.format_exception(type(error), error, error.__traceback__))}\033[0m")
-if not tt.testing:
-	for command in tt.misc.find_one({'_id':'misc'},{'disabled':1}).get('disabled', []):
-		command = bot.get_command(command)
-		command.enabled = False
-		print(f"    \033[92m[-] disabled {command.qualified_name}\033[0m")
 
 @bot.event
 async def on_connect(): 
@@ -43,7 +47,7 @@ async def on_connect():
 async def on_ready():
 	f.log('ready!')
 
-	await bot.change_presence(status=tt.presence.default[1], activity=nextcord.Activity(type=tt.presence.default[2],name=tt.presence.default[0]))
+	await bot.change_presence(status=tt.presence.default[1], activity=discord.Activity(type=tt.presence.default[2],name=tt.presence.default[0]))
 	tt.e.upvote = bot.get_emoji(tt.e.upvote)
 	tt.e.downvote = bot.get_emoji(tt.e.downvote)
 	if not tt.testing:
@@ -66,5 +70,7 @@ async def on_message(message):
 		pass
 	await bot.process_commands(message)
 
-if __name__ == '__main__':
-	bot.run(config.token)
+async def main():
+	await bot.start(config.token)
+
+asyncio.run(main())

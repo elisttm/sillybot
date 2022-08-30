@@ -26,7 +26,7 @@ class cmds:
 			'urban': ['urban <word>', "provides the urban dictionary entry of a word"],
 			'cat': ['cat <cat>/list', "sends a random cat picture from my collection"]
 		}],
-		'tags': ["commands related to eli bots tag system", {
+		'tags': ["commands related to sillybots tag system", {
 			'tag': ['tag <subcommand>/<tag>', "main command for all tag functions; a tag name in place of a subcommand mimics 'tag view'", ['t']],
 			'tag view': ['tag view <tag>', "sends the contents of a tag"],
 			'tag create': ['tag create <tag> <content>', "creates a tag with the provided contents", ['c']],
@@ -37,7 +37,7 @@ class cmds:
 			'tag list': ['tag list <#user>', "sends the list of tags owned by a user"],
 			'tag random': ['tag random', "sends the contents of a randomly selected tag"],
 		}],
-		'customization': ["per server customization for eli bot", {
+		'customization': ["per server customization for sillybot", {
 			'settings': ['settings <setting> <action> <value(s)>', "command for server config managing, leaving params blank displays the current servers config; documentation can be found [a:/docs/settings:here]", ['s'], "server admins only"],
 		}],
 	}

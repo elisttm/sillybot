@@ -1,5 +1,5 @@
-import nextcord, time, datetime, emoji, dateutil.relativedelta
-from nextcord.ext import commands
+import discord, time, datetime, dateutil.relativedelta
+from discord.ext import commands
 from a import checks
 from a.funcs import f
 import a.constants as tt
@@ -17,7 +17,7 @@ class utilities(commands.Cog):
 	@commands.command()
 	async def invite(self, ctx):
 		invite = f'https://discordapp.com/oauth2/authorize?client_id={ctx.bot.user.id}&scope=bot&permissions='
-		await ctx.send(embed=nextcord.Embed(title=f"invite eli bot", description=f"[invite with admin permissions]({invite+'8'})\n[invite with minimal permissions]({invite+'1544416321'})", color=tt.dcolor))
+		await ctx.send(embed=discord.Embed(title=f"invite sillybot", description=f"[invite with admin permissions]({invite+'8'})\n[invite with minimal permissions]({invite+'1544416321'})", color=tt.dcolor))
 
 	@commands.command()
 	async def error(self, ctx):
@@ -25,13 +25,13 @@ class utilities(commands.Cog):
 
 	@commands.command()
 	async def about(self, ctx):
-		await ctx.trigger_typing()
+		await ctx.channel.typing()
 		appinfo = await self.bot.application_info()
 		diff = dateutil.relativedelta.relativedelta(datetime.datetime.utcnow(), tt.start_time) 
-		e_about = nextcord.Embed(title=appinfo.name, description=appinfo.description, color=tt.dcolor)
+		e_about = discord.Embed(title=appinfo.name, description=appinfo.description, color=tt.dcolor)
 		e_about.add_field(name="stats", value=f"`{len(list(self.bot.guilds))}` servers, `{len(self.bot.users)}` users", inline=False)
 		e_about.add_field(name=f"uptime", value=(', ').join([f"{x}" for x in [f'{diff.years}yr',f'{diff.months}mo',f'{diff.days}d',f'{diff.hours}hr',f'{diff.minutes}m',f'{diff.seconds}s'] if x[0] != '0']), inline=False)
-		e_about.add_field(name=f"wrapper version", value=nextcord.__version__, inline=False)
+		e_about.add_field(name=f"wrapper version", value=discord.__version__, inline=False)
 		e_about.set_thumbnail(url=self.bot.user.avatar.url)
 		await ctx.send(embed=e_about)
 
@@ -44,8 +44,8 @@ class utilities(commands.Cog):
 
 	@commands.command()
 	@commands.guild_only()
-	async def user(self, ctx, user:nextcord.User=None):
-		await ctx.trigger_typing()
+	async def user(self, ctx, user:discord.User=None):
+		await ctx.channel.typing()
 		user = ctx.author if not user else user
 		extra_info = ''
 		if user in ctx.guild.members:
@@ -57,19 +57,19 @@ class utilities(commands.Cog):
 			extra_info += '\n`bot admin`'
 		if user.id in tt.blacklist: 
 			extra_info += '\n`blacklisted`'
-		e_user = nextcord.Embed(title=f"{user}"+(f" ({user.nick})" if user.nick != None and user in ctx.guild.members else '')+(' [BOT]' if user.bot else ''), description=f"`{user.id}`\n**created**: __<t:{int(user.created_at.timestamp())}:D>__ (<t:{int(user.created_at.timestamp())}:R>)\n{extra_info}", color=user.color)
+		e_user = discord.Embed(title=f"{user}"+(f" ({user.nick})" if user in ctx.guild.members and user.nick != None else '')+(' [BOT]' if user.bot else ''), description=f"`{user.id}`\n**created**: __<t:{int(user.created_at.timestamp())}:D>__ (<t:{int(user.created_at.timestamp())}:R>)\n{extra_info}", color=user.color)
 		e_user.set_thumbnail(url=user.display_avatar.url)
 		await ctx.send(embed=e_user)
 
 	@commands.command()
-	async def avatar(self, ctx, user:nextcord.User=None):
+	async def avatar(self, ctx, user:discord.User=None):
 		user = ctx.author if not user else user
 		await ctx.send(user.display_avatar.replace(static_format='png', size=1024).url)
 
 	@commands.command()
 	@commands.guild_only()
 	async def server(self, ctx):
-		await ctx.trigger_typing()
+		await ctx.channel.typing()
 		guild = ctx.guild
 		extra_stats = ''
 		if len(guild.emojis) > 0: 
@@ -77,27 +77,16 @@ class utilities(commands.Cog):
 		if guild.premium_subscription_count > 0: 
 			extra_stats += f"**boosts**: {guild.premium_subscription_count} {'('+str(len(guild.premium_subscribers))+' boosters)' if len(guild.premium_subscribers) != guild.premium_subscription_count else ''} (level {guild.premium_tier})\n"
 		channels = (f'{len(guild.text_channels)} text' if len(guild.text_channels) > 0 else '')+(', ' if len(guild.text_channels) > 0 and len(guild.voice_channels) > 0 else '')+(f'{len(guild.voice_channels)} voice' if len(guild.voice_channels) > 0 else '')
-		e_server = nextcord.Embed(title=f"{guild.name}", description=f"`{guild.id}`\n**owner**: {guild.owner}\n**created**: __<t:{int(guild.created_at.timestamp())}:D>__ (<t:{int(guild.created_at.timestamp())}:R>)\n**members**: {len(guild.members)}\n**channels**: {channels}\n{extra_stats}", color=(f.avgcolor(await guild.icon.read())))
+		e_server = discord.Embed(title=f"{guild.name}", description=f"`{guild.id}`\n**owner**: {guild.owner}\n**created**: __<t:{int(guild.created_at.timestamp())}:D>__ (<t:{int(guild.created_at.timestamp())}:R>)\n**members**: {len(guild.members)}\n**channels**: {channels}\n{extra_stats}", color=(f.avgcolor(await guild.icon.read())))
 		e_server.set_thumbnail(url=guild.icon.url)
 		await ctx.send(embed=e_server)
-
-	@commands.command(aliases=['e','emoji'])
-	async def emote(self, ctx, pemoji):
-		await ctx.trigger_typing()
-		if pemoji in emoji.UNICODE_EMOJI['en']:
-			await ctx.send(f"https://twemoji.maxcdn.com/v/latest/72x72/{'-'.join([f'{ord(e):x}' for e in pemoji])}.png")
-		else:
-			try:
-				await ctx.send((await commands.PartialEmojiConverter().convert(ctx, pemoji)).url)
-			except:
-				await ctx.send(tt.w+"i could not retrieve an upscale of the provided emoji!")
 
 	@commands.command(aliases=['purge'])
 	@commands.guild_only()
 	@commands.has_permissions(manage_messages=True)
 	@commands.bot_has_permissions(manage_messages=True)
-	async def clear(self, ctx, limit:int, user:nextcord.User=None):
-		await ctx.trigger_typing()
+	async def clear(self, ctx, limit:int, user:discord.User=None):
+		await ctx.channel.typing()
 		if limit == 0 or limit > 100: 
 			await ctx.send(tt.w+"invalid amount! (must be between 1-100)")
 			return
@@ -114,7 +103,7 @@ class utilities(commands.Cog):
 	@commands.guild_only()
 	@commands.cooldown(1, 300, commands.BucketType.user)
 	async def report(self, ctx, *, report:str):
-		await ctx.trigger_typing()
+		await ctx.channel.typing()
 		if len(report) > 1000:
 			ctx.command.reset_cooldown()
 			await ctx.send(tt.w+"your report is too long! (max 1000 characters)")
@@ -129,7 +118,7 @@ class utilities(commands.Cog):
 	@checks.is_guild_admin()
 	@commands.bot_has_permissions(manage_nicknames=True)
 	async def massnick(self, ctx, *, param:str):
-		await ctx.trigger_typing()
+		await ctx.channel.typing()
 		stupid = {'change':['changing','changed'],'clear':['clearing','cleared'],'undo':['reverting','reverted']}
 		try:
 			if len(param) > 32:
@@ -187,5 +176,5 @@ class utilities(commands.Cog):
 				self.mn_in_progress.remove(ctx.guild.id)
 			raise(error)
 
-def setup(bot):
-	bot.add_cog(utilities(bot))
+async def setup(bot):
+	await bot.add_cog(utilities(bot))

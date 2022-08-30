@@ -1,5 +1,5 @@
-import nextcord
-from nextcord.ext import commands
+import discord
+from discord.ext import commands
 import a.constants as tt
 
 class GuildCommandDisabled(commands.CommandError): pass
@@ -17,7 +17,7 @@ def bot_admin(ctx):
 	return ctx.author.id in tt.admins
 		
 def dm_channel(ctx):
-	return isinstance(ctx.channel, nextcord.channel.DMChannel)
+	return isinstance(ctx.channel, discord.channel.DMChannel)
 
 def guild_owner(ctx):
 	return ctx.guild.owner == ctx.author

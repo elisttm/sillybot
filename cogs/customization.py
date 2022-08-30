@@ -1,5 +1,5 @@
-import nextcord, emoji
-from nextcord.ext import commands
+import discord, emoji
+from discord.ext import commands
 from a import checks
 from a.funcs import f
 from a.stuff import conf
@@ -14,10 +14,10 @@ class customization(commands.Cog):
 	@checks.is_guild_admin()
 	@commands.cooldown(1, 1, commands.BucketType.guild)
 	async def settings(self, ctx, key=None, action=None, *, value=None):
-		await ctx.trigger_typing()
+		await ctx.channel.typing()
 		if not key:
-			e_settings = nextcord.Embed(title=f"", description=f"this is a list of eli bots configuration for this specific server\n[command documentation]({tt.settings_doc})\n[customize via dashboard]({tt.site}config/{ctx.guild.id})", color=tt.dcolor)
-			e_settings.set_author(name=f"eli bot settings", icon_url=tt.icon.info)
+			e_settings = discord.Embed(title=f"", description=f"this is a list of sillybots configuration for this specific server\n[command documentation]({tt.settings_doc})\n[customize via dashboard]({tt.site}config/{ctx.guild.id})", color=tt.dcolor)
+			e_settings.set_author(name=f"sillybot settings", icon_url=tt.icon.info)
 			perm_errors = []
 			data = tt.config.find_one({'_id':ctx.guild.id},{'_id':0})
 			if not data:
@@ -136,5 +136,5 @@ class customization(commands.Cog):
 						f._list(tt.config, ctx.guild.id, key, value_list, 'remove')
 					await ctx.send(tt.y+f"removed {f.split_list(value_list,'and','`')} from the {conf.keys[key]['name']}")
 
-def setup(bot):
-	bot.add_cog(customization(bot))
+async def setup(bot):
+	await bot.add_cog(customization(bot))

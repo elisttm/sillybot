@@ -1,8 +1,8 @@
 # the code for this module sucks right now ill fix it later
 
-import nextcord, asyncio, youtube_dl
+import discord, asyncio, youtube_dl
 from functools import partial
-from nextcord.ext import commands
+from discord.ext import commands
 from a.funcs import f
 import a.constants as tt
 
@@ -22,7 +22,7 @@ ytdl = youtube_dl.YoutubeDL({
 	'source_address': '0.0.0.0'
 })
 
-class YTDLSource(nextcord.PCMVolumeTransformer):
+class YTDLSource(discord.PCMVolumeTransformer):
 	def __init__(self, source, *, data, volume=0.25):
 		super().__init__(source, volume)
 		self.data = data
@@ -36,7 +36,7 @@ class YTDLSource(nextcord.PCMVolumeTransformer):
 		print(data)
 		if 'entries' in data:
 			data = data['entries'][0]
-		return cls(nextcord.FFmpegPCMAudio(data['url'], **{'options': '-vn'}), data=data)
+		return cls(discord.FFmpegPCMAudio(data['url'], **{'options': '-vn'}), data=data)
 
 class voice(commands.Cog):
 	def __init__(self, bot):
@@ -54,7 +54,7 @@ class voice(commands.Cog):
 
 	#@commands.command()
 	#async def local(self, ctx, *, query):
-	#	source = nextcord.PCMVolumeTransformer(nextcord.FFmpegPCMAudio(query))
+	#	source = discord.PCMVolumeTransformer(discord.FFmpegPCMAudio(query))
 	#	ctx.voice_client.play(source, after=lambda e: print(f'Player error: {e}') if e else None)
 	#	await ctx.send(f'Now playing: {query}')
 
@@ -68,7 +68,6 @@ class voice(commands.Cog):
 	@commands.command()
 	async def play(self, ctx, *, query):
 		async with ctx.typing():
-
 			player = await YTDLSource.from_url(query, loop=self.bot.loop)
 			ctx.voice_client.play(player, after=lambda e: print(f'Player error: {e}') if e else None)
 			ctx.voice_client.play()
@@ -117,5 +116,5 @@ class voice(commands.Cog):
 		else:
 			await ctx.send(tt.w+"you are not connected to a voice channel!")
 			
-def setup(bot):
-	bot.add_cog(voice(bot))
+async def setup(bot):
+	await bot.add_cog(voice(bot))

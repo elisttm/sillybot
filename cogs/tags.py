@@ -1,5 +1,5 @@
-import nextcord, re, datetime
-from nextcord.ext import commands
+import discord, re, datetime
+from discord.ext import commands
 from a import checks
 from a.funcs import f
 import a.constants as tt
@@ -49,7 +49,7 @@ class tags(commands.Cog):
 
 	@tag.before_invoke
 	async def tag_before_invoke(self, ctx):
-		await ctx.trigger_typing()
+		await ctx.channel.typing()
 
 	@tag.command(name='view')
 	async def tag_view(self, ctx, tag:tname):
@@ -95,7 +95,7 @@ class tags(commands.Cog):
 		f.log(f"{ctx.author} deleted '{tag}'", '[TAGS]')
 
 	@tag.command(name='transfer')
-	async def tag_transfer(self, ctx, tag:tname, user:nextcord.Member):
+	async def tag_transfer(self, ctx, tag:tname, user:discord.Member):
 		tagdata = self.db.find_one({'_id':tag},{'owner':1})
 		if not await self.tag_check(tag, tagdata, ctx):
 			return
@@ -128,7 +128,7 @@ class tags(commands.Cog):
 
 	@tag.command(name='forcetransfer')
 	@checks.is_bot_admin()
-	async def tag_force_transfer(self, ctx, tag:tname, user:nextcord.Member):
+	async def tag_force_transfer(self, ctx, tag:tname, user:discord.Member):
 		tagdata = self.db.find_one({'_id':tag},{'owner':1})
 		if not await self.tag_check(tag, tagdata, ctx):
 			return
@@ -150,7 +150,7 @@ class tags(commands.Cog):
 		await ctx.send(f"**`tag: {random_tag['_id']}`**\n{random_tag['content']}")
 
 	@tag.command(name='list')
-	async def tag_list(self, ctx, user:nextcord.Member=None):
+	async def tag_list(self, ctx, user:discord.Member=None):
 		user = ctx.author if not user else user
 		user_tags = list(self.db.find({'owner':user.id},{'_id':1}))
 		if not user_tags:
@@ -158,5 +158,5 @@ class tags(commands.Cog):
 			return
 		await ctx.send(tt.i+f"**{user}** owns **{len(user_tags)}** tags:\n{tt.site}/tags/{user.id}")
 
-def setup(bot):
-	bot.add_cog(tags(bot))
+async def setup(bot):
+	await bot.add_cog(tags(bot))

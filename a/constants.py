@@ -1,5 +1,5 @@
 import config as c
-import nextcord, pymongo, pytz, emoji, datetime
+import discord, pymongo, pytz, emoji, datetime
 
 testing = c.testing
 
@@ -40,8 +40,8 @@ class channels:
 	log = 686638005083308126
 
 class presence:
-	activity = {'playing':nextcord.ActivityType.playing, 'listening':nextcord.ActivityType.listening}
-	status = {'online':nextcord.Status.online, 'idle':nextcord.Status.idle, 'dnd':nextcord.Status.dnd, 'invisible':nextcord.Status.invisible,}
+	activity = {'playing':discord.ActivityType.playing, 'listening':discord.ActivityType.listening}
+	status = {'online':discord.Status.online, 'idle':discord.Status.idle, 'dnd':discord.Status.dnd, 'invisible':discord.Status.invisible,}
 	default = [c.prefix+'help', status['online'], activity['listening']] if not testing else ['maintinence mode; expect bugs delays and frequent downtime!', status['dnd'], activity['playing']]
 
 class icon:

@@ -1,4 +1,0 @@
-py-cord
-pymongo
-emoji
-pytz

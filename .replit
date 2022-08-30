@@ -1,6 +1,6 @@
 language = "python3"
 run = """
-#python3 -m pip install -U nextcord
+#python -m pip install git+https://github.com/Rapptz/discord.py.git
 python -m pip install 'pymongo[srv]'
 python main.py
 """

@@ -1,4 +1,4 @@
-from nextcord.ext import commands, tasks
+from discord.ext import commands, tasks
 from a.funcs import f
 import a.constants as tt
 
@@ -96,5 +96,5 @@ class events(commands.Cog):
 			storageroles = [int(role.id) for role in user.roles if not role.managed and role.name != '@everyone']
 			tt.storage.update_one({'_id':user.guild.id}, {"$set":{f'stickyroles.{user.id}':storageroles}})
 
-def setup(bot):
-	bot.add_cog(events(bot))
+async def setup(bot):
+	await bot.add_cog(events(bot))
