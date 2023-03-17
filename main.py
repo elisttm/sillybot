@@ -42,7 +42,7 @@ print(f"[{f._t()}] starting ...")
 @bot.event
 async def on_connect(): 
 	print(f"[{f._t()}] connected!")
-
+    
 @bot.event
 async def on_ready():
 	f.log('ready!')
@@ -53,7 +53,7 @@ async def on_ready():
 	if not tt.testing:
 		tt.misc.update_one({'_id':'misc'}, {"$set":{"guilds":[guild.id for guild in bot.guilds]}}, upsert=True)
 
-	print(f"\n  ___/-\___    Online\n |---------|   {bot.user.name}#{bot.user.discriminator} ({bot.user.id})\n  | | | | |  _                 _     _           _   \n  | | | | | | |_ _ __ __ _ ___| |__ | |__   ___ | |_ \n  | | | | | | __| '__/ _` / __| '_ \| '_ \ / _ \| __|\n  | | | | | | |_| | | (_| \__ \ | | | |_) | (_) | |_ \n  |_______|  \__|_|  \__,_|___/_| |_|_.__/ \___/ \__|\n")
+	print(f"            {bot.user.name}#{bot.user.discriminator} ({bot.user.id})\n      /\          _  _  _         _\n  )  ( ')    ___ | ||_|| |_  ___ | |_\n (  /  )    | -_|| || || . || . ||  _|\n  \(__)|    |___||_||_||___||___||_|")
 
 @bot.check
 def command_disabled_check(ctx):

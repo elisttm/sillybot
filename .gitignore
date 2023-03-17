@@ -1,8 +1,5 @@
 config.py
 notes
 /temp/
+/cogs/voice.py
 **/__pycache__/
-.breakpoints
-.replit
-poetry.lock
-pyproject.toml
